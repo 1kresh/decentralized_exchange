@@ -14,25 +14,23 @@ export default function Swap() {
     
   }
 
-  const tooglePage = (evt) => {
-    evt.preventDefault();
+  const tooglePage = (event) => {
+    event.preventDefault();
 
-    if (evt.which) { // if e.which, use 2 for middle button
-      if (evt.which === 2) {
+    if (event.which) { // if e.which, use 2 for middle button
+      if (event.which === 2) {
         openWithoutFocus("/liquidity");
       }
-    } else if (evt.button) { // and if e.button, use 4
-      if (navigator.userAgent.indexOf("Chrome") != -1 && evt.button === 1) {
+    } else if (event.button) { // and if e.button, use 4
+      if (navigator.userAgent.indexOf("Chrome") != -1 && event.button === 1) {
         openWithoutFocus("/liquidity");
-      } else if (evt.button === 4) {
+      } else if (event.button === 4) {
         openWithoutFocus("/liquidity");
       }
     } else {
       setTimeout(() => {  window.location.href = "/liquidity"; }, 275);
-      var liqBtn = document.getElementById('liqBtn');
-      liqBtn.classList.toggle(styles.toogle_menu);
-      liqBtn.classList.remove(styles.hover_effect);
-      document.getElementById('swpBtn').classList.toggle(styles.toogle_menu);
+      document.getElementById('menuDiv').classList.toggle(styles.toogle_menu);
+      document.getElementById('liqBtn').classList.remove(styles.hover_effect);
     }
   }
 
@@ -243,26 +241,18 @@ export default function Swap() {
 
     <nav className="navbar navbar-light fixed-top">
         <a className={`navbar-brand ${styles.translate_on_hover}`} href="#" draggable="false">
-        <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-            width="512.000000pt" height="512.000000pt" viewBox="0 0 512.000000 512.000000"
-            preserveAspectRatio="xMidYMid meet" className={`d-inline-block ${styles.icon}`}>
-          
-          <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
-          fill="#000000" stroke="none">
-          <path d="M3235 3760 l-520 -520 323 0 322 0 0 -715 0 -715 400 0 400 0 0 715
-          0 715 322 0 323 0 -520 520 c-286 286 -522 520 -525 520 -3 0 -239 -234 -525
-          -520z" className={styles.arrow_down}/>
-          <path d="M960 3870 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z" className={styles.arrow_up}/>
-          <path d="M960 2595 l0 -715 -322 0 -323 0 523 -522 522 -523 522 523 523 522
-          -323 0 -322 0 0 715 0 715 -400 0 -400 0 0 -715z" className={styles.arrow_up}/>
-          <path d="M3360 1250 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z
-          m640 0 l0 -240 -240 0 -240 0 0 240 0 240 240 0 240 0 0 -240z" className={styles.arrow_down}/>
-          </g>
+          <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="512.000000pt" height="512.000000pt" viewBox="0 0 512.000000 512.000000" preserveAspectRatio="xMidYMid meet" className={`d-inline-block ${styles.icon}`}>
+            <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+              <path d="M3235 3760 l-520 -520 323 0 322 0 0 -715 0 -715 400 0 400 0 0 715 0 715 322 0 323 0 -520 520 c-286 286 -522 520 -525 520 -3 0 -239 -234 -525 -520z" className={styles.arrow_down}/>
+              <path d="M960 3870 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z" className={styles.arrow_up}/>
+              <path d="M960 2595 l0 -715 -322 0 -323 0 523 -522 522 -523 522 523 523 522 -323 0 -322 0 0 715 0 715 -400 0 -400 0 0 -715z" className={styles.arrow_up}/>
+              <path d="M3360 1250 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z m640 0 l0 -240 -240 0 -240 0 0 240 0 240 240 0 240 0 0 -240z" className={styles.arrow_down}/>
+            </g>
           </svg>
         </a>
-        <div className={`btn-group ${styles.menu}`}>
-          <button id="swpBtn" className={`btn ${styles.activated_menu} ${styles.swap_button} ${styles.menu_button} ${styles.swap_toogle}`} onClick={upPage}>Swap</button>
-          <button id="liqBtn" className={`btn ${styles.disactivated_menu} ${styles.liquidity_button} ${styles.menu_button} ${styles.swap_toogle} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</button>
+        <div id="menuDiv" className={`${styles.menu} ${styles.swap_toogle}`}>
+          <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={upPage}>Swap</div>
+          <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
         </div>
         <button id="connectBtn" className={`btn ${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet <i className={`bi bi-wallet2`}></i></button>
       </nav>
@@ -320,10 +310,8 @@ export default function Swap() {
           <div className={styles.change_arrow} onClick={changeTokens}>
             <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="18px" viewBox="0, 0, 400,400">
               <g id="svgg">
-                <path id="path0" className={styles.path0_change_arrow} d="M192.188 1.238 C 188.081 3.005,58.300 132.899,56.086 137.459 C 51.519 146.864,55.761 157.972,65.625 162.437 C 69.117 164.017,70.020 164.028,200.000 164.028 C 329.980 164.028,330.883 164.017,334.375 162.437 C 344.239 157.972,348.481 146.864,343.914 137.459 C 341.581 132.656,211.867 2.959,207.642 1.206 C 203.968 -0.319,195.767 -0.302,192.188 1.238" stroke="none" fill="#000000" fillRule="evenodd">
-                </path>
-                <path id="path1" className={styles.path1_change_arrow} d="M65.625 237.563 C 55.761 242.028,51.519 253.136,56.086 262.541 C 58.419 267.344,188.133 397.041,192.358 398.794 C 193.955 399.458,197.394 400.000,200.000 400.000 C 202.606 400.000,206.045 399.458,207.642 398.794 C 211.867 397.041,341.581 267.344,343.914 262.541 C 348.481 253.136,344.239 242.028,334.375 237.563 C 328.832 235.054,71.168 235.054,65.625 237.563" stroke="none" fill="#000000" fillRule="evenodd">
-                </path>
+                <path id="path0" className={styles.path0_change_arrow} d="M192.188 1.238 C 188.081 3.005,58.300 132.899,56.086 137.459 C 51.519 146.864,55.761 157.972,65.625 162.437 C 69.117 164.017,70.020 164.028,200.000 164.028 C 329.980 164.028,330.883 164.017,334.375 162.437 C 344.239 157.972,348.481 146.864,343.914 137.459 C 341.581 132.656,211.867 2.959,207.642 1.206 C 203.968 -0.319,195.767 -0.302,192.188 1.238" stroke="none" fill="#000000" fillRule="evenodd"/>
+                <path id="path1" className={styles.path1_change_arrow} d="M65.625 237.563 C 55.761 242.028,51.519 253.136,56.086 262.541 C 58.419 267.344,188.133 397.041,192.358 398.794 C 193.955 399.458,197.394 400.000,200.000 400.000 C 202.606 400.000,206.045 399.458,207.642 398.794 C 211.867 397.041,341.581 267.344,343.914 262.541 C 348.481 253.136,344.239 242.028,334.375 237.563 C 328.832 235.054,71.168 235.054,65.625 237.563" stroke="none" fill="#000000" fillRule="evenodd"/>
               </g>
             </svg>
           </div>

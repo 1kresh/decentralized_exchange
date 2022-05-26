@@ -15,10 +15,12 @@ export default function Swap() {
   var token0 = "ETH";
   var token1 = "other";
   var slip_value = "";
+  var dl_value = "";
 
   var token0_input_mask;
   var token1_input_mask;
   var slip_mask;
+  var dl_mask;
   var slip_may_fail = false;
   var slip_may_frontrun = false;
   var slip_auto_btn_on = true;
@@ -75,10 +77,20 @@ export default function Swap() {
       min: 0.0,
       max: 50.0
     }
+    const params_dl_input = {
+      mask: Number,
+      scale: 0, 
+      signed: false,
+      radix: '.',
+      min: 1,
+      max: 4320
+    }
     token0_input_mask = IMask(token_inputs[0], params_token_input);
     token1_input_mask = IMask(token_inputs[1], params_token_input);
     const slip_input = document.getElementById('slip_input');
     slip_mask = IMask(slip_input, params_slip_input);
+    const dl_input = document.getElementById('dl_input');
+    dl_mask = IMask(dl_input, params_dl_input);
     
     const validateToken0Input = () => {
       console.log(0);
@@ -138,9 +150,14 @@ export default function Swap() {
       }
     }
 
+    const validateDlInput = () => {
+      dl_value = dl_mask.value;
+    }
+
     token0_input_mask.on('accept', validateToken0Input);
     token1_input_mask.on('accept', validateToken1Input);
     slip_mask.on('accept', validateSlipInput)
+    dl_mask.on('accept', validateDlInput)
   }
 
   const initCacheValues = () => {
@@ -149,6 +166,7 @@ export default function Swap() {
 
   const setCacheValues = () => {
     slip_mask.value = slip_value;
+    dl_mask.value = dl_value;
   }
 
   const setFrontrun = (elem) => {
@@ -481,6 +499,23 @@ export default function Swap() {
                 <input id="slip_input" className={`${styles.slip_input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.10" spellCheck="false"></input>
                 %
               </div>
+            </div>
+            <div className={styles.info_row}>
+              <div>
+                Transaction deadline
+              </div>
+              <div className={`${styles.question_icon} ${styles.tooltip}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-question-lg" viewBox="0 0 16 16">
+                  <path fillRule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14Z"/>
+                </svg>
+                <span class={styles.tooltiptext}>Your transaction will revert if it is pending for more than this period of time.</span>
+              </div>
+            </div>
+            <div className={styles.dl_input_div_main}>
+              <div className={styles.dl_input_div}>
+              <input id="dl_input" className={`${styles.dl_input_field} ${styles.no_outline}`} inputMode="numeric" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="30" spellCheck="false"></input>
+              </div>
+              <div class={styles.minutes_div}>minutes</div>
             </div>
           </div>
         </div>

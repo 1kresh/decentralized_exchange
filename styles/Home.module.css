@@ -499,12 +499,12 @@
   border-width: 0.15rem;
   border-radius: 0.5rem;
   border-color: black;
-  background-color: white;
   top: 0;
   padding: 1rem;
   transition: all 0.275s ease;
   background-color: #ededed;
   opacity: 0;
+  font-size: 16px;
 }
 
 .settings_div_activated {
@@ -513,7 +513,6 @@
 }
 
 .settings_title {
-  font-size: 14px;
   font-weight: 600;
 }
 
@@ -569,6 +568,7 @@
   grid-auto-rows: auto;
   row-gap: 12px;
   color: black;
+  font-weight: 500;
 }
 
 .slip_input_div_main {
@@ -664,8 +664,8 @@ height: 85%;
   opacity: 0;
   visibility: hidden;
   width: 17rem;
-  background-color: #828282;
-  color: white;
+  background-color: #c4c4c4;
+  color: black;
   text-align: center;
   border-radius: 1rem;
   padding: 0.6rem 1rem;
@@ -689,7 +689,7 @@ height: 85%;
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #828282 transparent transparent transparent;
+  border-color: #c4c4c4 transparent transparent transparent;
 }
 
 .tooltip:hover .tooltiptext {
@@ -703,4 +703,34 @@ height: 85%;
 
 .tooltip:hover svg{
   fill: #828282;
+}
+
+.dl_input_div_main {
+  display: flex;
+  flex: 1 1 0%;
+  align-items: center;
+  height: 2rem;
+  font-weight: 400;
+  width: 50%;
+  max-width: 175px;
+}
+
+.dl_input_div {
+  padding: 0 5%;
+  background-color: white;
+  border: solid;
+  border-width: 2.4px;
+  border-radius: 0.5rem;
+}
+
+.dl_input_field {
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-align: right;
+}
+
+.minutes_div {
+  padding-left: 8px;
+  font-weight: 400;
 }

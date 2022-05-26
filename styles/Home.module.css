@@ -1,5 +1,6 @@
 .container {
-  padding: 0 2rem;
+  font-family: "Inter var", sans-serif;
+  font-feature-settings: "ss01", "ss02";
   /*background: #f7f7f7;*/
 }
 
@@ -167,6 +168,11 @@
   box-shadow: none !important;
 }
 
+.no_outline {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .menu_button {
   display: inline-block;
   color: black;
@@ -205,6 +211,16 @@
 }
 
 .unselectable {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+.unselectable::placeholder {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none;   /* Chrome/Safari/Opera */
   -khtml-user-select: none;    /* Konqueror */
@@ -345,10 +361,7 @@
   border: none;
   filter: none;
   text-align: left;
-  outline: none;
-  box-shadow: none;
   font-size: 28px;
-  font-family: "Inter var", sans-serif;
   font-weight: 500;
   height: 30px;
   color: #2b2b2b;
@@ -356,14 +369,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
-
-.input_field::placeholder {
-  user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -o-user-select: none;
 }
 
 .swap_tokens_div {
@@ -469,7 +474,6 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  font-family: "Inter var", sans-serif;
   color: #828282;
   transition: color 275ms ease;
 }
@@ -511,7 +515,6 @@
 .settings_title {
   font-size: 14px;
   font-weight: 600;
-  font-family: "Inter var", sans-serif; 
 }
 
 .extra_div {
@@ -563,5 +566,141 @@
 
 .tx_settings_div {
   display: grid;
+  grid-auto-rows: auto;
+  row-gap: 12px;
+  color: black;
+}
 
+.slip_input_div_main {
+  display: flex;
+  flex: 1 1 0%;
+  align-items: center;
+  height: 2rem;
+  font-weight: 600;
+  width: 75%;
+}
+
+.slip_input_field {
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-align: right;
+}
+
+.info_row {
+  display: flex;
+  justify-content: left;
+}
+
+.question_icon {
+  margin-left: 10px;
+  font-size: 14px;
+  transition: all 275ms ease;
+}
+
+.question_icon:hover {
+  color: #828282;
+}
+
+#auto_btn {
+  border: solid;
+  border-width: 2.4px;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  padding: 0 0.75rem;
+  height: 100%;
+  align-items: center;
+  display: flex;
+  transition: all 275ms ease;
+  cursor: pointer;
+  border-color: black;
+  background-color: white;
+}
+
+#auto_btn:hover {
+  color: #828282;
+}
+
+.activated_auto_btn {
+  background-color: black !important;
+  color: white  !important;
+}
+
+.activated_auto_btn:hover {
+  background-color: #828282 !important;
+}
+
+.slip_input_div {
+  display: flex;
+  padding-right: 0.75rem;
+  flex: 1 1 0%;
+  align-items: center;
+  height: 2rem;
+  border: solid;
+  border-left: none;
+  border-width: 2.4px;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  background-color: white;
+  font-weight: 600;
+  width: 75%;
+}
+
+.slip_svg_span {
+display: flex;
+height: 85%;
+}
+
+.slip_svg {
+  margin-left: 5px;
+  height: 100%;
+}
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip .tooltiptext {
+  opacity: 0;
+  visibility: hidden;
+  width: 17rem;
+  background-color: #828282;
+  color: white;
+  text-align: center;
+  border-radius: 1rem;
+  padding: 0.6rem 1rem;
+  word-break: break-word;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -8.5rem;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 275ms ease;
+  float: left;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #828282 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip svg {
+  transition: all 275ms ease;
+}
+
+.tooltip:hover svg{
+  fill: #828282;
 }

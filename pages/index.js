@@ -599,7 +599,7 @@ export default function Swap() {
                               </div>
                           </div>
                           <div className={styles.switch_button} onClick={handleExpCheckboxClick}>
-                              <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox"></input>
+                              <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox" checked={expert}></input>
                               <label className={styles.switch_button_label} for="">
                                   <span className={styles.switch_button_label_span}>Off</span>
                               </label>

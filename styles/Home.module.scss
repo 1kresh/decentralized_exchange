@@ -1,7 +1,7 @@
 .container {
   font-family: "Inter var", sans-serif;
   font-feature-settings: "ss01", "ss02";
-  /*background: #f7f7f7;*/
+  line-height: normal;
 }
 
 .main {
@@ -529,6 +529,10 @@
   left: 4px;
 }
 
+.expert_mode_svg {
+    width: 25px;
+}
+
 .cls_1 {
   font-size: 200px;
   font-family: Inter;
@@ -676,6 +680,7 @@ height: 85%;
   transition: all 275ms ease;
   float: left;
   top: 150%;
+  pointer-events: none;
 }
 
 .tooltip .tooltiptext_down::after {
@@ -722,6 +727,7 @@ height: 85%;
   transition: all 275ms ease;
   float: left;
   bottom: 150%;
+  pointer-events: none;
 }
 
 .tooltip .tooltiptext_up::after {
@@ -803,28 +809,40 @@ height: 85%;
   height: 30%;
 }
 
-.switch-button {
+.exp_mode_div_main {
+  display: flex;
+  height: 40%;
+  justify-content: space-between;
+}
+
+.exp_mode_div {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.switch_button {
   background: white;
   border: solid;
   border-width: 1.8px;
   border-radius: 0.5rem;
   overflow: hidden;
-  width: 240px;
+  width: 30%;
   text-align: center;
-  font-size: 18px;
-  letter-spacing: 1px;
+  font-size: 16px;
   color: black;
+  padding-right: calc(15% - 1.8px);
   position: relative;
-  padding-right: 120px;
-  position: relative;
+  font-weight: 500;
 
   &:before {
-    content: "Video";
+    content: "On";
     position: absolute;
     top: 0;
     bottom: 0;
     right: 0;
-    width: 120px;
+    width: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -832,7 +850,7 @@ height: 85%;
     pointer-events: none;
   }
 
-  &-checkbox {
+  &_checkbox {
     cursor: pointer;
     position: absolute;
     top: 0;
@@ -843,34 +861,137 @@ height: 85%;
     opacity: 0;
     z-index: 2;
 
-    &:checked + .switch-button-label:before {
-      transform: translateX(117px);
+    &:checked + .switch_button_label:before {
+      transform: translateX(100%);
       transition: transform 300ms linear;
     }
 
-    & + .switch-button-label {
+    & + .switch_button_label {
       position: relative;
-      padding: 15px 0;
-      display: block;
+      display: flex;
       user-select: none;
       pointer-events: none;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
 
       &:before {
         content: "";
-        background: #828282;
-        height: calc(100% - 6px);
-        width: 114px;
+        background: #c4c4c4;
+        height: 100%;
+        width: 100%;
         position: absolute;
-        left: 3px;
-        top: 3px;
+        left: 1%;
+        top: 0;
         border-radius: 0.5rem;
         transform: translateX(0);
         transition: transform 300ms;
       }
 
-      .switch-button-label-span {
+      .switch_button_label_span {
         position: relative;
       }
     }
   }
+}
+
+.exp_mode_info_row {
+    height: fit-content;
+}
+
+.modal_outer {
+    display: grid;
+    background: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 275ms;
+    z-index: 9999;
+}
+
+.modal_outer.open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal_inner {
+    max-width: 420px;
+    max-height: 100vh;
+    min-height: 200px;
+    width: 65vh;
+}
+
+.exp_modal_title {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2rem;
+}
+
+.exp_modal_title_text {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.close_modal {
+    height: 20px;
+    cursor: pointer;
+}
+
+.exp_modal_div_grid {
+    display: grid;
+    grid-auto-rows: auto;
+    row-gap: 24px;
+}
+
+.exp_modal_div_main {
+    padding: 2rem 0;
+    border-radius: 1rem;
+    background: white;
+}
+
+.line {
+    height: 1px;
+    width: 100%;
+    background-color: black;
+}
+
+.exp_modal_div {
+    padding: 0px 2rem;
+}
+
+.modal_secondary_text {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.modal_main_text {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.exp_modal_btn {
+    background-color: black;
+    color: white;
+    border: solid;
+    border-width: 2.4px;
+    border-radius: 1rem;
+    border-color: black;
+    padding: 12px;
+    transition: background-color 275ms ease;
+
+    &:hover {
+        background-color: #828282;
+    }
+}
+
+.exp_modal_btn_text {
+    font-size: 20px;
+    font-weight: 500;
 }

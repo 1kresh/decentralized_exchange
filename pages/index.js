@@ -192,13 +192,11 @@ export default function Swap() {
   }
 
   const focusInput = (event) => {
-      console.log(event.target);
       if (!event.target.id.includes('balance_div') &&
           event.target.tagName !== 'input') {
           var elem = event.target;
           while (!elem.id.includes('token_div')) {
               elem = elem.parentNode;
-              console.log(elem);
           }
           if (!isInFamilyTree(event.target, elem.getElementsByClassName(styles.choice_btn)[0])) {
               elem.getElementsByTagName("input")[0].focus();
@@ -277,7 +275,6 @@ export default function Swap() {
   }
 
   const closeSettings = (event) => {
-      console.log(event.target);
       if (!event.target.closest('#' + styles.settings_div) && !isInFamilyTree(event.target, document.getElementById("settings_toogle_btn"))) {
           if (document.getElementById(styles.settings_div).classList.contains(styles.settings_div_activated)) {
               toogleSettings();
@@ -379,7 +376,6 @@ export default function Swap() {
 
   const setExpMode = () => {
       expert = true;
-      console.log(expert);
       toogleExpIcon();
       closeExpModal();
   }

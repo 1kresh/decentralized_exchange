@@ -220,6 +220,9 @@
     border-color: black;
     border-radius: 0.5rem;
     width: 15rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .bg_change_on_hover {
@@ -237,21 +240,27 @@
 }
 
 .rotate_on_hover {
-    & i {
+    & div {
         display: inline-block;
         transition-property: -webkit-transform !important;
         -o-transition-property: transform !important;
         transition-property: transform !important;
         transition-property: transform, -webkit-transform !important;
-        -o-transition-duration: 0.5s !important;
-        transition-duration: 0.5s !important;
+        -o-transition-duration: 275ms !important;
+        transition-duration: 275ms !important;
         -webkit-transition-property: -webkit-transform;
-        -webkit-transition-duration: 0.5s;
+        -webkit-transition-duration: 275ms;
         -ms-transition-property: -ms-transform !important;
-        -ms-transition-duration: 0.5s !important;
+        -ms-transition-duration: 275ms !important;
+        display: flex;
+        margin-left: 4px;
+
+        & svg {
+            height: 19px;
+        }
     }
 
-    &:hover i {
+    &:hover div {
         transform: rotate(20deg) !important;
         -webkit-transform: rotate(20deg) !important;
         -ms-transform: rotate(20deg) !important;

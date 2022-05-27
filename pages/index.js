@@ -431,7 +431,13 @@ export default function Swap() {
               <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
               <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
           </div>
-          <button id="connectBtn" className={`btn ${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet <i className="bi bi-wallet2"></i></button>
+          <button id="connectBtn" className={`btn ${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet 
+              <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
+                      <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>
+                  </svg>
+              </div>
+          </button>
       </nav>
 
       <main className={styles.main}>

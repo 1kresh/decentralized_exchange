@@ -488,17 +488,14 @@
 }
 
 #settings_div {
-  display: grid;
-  grid-auto-rows: auto;
-  row-gap: 12px;
+  display: flex;
+  flex-direction: column;
   position: absolute;
   height: 75%;
   width: 75%;
   right: -75%;
   border: solid;
-  border-width: 0.15rem;
   border-radius: 0.5rem;
-  border-color: black;
   top: 0;
   padding: 1rem;
   transition: all 0.275s ease;
@@ -514,6 +511,10 @@
 
 .settings_title {
   font-weight: 600;
+}
+
+.tx_settings_title {
+  height: 15%;
 }
 
 .extra_div {
@@ -564,11 +565,9 @@
 }
 
 .tx_settings_div {
-  display: grid;
-  grid-auto-rows: auto;
-  row-gap: 12px;
   color: black;
-  font-weight: 500;
+  font-weight: 400;
+  height: 85%;
 }
 
 .slip_input_div_main {
@@ -590,21 +589,19 @@
 .info_row {
   display: flex;
   justify-content: left;
+  height: 40%;
 }
 
 .question_icon {
   margin-left: 10px;
   font-size: 14px;
   transition: all 275ms ease;
-}
-
-.question_icon:hover {
-  color: #828282;
+  height: fit-content;
 }
 
 #auto_btn {
   border: solid;
-  border-width: 2.4px;
+  border-width: 1.8px;
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
   padding: 0 0.75rem;
@@ -638,7 +635,7 @@
   height: 2rem;
   border: solid;
   border-left: none;
-  border-width: 2.4px;
+  border-width: 1.8px;
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
   background-color: white;
@@ -660,7 +657,7 @@ height: 85%;
   position: relative;
 }
 
-.tooltip .tooltiptext {
+.tooltip .tooltiptext_down {
   opacity: 0;
   visibility: hidden;
   width: 17rem;
@@ -671,17 +668,63 @@ height: 85%;
   padding: 0.6rem 1rem;
   word-break: break-word;
   position: absolute;
-  z-index: 1;
-  bottom: 150%;
+  z-index: 9999;
   left: 50%;
   margin-left: -8.5rem;
   font-size: 14px;
   font-weight: 500;
   transition: all 275ms ease;
   float: left;
+  top: 150%;
 }
 
-.tooltip .tooltiptext::after {
+.tooltip .tooltiptext_down::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #c4c4c4 transparent;
+}
+
+.tooltip:hover .tooltiptext_down {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltiptext_down:hover {
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+.tooltiptext_down_tip {
+  top: 125% !important;
+}
+
+.tooltip .tooltiptext_up {
+  opacity: 0;
+  visibility: hidden;
+  width: 17rem;
+  background-color: #c4c4c4;
+  color: black;
+  text-align: center;
+  border-radius: 1rem;
+  padding: 0.6rem 1rem;
+  word-break: break-word;
+  position: absolute;
+  z-index: 9999;
+  left: 50%;
+  margin-left: -8.5rem;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 275ms ease;
+  float: left;
+  bottom: 150%;
+}
+
+.tooltip .tooltiptext_up::after {
   content: "";
   position: absolute;
   top: 100%;
@@ -692,9 +735,18 @@ height: 85%;
   border-color: #c4c4c4 transparent transparent transparent;
 }
 
-.tooltip:hover .tooltiptext {
+.tooltip:hover .tooltiptext_up {
   visibility: visible;
   opacity: 1;
+}
+
+.tooltiptext_up:hover {
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+.tooltiptext_up_tip {
+  bottom: 125% !important;
 }
 
 .tooltip svg {
@@ -702,7 +754,7 @@ height: 85%;
 }
 
 .tooltip:hover svg{
-  fill: #828282;
+  fill: #c4c4c4;
 }
 
 .dl_input_div_main {
@@ -719,7 +771,7 @@ height: 85%;
   padding: 0 5%;
   background-color: white;
   border: solid;
-  border-width: 2.4px;
+  border-width: 1.8px;
   border-radius: 0.5rem;
 }
 
@@ -733,4 +785,92 @@ height: 85%;
 .minutes_div {
   padding-left: 8px;
   font-weight: 400;
+}
+
+.tx_settings_div_main {
+  height: 70%;
+}
+
+.tx_settings_div_micro {
+  height: 45%;
+}
+
+.intrfc_settings_title {
+  height: 35%;
+}
+
+.intrfc_settings_div_main {
+  height: 30%;
+}
+
+.switch-button {
+  background: white;
+  border: solid;
+  border-width: 1.8px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  width: 240px;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 1px;
+  color: black;
+  position: relative;
+  padding-right: 120px;
+  position: relative;
+
+  &:before {
+    content: "Video";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  &-checkbox {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 2;
+
+    &:checked + .switch-button-label:before {
+      transform: translateX(117px);
+      transition: transform 300ms linear;
+    }
+
+    & + .switch-button-label {
+      position: relative;
+      padding: 15px 0;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+
+      &:before {
+        content: "";
+        background: #828282;
+        height: calc(100% - 6px);
+        width: 114px;
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        border-radius: 0.5rem;
+        transform: translateX(0);
+        transition: transform 300ms;
+      }
+
+      .switch-button-label-span {
+        position: relative;
+      }
+    }
+  }
 }

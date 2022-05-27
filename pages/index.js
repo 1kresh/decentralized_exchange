@@ -3,7 +3,7 @@ import styles from '../styles/Home.module.scss'
 import IMask from 'imask'
 import {useEffect} from "react";
 
-import extra_icons from '../public/extra_icons.json'
+import extra_icons from '../public/extra_token_icons.json'
 
 export default function Swap() {
   var rotated = false;

@@ -426,12 +426,12 @@ export default function Swap() {
           <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
           <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
         </div>
-        <button id="connectBtn" className={`btn ${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet <i className={`bi bi-wallet2`}></i></button>
+        <button id="connectBtn" className={`btn ${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet <i className="bi bi-wallet2"></i></button>
       </nav>
 
       <main className={styles.main}>
         <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div className={styles.swap_div_full}>
+        <div className={styles.swap_div_main}>
           <div className={styles.swap_div}>
             <div className={styles.swap_header}>
               <div className={styles.settings_icon}>

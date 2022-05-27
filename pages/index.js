@@ -16,7 +16,7 @@ export default function Swap() {
   var token1 = "other";
   var slip_value = "";
   var dl_value = "";
-  var expert = false;
+  var expert = true;
 
   var token0_input_mask;
   var token1_input_mask;
@@ -169,6 +169,10 @@ export default function Swap() {
   const setCacheValues = () => {
       slip_mask.value = slip_value;
       dl_mask.value = dl_value;
+      if (expert) {
+        document.getElementById("exp_input").checked = expert;
+        setExpMode();
+      }
   }
 
   const setFrontrun = (elem) => {
@@ -214,16 +218,6 @@ export default function Swap() {
           }
       }
   }
-
-  useEffect(() => {
-      window.onload = async () => {
-          await getTokens();
-          inputValidate();
-          initCacheValues();
-          setCacheValues();
-          setToken(1, 'UNI');
-      }
-  }, [])
 
   const toogleSettings = () => {
       var icon = document.getElementById('settings_icon'),
@@ -315,7 +309,6 @@ export default function Swap() {
           var img = document.createElement('img');
 
           if (Object.keys(extra_icons).includes(name)) {
-              console.log('hui');
               img.src = extra_icons[name];
           } else {
               img.src = token_data['logoURI'];
@@ -406,6 +399,18 @@ export default function Swap() {
           expert_mode_div.innerHTML = "";
       }
   }
+
+
+  useEffect(() => {
+      window.onload = async () => {
+          await getTokens();
+          inputValidate();
+          initCacheValues();
+          setCacheValues();
+          setToken(1, 'UNI');
+      }
+  }, [])
+
 
   return (
     <div className={`${styles.container} ${styles.unselectable}`} onClick={closeSettings} onKeyDown={handleKeydown}>
@@ -599,7 +604,7 @@ export default function Swap() {
                               </div>
                           </div>
                           <div className={styles.switch_button} onClick={handleExpCheckboxClick}>
-                              <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox" checked={expert}></input>
+                              <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox"></input>
                               <label className={styles.switch_button_label} for="">
                                   <span className={styles.switch_button_label_span}>Off</span>
                               </label>

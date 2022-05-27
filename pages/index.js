@@ -405,219 +405,220 @@ export default function Swap() {
 
   return (
     <div className={`${styles.container} ${styles.unselectable}`} onClick={closeSettings} onKeyDown={handleKeydown}>
+
       <Head>
-        <title>Simple Swap</title>
-        <meta name="description" content="Exchange for ethereum network" />
-        <link rel="icon" href="/icon.ico" />
+          <title>Simple Swap</title>
+          <meta name="description" content="Exchange for ethereum network" />
+          <link rel="icon" href="/icon.ico" />
       </Head>
 
       <nav className="navbar navbar-light fixed-top">
-        <a className={`navbar-brand ${styles.translate_on_hover}`} href="#" draggable="false">
-          <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="512.000000pt" height="512.000000pt" viewBox="0 0 512.000000 512.000000" preserveAspectRatio="xMidYMid meet" className={`d-inline-block ${styles.icon}`}>
-            <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
-              <path d="M3235 3760 l-520 -520 323 0 322 0 0 -715 0 -715 400 0 400 0 0 715 0 715 322 0 323 0 -520 520 c-286 286 -522 520 -525 520 -3 0 -239 -234 -525 -520z" className={styles.arrow_down}/>
-              <path d="M960 3870 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z" className={styles.arrow_up}/>
-              <path d="M960 2595 l0 -715 -322 0 -323 0 523 -522 522 -523 522 523 523 522 -323 0 -322 0 0 715 0 715 -400 0 -400 0 0 -715z" className={styles.arrow_up}/>
-              <path d="M3360 1250 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z m640 0 l0 -240 -240 0 -240 0 0 240 0 240 240 0 240 0 0 -240z" className={styles.arrow_down}/>
-            </g>
-          </svg>
-        </a>
-        <div id="menuDiv" className={`${styles.menu} ${styles.swap_toogle}`}>
-          <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
-          <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
-        </div>
-        <button id="connectBtn" className={`btn ${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet <i className="bi bi-wallet2"></i></button>
+          <a className={`navbar-brand ${styles.translate_on_hover}`} href="#" draggable="false">
+              <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="512.000000pt" height="512.000000pt" viewBox="0 0 512.000000 512.000000" preserveAspectRatio="xMidYMid meet" className={`d-inline-block ${styles.icon}`}>
+                  <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                      <path d="M3235 3760 l-520 -520 323 0 322 0 0 -715 0 -715 400 0 400 0 0 715 0 715 322 0 323 0 -520 520 c-286 286 -522 520 -525 520 -3 0 -239 -234 -525 -520z" className={styles.arrow_down} />
+                      <path d="M960 3870 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z" className={styles.arrow_up} />
+                      <path d="M960 2595 l0 -715 -322 0 -323 0 523 -522 522 -523 522 523 523 522 -323 0 -322 0 0 715 0 715 -400 0 -400 0 0 -715z" className={styles.arrow_up} />
+                      <path d="M3360 1250 l0 -400 400 0 400 0 0 400 0 400 -400 0 -400 0 0 -400z m640 0 l0 -240 -240 0 -240 0 0 240 0 240 240 0 240 0 0 -240z" className={styles.arrow_down} />
+                  </g>
+              </svg>
+          </a>
+          <div id="menuDiv" className={`${styles.menu} ${styles.swap_toogle}`}>
+              <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
+              <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
+          </div>
+          <button id="connectBtn" className={`btn ${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet <i className="bi bi-wallet2"></i></button>
       </nav>
 
       <main className={styles.main}>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div className={styles.swap_div_main}>
-          <div className={styles.swap_div}>
-            <div className={styles.swap_header}>
-              <div className={styles.settings_icon}>
-                <button id="settings_toogle_btn" className={styles.settings_toogle} onClick={toogleSettings}>
-                  <i id="settings_icon" className="bi bi-gear-fill"></i>
-                  <div id="expert_mode_div" className={styles.expert_mode}>
-                  </div>
-                </button>
-              </div>
-            </div>
-            <div id="token_div0" className={`${styles.token_div} ${styles.token_div_up}`} onClick={focusInput}>
-              <div className={styles.input_div_main}>
-                <div>
-                  <div className={styles.swap_label}>
-                    From
-                  </div>
-                  <div className={styles.input_div}>
-                    <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
-                  </div>
-                </div>
-                <button className={styles.choice_btn} onClick={getTokens}>
-                  <span className={styles.choice_span}>
-                    <div className={styles.choosed_token_div}>
-                      <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_icons['ETH']} draggable="false">
-                      </img>
-                      <div className={styles.choosed_token_name}>
-                        ETH
+          <noscript>You need to enable JavaScript to run this app.</noscript>
+          <div className={styles.swap_div_main}>
+              <div className={styles.swap_div}>
+                  <div className={styles.swap_header}>
+                      <div className={styles.settings_icon}>
+                          <button id="settings_toogle_btn" className={styles.settings_toogle} onClick={toogleSettings}>
+                              <i id="settings_icon" className="bi bi-gear-fill"></i>
+                              <div id="expert_mode_div" className={styles.expert_mode}>
+                              </div>
+                          </button>
                       </div>
-                    </div>
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" className={`bi bi-caret-down-fill ${styles.input_arrow}`} viewBox="0 0 16 16">
-                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                      </svg>
-                    </div>
-                  </span>
-                </button>
-              </div>
-              <div className={styles.balance_div_main}>
-                <div id="balance_div0" className={styles.balance_div} onClick={setMaxAmount}>
-                  Balance: {formatBalance(balances['ETH'])}
-                </div>
-              </div>
-            </div>
-            <div className={styles.change_arrow} onClick={changeTokens}>
-              <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="18px" viewBox="0, 0, 400,400">
-                <g id="svgg">
-                  <path id="path0" className={styles.path0_change_arrow} d="M192.188 1.238 C 188.081 3.005,58.300 132.899,56.086 137.459 C 51.519 146.864,55.761 157.972,65.625 162.437 C 69.117 164.017,70.020 164.028,200.000 164.028 C 329.980 164.028,330.883 164.017,334.375 162.437 C 344.239 157.972,348.481 146.864,343.914 137.459 C 341.581 132.656,211.867 2.959,207.642 1.206 C 203.968 -0.319,195.767 -0.302,192.188 1.238" stroke="none" fill="#000000" fillRule="evenodd"/>
-                  <path id="path1" className={styles.path1_change_arrow} d="M65.625 237.563 C 55.761 242.028,51.519 253.136,56.086 262.541 C 58.419 267.344,188.133 397.041,192.358 398.794 C 193.955 399.458,197.394 400.000,200.000 400.000 C 202.606 400.000,206.045 399.458,207.642 398.794 C 211.867 397.041,341.581 267.344,343.914 262.541 C 348.481 253.136,344.239 242.028,334.375 237.563 C 328.832 235.054,71.168 235.054,65.625 237.563" stroke="none" fill="#000000" fillRule="evenodd"/>
-                </g>
-              </svg>
-            </div>
-            <div id="token_div1" className={`${styles.token_div} ${styles.token_div_down}`} onClick={focusInput}>
-              <div className={styles.input_div_main}>
-                <div>
-                  <div className={styles.swap_label}>
-                    To
                   </div>
-                  <div className={styles.input_div}>
-                    <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
-                  </div>
-                </div>
-                <button className={styles.choice_btn} onClick={getTokens}>
-                  <span className={styles.choice_span}>
-                    <div className={styles.choosed_token_div}>
-                      <div className={styles.choosed_token_name}>
-                        Select a token
+                  <div id="token_div0" className={`${styles.token_div} ${styles.token_div_up}`} onClick={focusInput}>
+                      <div className={styles.input_div_main}>
+                          <div>
+                              <div className={styles.swap_label}>
+                                  From
+                              </div>
+                              <div className={styles.input_div}>
+                                  <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
+                              </div>
+                          </div>
+                          <button className={styles.choice_btn} onClick={getTokens}>
+                              <span className={styles.choice_span}>
+                                  <div className={styles.choosed_token_div}>
+                                      <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_icons['ETH']} draggable="false">
+                                      </img>
+                                      <div className={styles.choosed_token_name}>
+                                          ETH
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" className={`bi bi-caret-down-fill ${styles.input_arrow}`} viewBox="0 0 16 16">
+                                          <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                      </svg>
+                                  </div>
+                              </span>
+                          </button>
                       </div>
-                    </div>
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" className={`bi bi-caret-down-fill ${styles.input_arrow}`} viewBox="0 0 16 16">
-                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                      <div className={styles.balance_div_main}>
+                          <div id="balance_div0" className={styles.balance_div} onClick={setMaxAmount}>
+                              Balance: {formatBalance(balances['ETH'])}
+                          </div>
+                      </div>
+                  </div>
+                  <div className={styles.change_arrow} onClick={changeTokens}>
+                      <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="18px" viewBox="0, 0, 400,400">
+                          <g id="svgg">
+                              <path id="path0" className={styles.path0_change_arrow} d="M192.188 1.238 C 188.081 3.005,58.300 132.899,56.086 137.459 C 51.519 146.864,55.761 157.972,65.625 162.437 C 69.117 164.017,70.020 164.028,200.000 164.028 C 329.980 164.028,330.883 164.017,334.375 162.437 C 344.239 157.972,348.481 146.864,343.914 137.459 C 341.581 132.656,211.867 2.959,207.642 1.206 C 203.968 -0.319,195.767 -0.302,192.188 1.238" stroke="none" fill="#000000" fillRule="evenodd" />
+                              <path id="path1" className={styles.path1_change_arrow} d="M65.625 237.563 C 55.761 242.028,51.519 253.136,56.086 262.541 C 58.419 267.344,188.133 397.041,192.358 398.794 C 193.955 399.458,197.394 400.000,200.000 400.000 C 202.606 400.000,206.045 399.458,207.642 398.794 C 211.867 397.041,341.581 267.344,343.914 262.541 C 348.481 253.136,344.239 242.028,334.375 237.563 C 328.832 235.054,71.168 235.054,65.625 237.563" stroke="none" fill="#000000" fillRule="evenodd" />
+                          </g>
                       </svg>
-                    </div>
-                  </span>
-                </button>
+                  </div>
+                  <div id="token_div1" className={`${styles.token_div} ${styles.token_div_down}`} onClick={focusInput}>
+                      <div className={styles.input_div_main}>
+                          <div>
+                              <div className={styles.swap_label}>
+                                  To
+                              </div>
+                              <div className={styles.input_div}>
+                                  <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
+                              </div>
+                          </div>
+                          <button className={styles.choice_btn} onClick={getTokens}>
+                              <span className={styles.choice_span}>
+                                  <div className={styles.choosed_token_div}>
+                                      <div className={styles.choosed_token_name}>
+                                          Select a token
+                                      </div>
+                                  </div>
+                                  <div>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="currentColor" className={`bi bi-caret-down-fill ${styles.input_arrow}`} viewBox="0 0 16 16">
+                                          <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                      </svg>
+                                  </div>
+                              </span>
+                          </button>
+                      </div>
+                      <div className={styles.balance_div_main}>
+                          <div id="balance_div1" className={styles.balance_div} onClick={setMaxAmount}>
+                              Balance: ???
+                          </div>
+                      </div>
+                  </div>
+                  <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
+                      <button className={styles.swap_tokens_btn}>
+                          Connect wallet
+                      </button>
+                  </div>
               </div>
-              <div className={styles.balance_div_main}>
-                <div id="balance_div1" className={styles.balance_div} onClick={setMaxAmount}>
-                  Balance: ???
-                </div>
+
+              <div id={styles.settings_div}>
+                  <div className={styles.tx_settings_div_main}>
+                      <div className={`${styles.tx_settings_title} ${styles.settings_title}`}>Transaction Settings</div>
+                      <div className={styles.tx_settings_div}>
+                          <div className={styles.tx_settings_div_micro}>
+                              <div className={styles.info_row}>
+                                  <div>
+                                      Slippage tolerance
+                                  </div>
+                                  <div className={`${styles.question_icon} ${styles.tooltip}`}>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e" className="bi bi-question-lg" viewBox="0 0 16 16">
+                                          <path fillRule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14Z" />
+                                      </svg>
+                                      <span className={`${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}`}>Your transaction will revert if the price changes unfavorably by more than this percentage.</span>
+                                  </div>
+                              </div>
+                              <div className={styles.slip_input_div_main}>
+                                  <div id={styles.auto_btn} className={styles.activated_auto_btn} onClick={setAutoSlipValue}>
+                                      Auto
+                                  </div>
+                                  <div className={styles.slip_input_div}>
+                                      <span id="slip_warnings" className={`${styles.slip_svg_span} ${styles.tooltip}`}>
+                                      </span>
+                                      <input id="slip_input" className={`${styles.slip_input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.10" spellCheck="false"></input>
+                                      %
+                                  </div>
+                              </div>
+                          </div>
+                          <div className={styles.tx_settings_div_micro}>
+                              <div className={styles.info_row}>
+                                  <div>
+                                      Transaction deadline
+                                  </div>
+                                  <div className={`${styles.question_icon} ${styles.tooltip}`}>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e" className="bi bi-question-lg" viewBox="0 0 16 16">
+                                          <path fillRule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14Z" />
+                                      </svg>
+                                      <span className={`${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}`}>Your transaction will revert if it is pending for more than this period of time.</span>
+                                  </div>
+                              </div>
+                              <div className={styles.dl_input_div_main}>
+                                  <div className={styles.dl_input_div}>
+                                      <input id="dl_input" className={`${styles.dl_input_field} ${styles.no_outline}`} inputMode="numeric" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="30" spellCheck="false"></input>
+                                  </div>
+                                  <div className={styles.minutes_div}>minutes</div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div className={styles.intrfc_settings_div_main}>
+                      <div className={`${styles.intrfc_settings_title} ${styles.settings_title}`}>Interface Settings</div>
+                      <div className={styles.exp_mode_div_main}>
+                          <div className={styles.exp_mode_div}>
+                              <div className={`${styles.info_row} ${styles.exp_mode_info_row}`}>
+                                  <div>
+                                      Expert Mode
+                                  </div>
+                                  <div className={`${styles.question_icon} ${styles.tooltip}`}>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e" className="bi bi-question-lg" viewBox="0 0 16 16">
+                                          <path fillRule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14Z" />
+                                      </svg>
+                                      <span className={`${styles.tooltiptext_up} ${styles.tooltiptext_up_tip}`}>Allow high price impact trades and skip the confirm screen. Use at your own risk.</span>
+                                  </div>
+                              </div>
+                          </div>
+                          <div className={styles.switch_button} onClick={handleExpCheckboxClick}>
+                              <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox"></input>
+                              <label className={styles.switch_button_label} for="">
+                                  <span className={styles.switch_button_label_span}>Off</span>
+                              </label>
+                          </div>
+                      </div>
+                  </div>
               </div>
-            </div>
-            <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
-              <button className={styles.swap_tokens_btn}>
-                Connect wallet
-              </button>
-            </div>
           </div>
-            
-          <div id={styles.settings_div}>
-            <div className={styles.tx_settings_div_main}>
-              <div className={`${styles.tx_settings_title} ${styles.settings_title}`}>Transaction Settings</div>
-              <div className={styles.tx_settings_div}>
-                <div className={styles.tx_settings_div_micro}>
-                  <div className={styles.info_row}>
-                    <div>
-                      Slippage tolerance
-                    </div>
-                    <div className={`${styles.question_icon} ${styles.tooltip}`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e" className="bi bi-question-lg" viewBox="0 0 16 16">
-                        <path fillRule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14Z"/>
-                      </svg>
-                      <span className={`${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}`}>Your transaction will revert if the price changes unfavorably by more than this percentage.</span>
-                    </div>
+          <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>
+              <div id="exp_modal_inner" className={styles.modal_inner}>
+                  <div className={`${styles.exp_modal_div_main} ${styles.exp_modal_div_grid}`}>
+                      <div className={styles.exp_modal_title}>
+                          <div></div>
+                          <div className={styles.exp_modal_title_text}>Are you sure?</div>
+                          <svg className={styles.close_modal} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onClick={closeExpModal}>
+                              <line x1="18" y1="6" x2="6" y2="18"></line>
+                              <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                      </div>
+                      <div className={styles.line}></div>
+                      <div className={`${styles.exp_modal_div} ${styles.exp_modal_div_grid}`}>
+                          <div className={styles.modal_secondary_text}>Expert mode turns off the confirm transaction prompt and allows high slippage trades that often result in bad rates and lost funds.</div>
+                          <div className={styles.modal_main_text}>ONLY USE THIS MODE IF YOU KNOW WHAT YOU ARE DOING.</div>
+                          <button className={styles.exp_modal_btn} onClick={setExpMode}>
+                              <div className={styles.exp_modal_btn_text} id="confirm-expert-mode">Turn On Expert Mode</div>
+                          </button>
+                      </div>
                   </div>
-                  <div className={styles.slip_input_div_main}>
-                    <div id={styles.auto_btn} className={styles.activated_auto_btn} onClick={setAutoSlipValue}>
-                      Auto
-                    </div>
-                    <div className={styles.slip_input_div}>
-                      <span id="slip_warnings" className={`${styles.slip_svg_span} ${styles.tooltip}`}>
-                      </span>
-                      <input id="slip_input" className={`${styles.slip_input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.10" spellCheck="false"></input>
-                      %
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.tx_settings_div_micro}>
-                  <div className={styles.info_row}>
-                    <div>
-                      Transaction deadline
-                    </div>
-                    <div className={`${styles.question_icon} ${styles.tooltip}`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e" className="bi bi-question-lg" viewBox="0 0 16 16">
-                        <path fillRule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14Z"/>
-                      </svg>
-                      <span className={`${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}`}>Your transaction will revert if it is pending for more than this period of time.</span>
-                    </div>
-                  </div>
-                  <div className={styles.dl_input_div_main}>
-                    <div className={styles.dl_input_div}>
-                    <input id="dl_input" className={`${styles.dl_input_field} ${styles.no_outline}`} inputMode="numeric" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="30" spellCheck="false"></input>
-                    </div>
-                    <div className={styles.minutes_div}>minutes</div>
-                  </div>
-                </div>
               </div>
-            </div>
-            <div className={styles.intrfc_settings_div_main}>
-              <div className={`${styles.intrfc_settings_title} ${styles.settings_title}`}>Interface Settings</div>
-              <div className={styles.exp_mode_div_main}>
-                <div className={styles.exp_mode_div}>
-                  <div className={`${styles.info_row} ${styles.exp_mode_info_row}`}>
-                    <div>
-                      Expert Mode
-                    </div>
-                    <div className={`${styles.question_icon} ${styles.tooltip}`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e" className="bi bi-question-lg" viewBox="0 0 16 16">
-                        <path fillRule="evenodd" d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777ZM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14Z"/>
-                      </svg>
-                      <span className={`${styles.tooltiptext_up} ${styles.tooltiptext_up_tip}`}>Allow high price impact trades and skip the confirm screen. Use at your own risk.</span>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.switch_button} onClick={handleExpCheckboxClick}>
-                  <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox"></input>
-                  <label className={styles.switch_button_label} for="">
-                    <span className={styles.switch_button_label_span}>Off</span>
-                  </label>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-        <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>
-          <div id="exp_modal_inner" className={styles.modal_inner}>
-            <div className={`${styles.exp_modal_div_main} ${styles.exp_modal_div_grid}`}>
-              <div className={styles.exp_modal_title}>
-                <div></div>
-                <div className={styles.exp_modal_title_text}>Are you sure?</div>
-                <svg className={styles.close_modal} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onClick={closeExpModal}>
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </div>
-              <div className={styles.line}></div>
-              <div className={`${styles.exp_modal_div} ${styles.exp_modal_div_grid}`}>
-                <div className={styles.modal_secondary_text}>Expert mode turns off the confirm transaction prompt and allows high slippage trades that often result in bad rates and lost funds.</div>
-                <div className={styles.modal_main_text}>ONLY USE THIS MODE IF YOU KNOW WHAT YOU ARE DOING.</div>
-                <button className={styles.exp_modal_btn} onClick={setExpMode}>
-                  <div className={styles.exp_modal_btn_text} id="confirm-expert-mode">Turn On Expert Mode</div>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   )

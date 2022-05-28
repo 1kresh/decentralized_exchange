@@ -1,0 +1,28 @@
+{
+    "tokens": [
+        {
+            "symbol": "DAI",
+            "chainId": 1
+        },
+        {
+            "symbol": "USDC",
+            "chainId": 1
+        },
+        {
+            "symbol": "USDT",
+            "chainId": 1
+        },
+        {
+            "symbol": "WBTC",
+            "chainId": 1
+        },
+        {
+            "symbol": "WETH",
+            "chainId": 1
+        },
+        {
+            "symbol": "WETH",
+            "chainId": 4
+        }
+    ]
+}

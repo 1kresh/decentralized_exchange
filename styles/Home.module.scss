@@ -91,6 +91,16 @@ $transition-delay: 275ms;
         bottom: 0;
         transform: translate(50%, -50%);
     }
+
+    #choose_modal_inner {
+        width: 65vw !important;
+    }
+}
+
+@media screen and (max-width: 720px) {
+    #choose_modal_inner {
+        width: 85vw !important;
+    }
 }
 
 .swap_button {
@@ -728,7 +738,7 @@ $transition-delay: 275ms;
 }
 
 .question_icon {
-    margin-left: 10px;
+    margin-left: 6px;
     font-size: 14px;
     -webkit-transition: all $transition-delay ease;
     -o-transition: all $transition-delay ease;
@@ -1100,7 +1110,7 @@ $transition-delay: 275ms;
 .modal_outer {
     display: -ms-grid;
     display: grid;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.4);
     position: fixed;
     height: 100vh;
     width: 100vw;
@@ -1129,10 +1139,17 @@ $transition-delay: 275ms;
     max-width: 420px;
     max-height: 100vh;
     min-height: 200px;
-    width: 65vh;
+    width: 65vw;
 }
 
-.exp_modal_title {
+#choose_modal_inner {
+    max-height: 80%;
+    height: 80%;
+    min-height: 80%;
+    width: 50vw;
+}
+
+.modal_title {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -1140,6 +1157,9 @@ $transition-delay: 275ms;
     -ms-flex-pack: justify;
     justify-content: space-between;
     width: 100%;
+}
+
+.exp_modal_title {
     padding: 0 2rem;
 }
 
@@ -1149,27 +1169,36 @@ $transition-delay: 275ms;
 }
 
 .close_modal {
-    height: 20px;
     cursor: pointer;
 }
 
-.exp_modal_div_grid {
-    display: -ms-grid;
-    display: grid;
-    grid-auto-rows: auto;
-    row-gap: 24px;
+.exp_close_modal {
+    height: 20px;
+}
+
+.modal_div_main {
+    border-radius: $border-radius-secondary;
+    background: $white;
 }
 
 .exp_modal_div_main {
     padding: 2rem 0;
-    border-radius: $border-radius-secondary;
-    background: $white;
+}
+
+.modal_div_grid {
+    display: -ms-grid;
+    display: grid;
+    grid-auto-rows: auto;
+}
+
+.exp_modal_div_grid {
+    row-gap: 24px;
 }
 
 .line {
     height: 1px;
     width: 100%;
-    background-color: $black;
+    background-color: $dark-grey;
 }
 
 .exp_modal_div {
@@ -1206,4 +1235,124 @@ $transition-delay: 275ms;
 .exp_modal_btn_text {
     font-size: 20px;
     font-weight: 500;
+}
+
+.choose_modal_div_main {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 16px;
+}
+
+.choose_modal_title_text {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.choose_close_modal {
+    height: 24px;
+}
+
+.choose_modal_div_grid {
+    row-gap: 16px;
+}
+
+.choose_modal_div_upper {
+    display: grid;
+    grid-auto-rows: auto;
+    padding: 20px;
+    grid-auto-rows: min-content;
+}
+
+.token_search_input {
+    width: 100%;
+    border: solid;
+    border-color: $black;
+    border-radius: $border-radius-secondary;
+    border-width: $border-width-secondary;
+    padding: 16px;
+    font-size: 18px;;
+    background-color: $white;
+}
+
+.popular_tokens_div {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -4px;
+    justify-content: center;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.popular_token {
+    display: flex;
+    flex-direction: row;
+    padding: 6px;
+    margin: 4px;
+    border: solid;
+    border-color: $black;
+    border-radius: $border-radius-main;
+    border-width: $border-width-secondary;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color $transition-delay ease;
+    font-weight: 500;
+    font-size: 16px;
+    
+    &:hover {
+        background-color: $grey;
+    }
+}
+
+.choose_modal_div_lower {
+    overflow: auto;
+    flex: 1 1 0%;
+}
+
+.list_token {
+    background-color: white;
+    transition: background-color $transition-delay ease;
+    height: 56px;
+    width: 100%;
+    padding: 4px 20px;
+    display: grid;
+    grid-template-columns: auto minmax(auto, 1fr) auto minmax(0px, 72px);
+    gap: 16px;
+    cursor: pointer;
+    opacity: 1;
+    align-items: center;
+    justify-content: space-between;
+
+    &:hover {
+        background-color: $grey;
+    }
+}
+
+.list_token_icon {
+    margin-right: 0px;
+}
+
+.list_token_locked {
+    opacity: 0.5 !important;
+    cursor: none !important;
+}
+
+.list_token_title {
+    display: flex;
+    flex-direction: column;
+}
+
+.list_token_symbol {
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.list_token_name {
+    font-weight: 300;
+    font-size: 12px;
+    color: $dark-grey;
+}
+
+.list_token_balance {
+    justify-self: flex-end;
 }

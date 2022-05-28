@@ -1,0 +1,6 @@
+{
+    "tokens": {
+        "1": ["DAI", "USDC", "USDT", "WBTC", "WETH"],
+        "4": [ "WETH"]
+    }
+}

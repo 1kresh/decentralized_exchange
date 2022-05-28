@@ -1,22 +1,94 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.scss'
 import IMask from 'imask'
-import {useEffect} from "react";
+import {useEffect, useState, useRef} from "react";
 
-import extra_icons from '../public/extra_token_icons.json'
+import extra_token_icons from '../public/extra_token_icons.json'
+import popular_tokens_all from '../public/popular_tokens_all.json'
 
 export default function Swap() {
+  const flag = useRef(true);
+
+  const [tokenListAll, setTokenListAll] = useState();
+  const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all['tokens']);
+  const [tokenListCur, setTokenListCur] = useState();
+  const [popularTokensCur, setPopularTokensCur] = useState();
+
+  const fetchTokens = () => {
+    fetch("https://tokens.uniswap.org/")
+          .then(res => res.json())
+          .then(data => setTokenListAll(data['tokens']));
+  }
+
+  useEffect(() => {
+    if (flag.current) {
+        flag.current = false;
+        inputsInit();
+        initCacheValues();
+        setCacheValues();
+        return;
+    }
+    fetchTokens();
+  }, []);
+
+  
+  const getTokensCurChainId = () => {
+    var tokenListCur = [{
+        "chainId": '',
+        "address": '',
+        "name": "Ether",
+        "symbol": "ETH",
+        "decimals": 18,
+        "logoURI": extra_token_icons['ETH']
+    }]
+    for (let token of tokenListAll) {
+        if (token['chainId'] === chainId) {
+          tokenListCur.push(token);
+        }
+    }
+    setTokenListCur(tokenListCur);
+}
+
+  useEffect(() => {
+    if (tokenListAll) {
+      getTokensCurChainId();
+    }
+  }, [tokenListAll])
+
+  const getPopularTokensCurChainId = () => {
+    var popularTokensCur = [{
+      'symbol': 'ETH',
+      'logoURI': extra_token_icons['ETH']
+    }];
+    for (let tokenSymbol of popularTokensAll[chainId.toString()]) {
+        let token = getTokenBySymbol(tokenSymbol);
+        popularTokensCur.push({
+          'symbol': token['symbol'],
+          'logoURI': token['symbol'] !== 'UNI' ? token['logoURI'] : extra_token_icons['UNI']
+        });
+    }
+    setPopularTokensCur(popularTokensCur)
+  }
+
+  useEffect(() => {
+    if (tokenListCur) {
+      getPopularTokensCurChainId();
+      setToken(1, 'UNI');
+    }
+  }, [tokenListCur])
+
+
   var rotated = false;
   var balances = {
       'ETH': 0.376304703077471623,
-      'UNI': 235.000000,
-      'other': 522.000000
+      'UNI': 235.000000
   }
   var token0 = "ETH";
-  var token1 = "other";
+  var token1 = "unselected";
   var slip_value = "";
   var dl_value = "";
   var expert = true;
+  var chainId = 4;
 
   var token0_input_mask;
   var token1_input_mask;
@@ -60,7 +132,7 @@ export default function Swap() {
 
   }
 
-  const inputValidate = () => {
+  const inputsInit = () => {
       const token_inputs = document.getElementsByClassName(styles.input_field);
       const params_token_input = {
           mask: Number,
@@ -95,12 +167,12 @@ export default function Swap() {
       dl_mask = IMask(dl_input, params_dl_input);
 
       const validateToken0Input = () => {
-          console.log(0);
+          console.log('00');
           console.log(token0_input_mask.value);
       }
 
       const validateToken1Input = () => {
-          console.log(1);
+          console.log('11');
           console.log(token1_input_mask.value);
       }
 
@@ -204,19 +276,6 @@ export default function Swap() {
       }
   }
 
-  var curTokenList = [];
-  const getTokens = async () => {
-      var res = await fetch("https://tokens.uniswap.org/");
-      const tokenListAll = (await res.json())['tokens'];
-      const chainId = 4;
-
-      for (let token of tokenListAll) {
-          if (token['chainId'] === chainId) {
-              curTokenList.push(token);
-          }
-      }
-  }
-
   const toogleSettings = () => {
       var icon = document.getElementById('settings_icon'),
           deg = rotated ? 0 : -120;
@@ -230,7 +289,7 @@ export default function Swap() {
   }
 
   const getTokenBySymbol = (symbol) => {
-      for (let token of curTokenList) {
+      for (let token of tokenListCur) {
           if (token['symbol'] == symbol) {
               return token;
           }
@@ -257,7 +316,9 @@ export default function Swap() {
       } else {
           cur_token = token1;
       }
-      input.value = cur_token === 'ETH' ? balances['ETH'] - 0.01 : balances[cur_token];
+      if (cur_token != "unselected") {
+        input.value = cur_token === 'ETH' ? balances['ETH'] - 0.01 : balances[cur_token];
+      }
       input.blur = true;
   }
 
@@ -298,15 +359,15 @@ export default function Swap() {
       const balance = token_div.getElementsByClassName(styles.balance_div)[0];
       var div = document.createElement('div');
       div.classList.add(styles.choosed_token_name);
-      if (name === 'other') {
+      if (name === 'unselected') {
           div.innerHTML = "Select a token";
           balance.innerHTML = "Balance: ???";
       } else {
           const token_data = getTokenBySymbol(name);
           var img = document.createElement('img');
 
-          if (Object.keys(extra_icons).includes(name)) {
-              img.src = extra_icons[name];
+          if (Object.keys(extra_token_icons).includes(name)) {
+              img.src = extra_token_icons[name];
           } else {
               img.src = token_data['logoURI'];
           }
@@ -337,7 +398,7 @@ export default function Swap() {
       token1_input_mask.updateValue();
   }
 
-  const setAutoSlipValue = (event) => {
+  const setAutoSlipValue = () => {
       if (!slip_auto_btn_on) {
           slip_input.value = '';
           slip_value = '';
@@ -371,6 +432,7 @@ export default function Swap() {
   const handleKeydown = (event) => {
       if (event.key === 'Escape') {
           closeExpModal();
+          closeChooseModal();
       }
   }
 
@@ -396,17 +458,23 @@ export default function Swap() {
       }
   }
 
+  const chooseToken = (event) => {
+    document.getElementById('choose_modal_outer').classList.add(styles.open);
+  }
 
-  useEffect(() => {
-      window.onload = async () => {
-          await getTokens();
-          inputValidate();
-          initCacheValues();
-          setCacheValues();
-          setToken(1, 'UNI');
-      }
-  }, [])
+  const handleChooseModalClick = (event) => {
+    if (!event.target.closest('#' + styles.choose_modal_inner)) {
+      closeChooseModal();
+    }
+  }
 
+  const closeChooseModal = () => {
+    document.getElementById('choose_modal_outer').classList.remove(styles.open);
+  }
+
+  const handleSearchTokenInput = (event) => {
+
+  }
 
   return (
     <div className={`${styles.container} ${styles.unselectable}`} onClick={closeSettings} onKeyDown={handleKeydown}>
@@ -434,7 +502,7 @@ export default function Swap() {
           </div>
           <button id="connectBtn" className={`${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet 
               <div>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="bi bi-wallet2" viewBox="0 0 16 16">
                       <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>
                   </svg>
               </div>
@@ -465,10 +533,10 @@ export default function Swap() {
                                   <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
                               </div>
                           </div>
-                          <button className={styles.choice_btn} onClick={getTokens}>
+                          <button className={styles.choice_btn} onClick={chooseToken}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
-                                      <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_icons['ETH']} draggable="false">
+                                      <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false">
                                       </img>
                                       <div className={styles.choosed_token_name}>
                                           ETH
@@ -506,7 +574,7 @@ export default function Swap() {
                                   <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
                               </div>
                           </div>
-                          <button className={styles.choice_btn} onClick={getTokens}>
+                          <button className={styles.choice_btn} onClick={chooseToken}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
                                       <div className={styles.choosed_token_name}>
@@ -601,7 +669,7 @@ export default function Swap() {
                           </div>
                           <div className={styles.switch_button} onClick={handleExpCheckboxClick}>
                               <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox"></input>
-                              <label className={styles.switch_button_label} for="">
+                              <label className={styles.switch_button_label} htmlFor="">
                                   <span className={styles.switch_button_label_span}>Off</span>
                               </label>
                           </div>
@@ -611,22 +679,90 @@ export default function Swap() {
           </div>
           <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>
               <div id="exp_modal_inner" className={styles.modal_inner}>
-                  <div className={`${styles.exp_modal_div_main} ${styles.exp_modal_div_grid}`}>
-                      <div className={styles.exp_modal_title}>
+                  <div className={`${styles.modal_div_main} ${styles.exp_modal_div_main} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}`}>
+                      <div className={`${styles.modal_title} ${styles.exp_modal_title}`}>
                           <div></div>
                           <div className={styles.exp_modal_title_text}>Are you sure?</div>
-                          <svg className={styles.close_modal} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onClick={closeExpModal}>
+                          <svg className={`${styles.close_modal} ${styles.exp_close_modal}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" onClick={closeExpModal}>
                               <line x1="18" y1="6" x2="6" y2="18"></line>
                               <line x1="6" y1="6" x2="18" y2="18"></line>
                           </svg>
                       </div>
                       <div className={styles.line}></div>
-                      <div className={`${styles.exp_modal_div} ${styles.exp_modal_div_grid}`}>
+                      <div className={`${styles.exp_modal_div} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}`}>
                           <div className={styles.modal_secondary_text}>Expert mode turns off the confirm transaction prompt and allows high slippage trades that often result in bad rates and lost funds.</div>
                           <div className={styles.modal_main_text}>ONLY USE THIS MODE IF YOU KNOW WHAT YOU ARE DOING.</div>
                           <button className={styles.exp_modal_btn} onClick={setExpMode}>
                               <div className={styles.exp_modal_btn_text} id="confirm-expert-mode">Turn On Expert Mode</div>
                           </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div id="choose_modal_outer" className={styles.modal_outer} onClick={handleChooseModalClick}>
+              <div id={styles.choose_modal_inner} className={styles.modal_inner}>
+                  <div className={`${styles.modal_div_main} ${styles.choose_modal_div_main}`}>
+                      <div className={`${styles.choose_modal_div_upper} ${styles.choose_modal_div_grid}`}>
+                          <div className={styles.modal_title}>
+                            <div></div>
+                            <svg className={`${styles.close_modal} ${styles.choose_close_modal}`}xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" onClick={closeChooseModal}>
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </div>
+                        <input className={`${styles.token_search_input} ${styles.no_outline}`}type="text" placeholder="Search name or paste address" autoComplete="off" onChange={handleSearchTokenInput}/>
+                        <div className={styles.popular_tokens_div}>
+                            <div className={styles.popular_token}>
+                                <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false">
+                                </img>
+                                <div className={styles.choosed_token_name}>
+                                    ETH
+                                </div>
+                            </div>
+                            <div className={styles.popular_token}>
+                                <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false">
+                                </img>
+                                <div className={styles.choosed_token_name}>
+                                    ETH
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                      <div className={styles.line}></div>
+                      <div className={styles.choose_modal_div_lower}>
+                            <div className={styles.list_token}>
+                                <img className={`${styles.token_icon} ${styles.list_token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false"></img>
+                                <div className={styles.list_token_title}>
+                                    <span className={styles.list_token_symbol}>ETH</span>
+                                    <span className={styles.list_token_name}>Ether</span>
+                                </div>
+                                <span></span>
+                                <div className={styles.list_token_balance}>
+                                    {formatBalance(balances['ETH'])}
+                                </div>
+                            </div>
+                            <div className={styles.list_token}>
+                                <img className={`${styles.token_icon} ${styles.list_token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false"></img>
+                                <div className={styles.list_token_title}>
+                                    <span className={styles.list_token_symbol}>ETH</span>
+                                    <span className={styles.list_token_name}>Ether</span>
+                                </div>
+                                <span></span>
+                                <div className={styles.list_token_balance}>
+                                    {formatBalance(balances['ETH'])}
+                                </div>
+                            </div>
+                            <div className={styles.list_token}>
+                                <img className={`${styles.token_icon} ${styles.list_token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false"></img>
+                                <div className={styles.list_token_title}>
+                                    <span className={styles.list_token_symbol}>ETH</span>
+                                    <span className={styles.list_token_name}>Ether</span>
+                                </div>
+                                <span></span>
+                                <div className={styles.list_token_balance}>
+                                    {formatBalance(balances['ETH'])}
+                                </div>
+                            </div>
                       </div>
                   </div>
               </div>

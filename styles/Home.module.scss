@@ -1,3 +1,17 @@
+$black: rgb(0, 0, 0);
+$white: rgb(255, 255, 255);
+$light-grey: #ededed;
+$grey: #c4c4c4;
+$dark-grey: #828282;
+
+$border-width-main: 2.4px;
+$border-width-secondary: 1.8px;
+$border-radius-main: 0.5rem;
+$border-radius-secondary: 1rem;
+
+$transition-delay: 275ms;
+
+
 .container {
     font-family: "Inter var", sans-serif;
     -webkit-font-feature-settings: "ss01", "ss02";
@@ -49,9 +63,9 @@
     width: 100%;
     min-width: 370px;
     line-height: 1.65rem;
-    -webkit-transition: background-position 275ms linear;
-    -o-transition: background-position 275ms linear;
-    transition: background-position 275ms linear;
+    -webkit-transition: background-position $transition-delay linear;
+    -o-transition: background-position $transition-delay linear;
+    transition: background-position $transition-delay linear;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' width='3100px' height='310px' style='shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg%3E%3Cpath style='opacity:1' fill='%23000000' d='M -0.5,-0.5 C 366.167,-0.5 732.833,-0.5 1099.5,-0.5C 1032.83,102.833 966.167,206.167 899.5,309.5C 599.5,309.5 299.5,309.5 -0.5,309.5C -0.5,206.167 -0.5,102.833 -0.5,-0.5 Z'/%3E%3C/g%3E%3Cg%3E%3Cpath style='opacity:1' fill='%23ffffff' d='M 1099.5,-0.5 C 1466.17,-0.5 1832.83,-0.5 2199.5,-0.5C 2133.14,102.851 2066.81,206.184 2000.5,309.5C 1633.5,309.5 1266.5,309.5 899.5,309.5C 966.167,206.167 1032.83,102.833 1099.5,-0.5 Z'/%3E%3C/g%3E%3Cg%3E%3Cpath style='opacity:1' fill='%23000000' d='M 2199.5,-0.5 C 2499.5,-0.5 2799.5,-0.5 3099.5,-0.5C 3099.5,102.833 3099.5,206.167 3099.5,309.5C 2733.17,309.5 2366.83,309.5 2000.5,309.5C 2066.81,206.184 2133.14,102.851 2199.5,-0.5 Z'/%3E%3C/g%3E%3C/svg%3E"),
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' width='3100px' height='310px' style='shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg%3E%3Cpath style='opacity:1' fill='%23ffffff' d='M -0.5,-0.5 C 366.167,-0.5 732.833,-0.5 1099.5,-0.5C 1032.83,102.833 966.167,206.167 899.5,309.5C 599.5,309.5 299.5,309.5 -0.5,309.5C -0.5,206.167 -0.5,102.833 -0.5,-0.5 Z'/%3E%3C/g%3E%3Cg%3E%3Cpath style='opacity:1' fill='%23000000' d='M 1099.5,-0.5 C 1466.17,-0.5 1832.83,-0.5 2199.5,-0.5C 2132.83,102.833 2066.17,206.167 1999.5,309.5C 1632.83,309.5 1266.17,309.5 899.5,309.5C 966.167,206.167 1032.83,102.833 1099.5,-0.5 Z'/%3E%3C/g%3E%3Cg%3E%3Cpath style='opacity:1' fill='%23ffffff' d='M 2199.5,-0.5 C 2499.5,-0.5 2799.5,-0.5 3099.5,-0.5C 3099.5,102.833 3099.5,206.167 3099.5,309.5C 2732.83,309.5 2366.17,309.5 1999.5,309.5C 2066.17,206.167 2132.83,102.833 2199.5,-0.5 Z'/%3E%3C/g%3E%3C/svg%3E%0A");
     background-clip: text, border-box;
@@ -59,9 +73,9 @@
     -webkit-text-fill-color: transparent;
     background-size: 155% 100%;
     border: solid;
-    border-color: black;
-    border-width: 2.4px;
-    border-radius: 0.5rem;
+    border-color: $black;
+    border-width: $border-width-main;
+    border-radius: $border-radius-main;
 }
 
 @media screen and (max-width: 1280px) {
@@ -99,7 +113,7 @@
 
 .menu_button {
     display: inline-block;
-    color: black;
+    color: $black;
     text-align: center;
     text-decoration: none;
     vertical-align: middle;
@@ -119,18 +133,18 @@
 }
 
 .hover_effect {
-    -webkit-transition: all .275s;
+    -webkit-transition: all $transition-delay;
     /*gecko*/
     /*IE10*/
-    -o-transition: all .275s ease;
+    -o-transition: all $transition-delay ease;
     /*opera 11.10+*/
-    -pie-transition: all .275s ease;
+    -pie-transition: all $transition-delay ease;
     /*PIE*/
-    -webkit-transition: all .275s ease;
-    transition: all .275s ease;
+    -webkit-transition: all $transition-delay ease;
+    transition: all $transition-delay ease;
 
     &:hover {
-        -webkit-text-fill-color: #828282;
+        -webkit-text-fill-color: $dark-grey;
     }
 }
 
@@ -236,25 +250,27 @@
     margin-right: 2rem;
     justify-self: flex-end;
     border: solid;
-    border-color: black;
-    border-radius: 0.5rem;
+    border-color: $black;
+    border-radius: $border-radius-main;
     width: 15rem;
     display: flex;
     justify-content: center;
     align-items: center;
+    line-height: 1.5;
+    background-color: $white;
 }
 
 .bg_change_on_hover {
     -webkit-transition-property: background-color, color !important;
     -o-transition-property: background-color, color !important;
     transition-property: background-color, color !important;
-    -webkit-transition-duration: 0.5s !important;
-    -o-transition-duration: 0.5s !important;
-    transition-duration: 0.5s !important;
+    -webkit-transition-duration: $transition-delay !important;
+    -o-transition-duration: $transition-delay !important;
+    transition-duration: $transition-delay !important;
 
     &:hover {
-        background-color: #ededed;
-        color: #121212;
+        background-color: $light-grey;
+        color: invert($light-grey);
     }
 }
 
@@ -265,12 +281,12 @@
         -o-transition-property: transform !important;
         transition-property: transform !important;
         transition-property: transform, -webkit-transform !important;
-        -o-transition-duration: 275ms !important;
-        transition-duration: 275ms !important;
+        -o-transition-duration: $transition-delay !important;
+        transition-duration: $transition-delay !important;
         -webkit-transition-property: -webkit-transform;
-        -webkit-transition-duration: 275ms;
+        -webkit-transition-duration: $transition-delay;
         -ms-transition-property: -ms-transform !important;
-        -ms-transition-duration: 275ms !important;
+        -ms-transition-duration: $transition-delay !important;
         display: flex;
         margin-left: 4px;
 
@@ -294,12 +310,12 @@
         -o-transition-property: transform !important;
         transition-property: transform !important;
         transition-property: transform, -webkit-transform !important;
-        -o-transition-duration: 0.5s !important;
-        transition-duration: 0.5s !important;
+        -o-transition-duration: $transition-delay !important;
+        transition-duration: $transition-delay !important;
         -webkit-transition-property: -webkit-transform;
-        -webkit-transition-duration: 0.5s;
+        -webkit-transition-duration: $transition-delay;
         -ms-transition-property: -ms-transform !important;
-        -ms-transition-duration: 0.5s !important;
+        -ms-transition-duration: $transition-delay !important;
     }
 
     &:hover .arrow_up {
@@ -319,7 +335,7 @@
     position: relative;
     max-width: 480px;
     width: 100%;
-    min-width: 370px;
+    min-width: 410px;
     margin-top: 1rem;
     margin-left: auto;
     margin-right: auto;
@@ -329,9 +345,9 @@
 .swap_div {
     position: relative;
     border: solid;
-    border-radius: 0.5rem;
-    border-width: 0.15rem;
-    border-color: black;
+    border-radius: $border-radius-main;
+    border-width: $border-width-main;
+    border-color: $black;
 }
 
 .swap_header {
@@ -361,16 +377,16 @@
 
     & svg {
         display: inline-block;
-        transition: all 275ms ease;
-        -webkit-transition: all 275ms ease;
-        -o-transition: all 275ms ease;
+        transition: all $transition-delay ease;
+        -webkit-transition: all $transition-delay ease;
+        -o-transition: all $transition-delay ease;
         transition-property: all;
-        transition-duration: 275ms;
+        transition-duration: $transition-delay;
         -webkit-transition-property: all !important;
-        -webkit-transition-duration: 275ms !important;
+        -webkit-transition-duration: $transition-delay !important;
         -ms-transition-property: all !important;
-        -ms-transition-duration: 275ms !important;
-        fill: black;
+        -ms-transition-duration: $transition-delay !important;
+        fill: $black;
         height: 19px;
     }
 }
@@ -385,15 +401,15 @@
     -ms-flex-flow: column nowrap;
     flex-flow: column nowrap;
     border: solid;
-    border-radius: 0.5rem;
-    border-width: 0.15rem;
+    border-radius: $border-radius-main;
+    border-width: $border-width-main;
     margin: 16px;
-    -webkit-transition: border-color 275ms;
-    -o-transition: border-color 275ms;
-    transition: border-color 275ms;
+    -webkit-transition: border-color $transition-delay;
+    -o-transition: border-color $transition-delay;
+    transition: border-color $transition-delay;
 
     &:hover {
-        border-color: #828282;
+        border-color: $dark-grey;
     }
 }
 
@@ -428,28 +444,28 @@
 .swap_tokens_btn {
     width: initial;
     border: solid;
-    border-radius: 0.5rem;
-    border-width: 0.15rem;
+    border-radius: $border-radius-main;
+    border-width: $border-width-main;
     margin: 16px;
-    -webkit-transition: color 275ms,
-        border-color 275ms;
-    -o-transition: color 275ms,
-        border-color 275ms;
-    transition: color 275ms,
-        border-color 275ms;
+    -webkit-transition: color $transition-delay,
+        border-color $transition-delay;
+    -o-transition: color $transition-delay,
+        border-color $transition-delay;
+    transition: color $transition-delay,
+        border-color $transition-delay;
     font-size: 22.4px;
     font-weight: 500;
     padding: 1rem;
-    background-color: #ededed;
+    background-color: $light-grey;
 
     &:hover {
-        border-color: #828282;
-        color: #828282;
+        border-color: $dark-grey;
+        color: $dark-grey;
     }
 }
 
 .swap_label {
-    color: #828282;
+    color: $dark-grey;
     font-weight: 500;
     font-size: 1rem;
     margin-top: -0.5rem;
@@ -467,26 +483,26 @@
 }
 
 .choice_btn {
-    color: black;
-    border-radius: 1rem;
-    border-width: 0.1rem;
+    color: $black;
+    border-radius: $border-radius-secondary;
+    border-width: $border-width-secondary;
     font-size: 18px;
     font-weight: 500;
-    background-color: white;
-    -webkit-transition: background-color 275ms ease;
-    -o-transition: background-color 275ms ease;
-    transition: background-color 275ms ease;
+    background-color: $white;
+    -webkit-transition: background-color $transition-delay ease;
+    -o-transition: background-color $transition-delay ease;
+    transition: background-color $transition-delay ease;
 
     &:hover {
-        background-color: #ededed;
+        background-color: $light-grey;
     }
 
     & path {
-        -webkit-transition: -webkit-transform 275ms ease;
-        transition: -webkit-transform 275ms ease;
-        -o-transition: transform 275ms ease;
-        transition: transform 275ms ease;
-        transition: transform 275ms ease, -webkit-transform 275ms ease;
+        -webkit-transition: -webkit-transform $transition-delay ease;
+        transition: -webkit-transform $transition-delay ease;
+        -o-transition: transform $transition-delay ease;
+        transition: transform $transition-delay ease;
+        transition: transform $transition-delay ease, -webkit-transform $transition-delay ease;
     }
 
     &:hover path {
@@ -562,13 +578,13 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    color: #828282;
-    -webkit-transition: color 275ms ease;
-    -o-transition: color 275ms ease;
-    transition: color 275ms ease;
+    color: $dark-grey;
+    -webkit-transition: color $transition-delay ease;
+    -o-transition: color $transition-delay ease;
+    transition: color $transition-delay ease;
 
     &:hover {
-        color: black;
+        color: $black;
     }
 }
 
@@ -590,13 +606,13 @@
     width: 75%;
     right: -75%;
     border: solid;
-    border-radius: 0.5rem;
+    border-radius: $border-radius-main;
     top: 0;
     padding: 1rem;
-    -webkit-transition: all 0.275s ease;
-    -o-transition: all 0.275s ease;
-    transition: all 0.275s ease;
-    background-color: #ededed;
+    -webkit-transition: all $transition-delay ease;
+    -o-transition: all $transition-delay ease;
+    transition: all $transition-delay ease;
+    background-color: $light-grey;
     opacity: 0;
     font-size: 16px;
 }
@@ -633,9 +649,9 @@
 .change_arrow {
     position: relative;
     left: calc(50% - 10px);
-    border-radius: 0.5rem;
-    border-color: black;
-    border-width: 0.15rem;
+    border-radius: $border-radius-main;
+    border-color: $black;
+    border-width: $border-width-main;
     padding: 4px;
     width: 28px;
     height: 28px;
@@ -653,11 +669,11 @@
     cursor: pointer;
 
     & path {
-        -webkit-transition: -webkit-transform 275ms ease;
-        transition: -webkit-transform 275ms ease;
-        -o-transition: transform 275ms ease;
-        transition: transform 275ms ease;
-        transition: transform 275ms ease, -webkit-transform 275ms ease;
+        -webkit-transition: -webkit-transform $transition-delay ease;
+        transition: -webkit-transform $transition-delay ease;
+        -o-transition: transform $transition-delay ease;
+        transition: transform $transition-delay ease;
+        transition: transform $transition-delay ease, -webkit-transform $transition-delay ease;
     }
 
     &:hover .path0_change_arrow {
@@ -674,7 +690,7 @@
 }
 
 .tx_settings_div {
-    color: black;
+    color: $black;
     font-weight: 400;
     height: 85%;
 }
@@ -714,9 +730,9 @@
 .question_icon {
     margin-left: 10px;
     font-size: 14px;
-    -webkit-transition: all 275ms ease;
-    -o-transition: all 275ms ease;
-    transition: all 275ms ease;
+    -webkit-transition: all $transition-delay ease;
+    -o-transition: all $transition-delay ease;
+    transition: all $transition-delay ease;
     height: -webkit-fit-content;
     height: -moz-fit-content;
     height: fit-content;
@@ -724,9 +740,9 @@
 
 #auto_btn {
     border: solid;
-    border-width: 1.8px;
-    border-top-left-radius: 0.5rem;
-    border-bottom-left-radius: 0.5rem;
+    border-width: $border-width-secondary;
+    border-top-left-radius: $border-radius-main;
+    border-bottom-left-radius: $border-radius-main;
     padding: 0 0.75rem;
     height: 100%;
     -webkit-box-align: center;
@@ -735,24 +751,24 @@
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    -webkit-transition: all 275ms ease;
-    -o-transition: all 275ms ease;
-    transition: all 275ms ease;
+    -webkit-transition: all $transition-delay ease;
+    -o-transition: all $transition-delay ease;
+    transition: all $transition-delay ease;
     cursor: pointer;
-    border-color: black;
-    background-color: white;
+    border-color: $black;
+    background-color: $white;
 
     &:hover {
-        color: #828282;
+        color: $dark-grey;
     }
 }
 
 .activated_auto_btn {
-    background-color: black !important;
-    color: white !important;
+    background-color: $black !important;
+    color: $white !important;
 
     &:hover {
-        background-color: #828282 !important;
+        background-color: $dark-grey !important;
     }
 }
 
@@ -770,10 +786,10 @@
     height: 2rem;
     border: solid;
     border-left: none;
-    border-width: 1.8px;
-    border-top-right-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
-    background-color: white;
+    border-width: $border-width-secondary;
+    border-top-right-radius: $border-radius-main;
+    border-bottom-right-radius: $border-radius-main;
+    background-color: $white;
     font-weight: 600;
     width: 75%;
 }
@@ -797,10 +813,10 @@
         opacity: 0;
         visibility: hidden;
         width: 17rem;
-        background-color: #c4c4c4;
-        color: black;
+        background-color: $grey;
+        color: $black;
         text-align: center;
-        border-radius: 1rem;
+        border-radius: $border-radius-secondary;
         padding: 0.6rem 1rem;
         word-break: break-word;
         position: absolute;
@@ -809,9 +825,9 @@
         margin-left: -8.5rem;
         font-size: 14px;
         font-weight: 500;
-        -webkit-transition: all 275ms ease;
-        -o-transition: all 275ms ease;
-        transition: all 275ms ease;
+        -webkit-transition: all $transition-delay ease;
+        -o-transition: all $transition-delay ease;
+        transition: all $transition-delay ease;
         float: left;
         top: 150%;
         pointer-events: none;
@@ -824,7 +840,7 @@
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: transparent transparent #c4c4c4 transparent;
+            border-color: transparent transparent $grey transparent;
         }
 
         &:hover {
@@ -842,10 +858,10 @@
         opacity: 0;
         visibility: hidden;
         width: 17rem;
-        background-color: #c4c4c4;
-        color: black;
+        background-color: $grey;
+        color: $black;
         text-align: center;
-        border-radius: 1rem;
+        border-radius: $border-radius-secondary;
         padding: 0.6rem 1rem;
         word-break: break-word;
         position: absolute;
@@ -854,9 +870,9 @@
         margin-left: -8.5rem;
         font-size: 14px;
         font-weight: 500;
-        -webkit-transition: all 275ms ease;
-        -o-transition: all 275ms ease;
-        transition: all 275ms ease;
+        -webkit-transition: all $transition-delay ease;
+        -o-transition: all $transition-delay ease;
+        transition: all $transition-delay ease;
         float: left;
         bottom: 150%;
         pointer-events: none;
@@ -869,7 +885,7 @@
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: #c4c4c4 transparent transparent transparent;
+            border-color: $grey transparent transparent transparent;
         }
 
         &:hover {
@@ -884,13 +900,13 @@
     }
 
     & svg {
-        -webkit-transition: all 275ms ease;
-        -o-transition: all 275ms ease;
-        transition: all 275ms ease;
+        -webkit-transition: all $transition-delay ease;
+        -o-transition: all $transition-delay ease;
+        transition: all $transition-delay ease;
     }
 
     &:hover svg {
-        fill: #c4c4c4;
+        fill: $grey;
     }
 }
 
@@ -920,10 +936,10 @@
 
 .dl_input_div {
     padding: 0 5%;
-    background-color: white;
+    background-color: $white;
     border: solid;
-    border-width: 1.8px;
-    border-radius: 0.5rem;
+    border-width: $border-width-secondary;
+    border-radius: $border-radius-main;
 }
 
 .dl_input_field {
@@ -976,16 +992,16 @@
 }
 
 .switch_button {
-    background: white;
+    background: $white;
     border: solid;
-    border-width: 1.8px;
-    border-radius: 0.5rem;
+    border-width: $border-width-secondary;
+    border-radius: $border-radius-main;
     overflow: hidden;
     width: 30%;
     text-align: center;
     font-size: 16px;
-    color: black;
-    padding-right: calc(15% - 1.8px);
+    color: $black;
+    padding-right: calc(15% - $border-width-secondary);
     position: relative;
     font-weight: 500;
 
@@ -1024,11 +1040,11 @@
             -webkit-transform: translateX(100%);
             -ms-transform: translateX(100%);
             transform: translateX(100%);
-            -webkit-transition: -webkit-transform 300ms linear;
-            transition: -webkit-transform 300ms linear;
-            -o-transition: transform 300ms linear;
-            transition: transform 300ms linear;
-            transition: transform 300ms linear, -webkit-transform 300ms linear;
+            -webkit-transition: -webkit-transform $transition-delay linear;
+            transition: -webkit-transform $transition-delay linear;
+            -o-transition: transform $transition-delay linear;
+            transition: transform $transition-delay linear;
+            transition: transform $transition-delay linear, -webkit-transform $transition-delay linear;
         }
 
         &+.switch_button_label {
@@ -1051,13 +1067,13 @@
 
             &:before {
                 content: "";
-                background: #c4c4c4;
+                background: $grey;
                 height: 100%;
                 width: 100%;
                 position: absolute;
                 left: 1%;
                 top: 0;
-                border-radius: 0.5rem;
+                border-radius: $border-radius-main;
                 -webkit-transform: translateX(0);
                 -ms-transform: translateX(0);
                 transform: translateX(0);
@@ -1098,9 +1114,9 @@
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    -webkit-transition: opacity 275ms;
-    -o-transition: opacity 275ms;
-    transition: opacity 275ms;
+    -webkit-transition: opacity $transition-delay;
+    -o-transition: opacity $transition-delay;
+    transition: opacity $transition-delay;
     z-index: 9999;
 
     &.open {
@@ -1146,14 +1162,14 @@
 
 .exp_modal_div_main {
     padding: 2rem 0;
-    border-radius: 1rem;
-    background: white;
+    border-radius: $border-radius-secondary;
+    background: $white;
 }
 
 .line {
     height: 1px;
     width: 100%;
-    background-color: black;
+    background-color: $black;
 }
 
 .exp_modal_div {
@@ -1171,19 +1187,19 @@
 }
 
 .exp_modal_btn {
-    background-color: black;
-    color: white;
+    background-color: $black;
+    color: $white;
     border: solid;
-    border-width: 2.4px;
-    border-radius: 1rem;
-    border-color: black;
+    border-width: $border-width-main;
+    border-radius: $border-radius-secondary;
+    border-color: $black;
     padding: 12px;
-    -webkit-transition: background-color 275ms ease;
-    -o-transition: background-color 275ms ease;
-    transition: background-color 275ms ease;
+    -webkit-transition: background-color $transition-delay ease;
+    -o-transition: background-color $transition-delay ease;
+    transition: background-color $transition-delay ease;
 
     &:hover {
-        background-color: #828282;
+        background-color: $dark-grey;
     }
 }
 

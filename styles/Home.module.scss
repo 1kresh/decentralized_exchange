@@ -328,15 +328,15 @@ $transition-delay: 275ms;
     }
 
     &:hover .arrow_up {
-        transform: translateY(-15rem) !important;
-        -webkit-transform: translateY(-15rem) !important;
-        -ms-transform: translateY(-15rem) !important;
+        transform: translateY(-2.5rem) !important;
+        -webkit-transform: translateY(-2.5rem) !important;
+        -ms-transform: translateY(-2.5rem) !important;
     }
 
     &:hover .arrow_down {
-        transform: translateY(15rem) !important;
-        -webkit-transform: translateY(15rem) !important;
-        -ms-transform: translateY(15rem) !important;
+        transform: translateY(2.5rem) !important;
+        -webkit-transform: translateY(2.5rem) !important;
+        -ms-transform: translateY(2.5rem) !important;
     }
 }
 
@@ -506,7 +506,7 @@ $transition-delay: 275ms;
         background-color: $light-grey;
     }
 
-    & path {
+    & .input_arrow {
         -webkit-transition: -webkit-transform $transition-delay ease;
         transition: -webkit-transform $transition-delay ease;
         -o-transition: transform $transition-delay ease;
@@ -514,7 +514,7 @@ $transition-delay: 275ms;
         transition: transform $transition-delay ease, -webkit-transform $transition-delay ease;
     }
 
-    &:hover path {
+    &:hover .input_arrow {
         -webkit-transform: translateY(5%);
         -ms-transform: translateY(5%);
         transform: translateY(5%);
@@ -545,6 +545,7 @@ $transition-delay: 275ms;
 }
 
 .input_arrow {
+    width: 16px;
     position: relative;
     margin-left: 0.25rem;
     margin-right: 0.35rem;
@@ -679,26 +680,11 @@ $transition-delay: 275ms;
 
     & svg {
         height: 18px;
+        transition: fill $transition-delay ease;
     }
 
-    & path {
-        -webkit-transition: -webkit-transform $transition-delay ease;
-        transition: -webkit-transform $transition-delay ease;
-        -o-transition: transform $transition-delay ease;
-        transition: transform $transition-delay ease;
-        transition: transform $transition-delay ease, -webkit-transform $transition-delay ease;
-    }
-
-    &:hover .path0_change_arrow {
-        -webkit-transform: translateY(-2%);
-        -ms-transform: translateY(-2%);
-        transform: translateY(-2%);
-    }
-
-    &:hover .path1_change_arrow {
-        -webkit-transform: translateY(2%);
-        -ms-transform: translateY(2%);
-        transform: translateY(2%);
+    &:hover svg {
+        fill: $dark-grey;
     }
 }
 

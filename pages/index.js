@@ -20,23 +20,28 @@ export default function Swap() {
   const initFlag = useRef(true);
   const tokenListCurFlag = useRef(true);
   const popularTokensCurFlag = useRef(true);
-  const token0Flag = useRef(true);
-  const token1Flag = useRef(true);
+  const expertFlag = useRef(true);
 
   const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
-  const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all['tokens']);
-  const [tokenListCur, setTokenListCur] = useState();
-  const [popularTokensCur, setPopularTokensCur] = useState();
 
   useEffect(() => {
-    if (initFlag.current) {
-        initFlag.current = false;
-        inputsInitMask();
-        inputsInitHandler();
-        initCacheValues();
-        setCacheValues();
+    if (tokenListAll && tokenListCurFlag.current) {
+        tokenListCurFlag.current = false;
+        getTokensCurChainId();
     }
-  }, []);
+  }, [tokenListAll]);
+
+  const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all['tokens']);
+  const [tokenListCur, setTokenListCur] = useState();
+
+  useEffect(() => {
+    if (tokenListCur && popularTokensAll && popularTokensCurFlag.current) {
+      popularTokensCurFlag.current = false;
+      getPopularTokensCurChainId();
+    }
+  }, [tokenListCur, popularTokensAll])
+
+  const [popularTokensCur, setPopularTokensCur] = useState();
 
   const getTokensCurChainId = () => {
     var tokenListCur = [ETH_TOKEN]
@@ -47,14 +52,6 @@ export default function Swap() {
     }
     setTokenListCur(tokenListCur);
   }
-  
-  useEffect(() => {
-    if (tokenListAll && tokenListCurFlag.current) {
-        tokenListCurFlag.current = false;
-        getTokensCurChainId();
-    }
-  }, [tokenListAll]);
-  
 
   const getPopularTokensCurChainId = () => {
     var popularTokensCur = [ETH_TOKEN];
@@ -64,17 +61,7 @@ export default function Swap() {
     setPopularTokensCur(popularTokensCur)
   }
 
-  useEffect(() => {
-    if (tokenListCur && popularTokensCurFlag.current) {
-      popularTokensCurFlag.current = false;
-      getPopularTokensCurChainId();
-    }
-  }, [tokenListCur])
-
   const [token0InputMask, setToken0InputMask] = useState();
-  const [token1InputMask, setToken1InputMask] = useState();
-  const [chooseModalInput, setChooseModalInput] = useState();
-  const [chooseTokenNum, setChooseTokenNum] = useState();
 
   useEffect(() => {
     if (token0InputMask) {
@@ -82,11 +69,15 @@ export default function Swap() {
     }
   }, [token0InputMask]);
 
+  const [token1InputMask, setToken1InputMask] = useState();
+
   useEffect(() => {
     if (token1InputMask) {
         token1InputInitHandler();
     }
   }, [token1InputMask]);
+
+  const [chooseTokenNum, setChooseTokenNum] = useState();
 
   useEffect(() => {
     if ([0, 1].includes(chooseTokenNum)) {
@@ -94,24 +85,57 @@ export default function Swap() {
     }
   }, [chooseTokenNum]);
 
-  var rotated = false;
-  var balances = {
-      'ETH': 0.376304703077471623,
-      'UNI': 235.000000
-  }
+  const [chooseModalInput, setChooseModalInput] = useState();
+
+  useEffect(() => {
+    if (chooseModalInput == null) {
+        return;
+    }
+    const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 300);
+    return () => clearTimeout(timeOutId);
+  }, [chooseModalInput]);
+
   const [token0, setToken0] = useState(ETH_TOKEN);
   const [token1, setToken1] = useState({"symbol": "uncelected"});
+  const [rotatedSettings, setRotatedSettings] = useState(false);
+  const [chainId, setChainId] = useState(1);
+  const [slipMask, setSlipMask] = useState();
 
-  var slip_value = "";
-  var dl_value = "";
-  var expert = true;
-  var chainId = 1;
+  useEffect(() => {
+    if (slipMask) {
+        slipMaskInitHandler();
+    }
+  }, [slipMask]);
 
-  var slip_mask;
-  var dl_mask;
-  var slip_may_fail = false;
-  var slip_may_frontrun = false;
-  var slip_auto_btn_on = true;
+  const [dlMask, setDlMask] = useState();
+
+  useEffect(() => {
+    if (dlMask) {
+        dlMaskInitHandler();
+    }
+  }, [dlMask]);
+
+  const [expert, setExpert] = useState(true);
+
+  useEffect(() => {
+      if (expertFlag.current) {
+        expertFlag.current = false;
+        return;
+      }
+      toogleExpIcon();
+  }, [expert]);
+
+  useEffect(() => {
+    if (slipMask && dlMask && expert) {
+        setCacheValues();
+    }
+  }, [slipMask, dlMask, expert]);
+
+  
+  var balances = {
+    'ETH': 0.376304703077471623,
+    'UNI': 235.000000
+  }
 
   const openTab = (page) => {
       window.open(page, '_blank');
@@ -176,10 +200,8 @@ export default function Swap() {
       }
       setToken0InputMask(IMask(token_inputs[0], params_token_input));
       setToken1InputMask(IMask(token_inputs[1], params_token_input));
-      const slip_input = document.getElementById('slip_input');
-      slip_mask = IMask(slip_input, params_slip_input);
-      const dl_input = document.getElementById('dl_input');
-      dl_mask = IMask(dl_input, params_dl_input);
+      setSlipMask(IMask(document.getElementById('slip_input'), params_slip_input));
+      setDlMask(IMask(document.getElementById('dl_input'), params_dl_input));
   }
 
   const token0InputInitHandler = () => {
@@ -198,61 +220,42 @@ export default function Swap() {
     token1InputMask.on('accept', token1InputHandler);
   }
 
-  const inputsInitHandler = () => {
-    
-    const slipInputHandler = () => {
-        slip_value = slip_mask.value;
+
+  const slipMaskInitHandler = () => {
+
+    slipMask.on('accept', () => {
         const auto_btn = document.getElementById(styles.auto_btn);
         const slip_warnings = document.getElementById('slip_warnings');
-        if (slip_value === '') {
-            if (!slip_auto_btn_on) {
-                auto_btn.classList.toggle(styles.activated_auto_btn);
-                slip_auto_btn_on = !slip_auto_btn_on;
-            }
+        if (slipMask.value === '') {
+            auto_btn.classList.add(styles.activated_auto_btn);
             slip_warnings.innerHTML = '';
-            slip_may_fail = false;
-            slip_may_frontrun = false;
         } else {
-            if (slip_auto_btn_on) {
-                auto_btn.classList.toggle(styles.activated_auto_btn);
-                slip_auto_btn_on = !slip_auto_btn_on;
-            }
-            const slip_value_float = Number.parseFloat(slip_value);
+            auto_btn.classList.remove(styles.activated_auto_btn);
+            const slip_value_float = Number.parseFloat(slipMask.value);
             if (slip_value_float >= 0.05 && slip_value_float <= 1.0) {
-                slip_may_fail = false;
-                slip_may_frontrun = false;
                 slip_warnings.innerHTML = '';
             } else {
-                if (slip_may_fail) {
-                    if (slip_value_float > 1.0) {
-                        slip_may_fail = !slip_may_fail;
-                        slip_may_frontrun = !slip_may_frontrun;
-                        setFrontrun(slip_warnings);
-                    }
-                } else if (slip_may_frontrun) {
-                    if (slip_value_float < 0.05) {
-                        slip_may_fail = !slip_may_fail;
-                        slip_may_frontrun = !slip_may_frontrun;
-                        setFail(slip_warnings);
-                    }
+                if (slip_value_float > 1.0) {
+                    setFrontrun(slip_warnings);
+                } else if (slip_value_float < 0.05) {
+                    setFail(slip_warnings);
                 } else {
                     if (slip_value_float > 1.0) {
-                        slip_may_frontrun = !slip_may_frontrun;
                         setFrontrun(slip_warnings);
                     } else {
-                        slip_may_fail = !slip_may_fail;
                         setFail(slip_warnings);
                     }
                 }
             }
         }
-    }
+    });
+  }
+
+  const dlMaskInitHandler = () => {
     const dlInputHandler = () => {
-        dl_value = dl_mask.value;
     }
 
-    slip_mask.on('accept', slipInputHandler);
-    dl_mask.on('accept', dlInputHandler);
+    dlMask.on('accept', dlInputHandler);
   }
 
   const initCacheValues = () => {
@@ -260,10 +263,10 @@ export default function Swap() {
   }
 
   const setCacheValues = () => {
-      slip_mask.value = slip_value;
-      dl_mask.value = dl_value;
+      slipMask.value = '';
+      dlMask.value = '';
       if (expert) {
-        document.getElementById("exp_input").checked = expert;
+        document.getElementById("exp_input").checked = true;
         setExpMode();
       }
   }
@@ -299,13 +302,13 @@ export default function Swap() {
 
   const toogleSettings = () => {
       var icon = document.getElementById('settings_icon'),
-          deg = rotated ? 0 : -120;
+          deg = rotatedSettings ? 0 : -120;
       icon.style.webkitTransform = 'rotate(' + deg + 'deg)';
       icon.style.mozTransform = 'rotate(' + deg + 'deg)';
       icon.style.msTransform = 'rotate(' + deg + 'deg)';
       icon.style.oTransform = 'rotate(' + deg + 'deg)';
       icon.style.transform = 'rotate(' + deg + 'deg)';
-      rotated = !rotated;
+      setRotatedSettings(!rotatedSettings);
       document.getElementById(styles.settings_div).classList.toggle(styles.settings_div_activated);
   }
 
@@ -413,11 +416,7 @@ export default function Swap() {
   }
 
   const setAutoSlipValue = () => {
-      if (!slip_auto_btn_on) {
-          slip_input.value = '';
-          slip_value = '';
-          slip_mask.value = '';
-      }
+        slipMask.value = '';
   }
 
   const closeExpModal = () => {
@@ -432,8 +431,7 @@ export default function Swap() {
           document.getElementById('exp_modal_outer').classList.add(styles.open);
           toogleSettings();
       } else {
-          expert = false;
-          toogleExpIcon();
+          setExpert(false);
       }
   }
 
@@ -451,7 +449,7 @@ export default function Swap() {
   }
 
   const setExpMode = () => {
-      expert = true;
+      setExpert(true);
       toogleExpIcon();
       closeExpModal();
   }
@@ -459,7 +457,6 @@ export default function Swap() {
   const toogleExpIcon = () => {
       const expert_mode_div = document.getElementById("expert_mode_div");
       if (expert) {
-
           expert_mode_div.innerHTML = `
         <svg class=${styles.expert_mode_svg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250">
           <defs>
@@ -578,7 +575,6 @@ export default function Swap() {
   }
 
   const handleSearchTokenInput = (chooseModalInput) => {
-      console.log('hurai');
     const tokens_div = document.getElementsByClassName(styles.choose_modal_div_lower)[0];
     tokens_div.innerHTML = '';
     const chooseModalInputToLower = chooseModalInput.toLowerCase()
@@ -601,14 +597,6 @@ export default function Swap() {
     }
   }
 
-  useEffect(() => {
-    if (chooseModalInput == null) {
-        return;
-    }
-    const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 300);
-    return () => clearTimeout(timeOutId);
-  }, [chooseModalInput]);
-
   const createElementFromHTML = (htmlString)  => {
     var div = document.createElement('div');
     div.innerHTML = htmlString.trim();
@@ -627,6 +615,14 @@ export default function Swap() {
       event.srcElement.parentNode.replaceChild(createElementFromHTML(svg), event.srcElement);
 
   }
+
+  useEffect(() => {
+    if (initFlag.current) {
+        initFlag.current = false;
+        inputsInitMask();
+        initCacheValues();
+    }
+  }, []);
 
   return (
     <div className={`${styles.container} ${styles.unselectable}`} onClick={closeSettings} onKeyDown={handleKeydown}>
@@ -709,7 +705,7 @@ export default function Swap() {
                       </div>
                   </div>
                   <div className={styles.change_arrow} onClick={changeTokens}>
-                      <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 400,400">
+                      <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 385,400">
                           <g id="svgg">
                               <path id="path0" className={styles.path0_change_arrow} d="M192.188 1.238 C 188.081 3.005,58.300 132.899,56.086 137.459 C 51.519 146.864,55.761 157.972,65.625 162.437 C 69.117 164.017,70.020 164.028,200.000 164.028 C 329.980 164.028,330.883 164.017,334.375 162.437 C 344.239 157.972,348.481 146.864,343.914 137.459 C 341.581 132.656,211.867 2.959,207.642 1.206 C 203.968 -0.319,195.767 -0.302,192.188 1.238" stroke="none" fill="#000000" fillRule="evenodd" />
                               <path id="path1" className={styles.path1_change_arrow} d="M65.625 237.563 C 55.761 242.028,51.519 253.136,56.086 262.541 C 58.419 267.344,188.133 397.041,192.358 398.794 C 193.955 399.458,197.394 400.000,200.000 400.000 C 202.606 400.000,206.045 399.458,207.642 398.794 C 211.867 397.041,341.581 267.344,343.914 262.541 C 348.481 253.136,344.239 242.028,334.375 237.563 C 328.832 235.054,71.168 235.054,65.625 237.563" stroke="none" fill="#000000" fillRule="evenodd" />

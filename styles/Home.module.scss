@@ -690,15 +690,15 @@ $transition-delay: 275ms;
     }
 
     &:hover .path0_change_arrow {
-        -webkit-transform: translateY(-3%);
-        -ms-transform: translateY(-3%);
-        transform: translateY(-3%);
+        -webkit-transform: translateY(-2%);
+        -ms-transform: translateY(-2%);
+        transform: translateY(-2%);
     }
 
     &:hover .path1_change_arrow {
-        -webkit-transform: translateY(3%);
-        -ms-transform: translateY(3%);
-        transform: translateY(3%);
+        -webkit-transform: translateY(2%);
+        -ms-transform: translateY(2%);
+        transform: translateY(2%);
     }
 }
 

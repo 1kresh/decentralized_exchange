@@ -21,7 +21,6 @@ $transition-delay: 275ms;
 
 .main {
     min-height: 100vh;
-    padding: 4rem 0;
     -webkit-box-flex: 1;
     -ms-flex: 1;
     flex: 1;
@@ -35,7 +34,7 @@ $transition-delay: 275ms;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    padding: 120px 16px 0px;
+    padding: 120px 0px;
 }
 
 .icon {
@@ -678,6 +677,10 @@ $transition-delay: 275ms;
     justify-content: center;
     cursor: pointer;
 
+    & svg {
+        height: 18px;
+    }
+
     & path {
         -webkit-transition: -webkit-transform $transition-delay ease;
         transition: -webkit-transform $transition-delay ease;
@@ -1112,8 +1115,8 @@ $transition-delay: 275ms;
     display: grid;
     background: rgba(0, 0, 0, 0.4);
     position: fixed;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     top: 0;
     left: 0;
     -webkit-box-pack: center;
@@ -1198,7 +1201,8 @@ $transition-delay: 275ms;
 .line {
     height: 1px;
     width: 100%;
-    background-color: $dark-grey;
+    background-color: $black;
+    opacity: 0.75;
 }
 
 .exp_modal_div {
@@ -1259,7 +1263,6 @@ $transition-delay: 275ms;
 
 .choose_modal_div_upper {
     display: grid;
-    grid-auto-rows: auto;
     padding: 20px;
     grid-auto-rows: min-content;
 }
@@ -1290,7 +1293,7 @@ $transition-delay: 275ms;
     padding: 6px;
     margin: 4px;
     border: solid;
-    border-color: $black;
+    border-color: $grey;
     border-radius: $border-radius-main;
     border-width: $border-width-secondary;
     align-items: center;
@@ -1302,11 +1305,50 @@ $transition-delay: 275ms;
     &:hover {
         background-color: $grey;
     }
+
+    &.disabled_fully {
+        pointer-events: none;
+        filter: grayscale(1);
+        opacity: 0.75;
+        background-color: $grey;
+        color: $dark-grey;
+    }
+
+    &.disabled_partially {
+        filter: grayscale(1);
+        opacity: 0.75;
+        background-color: $grey;
+        color: $dark-grey;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
 }
 
 .choose_modal_div_lower {
     overflow: auto;
     flex: 1 1 0%;
+    margin-right: 2px;
+
+    &::-webkit-scrollbar {
+        width: 1rem;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: $dark-grey;
+        border-radius: 2px;
+    }
+
+      /* Up */
+      &::-webkit-scrollbar-button:single-button:vertical:decrement {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23828282' viewBox='0 0 512 512' style='shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality;fill-rule:evenodd;clip-rule:evenodd'%3E%3Cpath style='opacity:1' d='M511.5 365.5v9c-2.205 10.046-8.205 16.879-18 20.5-158.667.667-317.333.667-476 0-9.795-3.621-15.795-10.454-18-20.5v-9a74.513 74.513 0 0 1 5.5-10L239.5 121c10.651-7.275 21.317-7.275 32 0L506 355.5a74.483 74.483 0 0 1 5.5 10z'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+      }
+      /* Down */
+      &::-webkit-scrollbar-button:single-button:vertical:increment {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23828282' viewBox='0 0 512 512' style='shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality;fill-rule:evenodd;clip-rule:evenodd'%3E%3Cpath style='opacity:1' d='M511.5 135.5v9c-1.34 3.817-3.174 7.483-5.5 11L271.5 390c-10.683 7.275-21.349 7.275-32 0L5 155.5c-2.326-3.517-4.16-7.183-5.5-11v-9c2.643-9.481 8.643-15.981 18-19.5 158.667-.667 317.333-.667 476 0 9.357 3.519 15.357 10.019 18 19.5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+    }
 }
 
 .list_token {
@@ -1325,6 +1367,19 @@ $transition-delay: 275ms;
 
     &:hover {
         background-color: $grey;
+    }
+
+    &.disabled_fully {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    &.disabled_partially {
+        opacity: 0.5;
+
+        &:hover {
+            background-color: $grey;
+        }
     }
 }
 
@@ -1355,4 +1410,11 @@ $transition-delay: 275ms;
 
 .list_token_balance {
     justify-self: flex-end;
+}
+
+.list_token_no_result {
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    padding: 20px;
 }

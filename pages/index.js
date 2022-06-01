@@ -3,95 +3,110 @@ import styles from '../styles/Home.module.scss'
 import IMask from 'imask'
 import {useEffect, useState, useRef} from "react";
 
-import extra_token_icons from '../public/extra_token_icons.json'
+import token_list_all from '../public/token_list_all.json'
 import popular_tokens_all from '../public/popular_tokens_all.json'
+import { createMochaInstanceAlreadyDisposedError } from 'mocha/lib/errors';
+
+const ETH_TOKEN = {
+    "chainId": '',
+    "address": '',
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18,
+    "logoURI": "data:image/png;base64,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"
+};
 
 export default function Swap() {
-  const flag = useRef(true);
+  const initFlag = useRef(true);
+  const tokenListCurFlag = useRef(true);
+  const popularTokensCurFlag = useRef(true);
+  const token0Flag = useRef(true);
+  const token1Flag = useRef(true);
 
-  const [tokenListAll, setTokenListAll] = useState();
+  const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
   const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all['tokens']);
   const [tokenListCur, setTokenListCur] = useState();
   const [popularTokensCur, setPopularTokensCur] = useState();
 
-  const fetchTokens = () => {
-    fetch("https://tokens.uniswap.org/")
-          .then(res => res.json())
-          .then(data => setTokenListAll(data['tokens']));
-  }
-
   useEffect(() => {
-    if (flag.current) {
-        flag.current = false;
-        inputsInit();
+    if (initFlag.current) {
+        initFlag.current = false;
+        inputsInitMask();
+        inputsInitHandler();
         initCacheValues();
         setCacheValues();
-        return;
     }
-    fetchTokens();
   }, []);
 
-  
   const getTokensCurChainId = () => {
-    var tokenListCur = [{
-        "chainId": '',
-        "address": '',
-        "name": "Ether",
-        "symbol": "ETH",
-        "decimals": 18,
-        "logoURI": extra_token_icons['ETH']
-    }]
+    var tokenListCur = [ETH_TOKEN]
     for (let token of tokenListAll) {
         if (token['chainId'] === chainId) {
-          tokenListCur.push(token);
+            tokenListCur.push(token);
         }
     }
     setTokenListCur(tokenListCur);
-}
-
+  }
+  
   useEffect(() => {
-    if (tokenListAll) {
-      getTokensCurChainId();
+    if (tokenListAll && tokenListCurFlag.current) {
+        tokenListCurFlag.current = false;
+        getTokensCurChainId();
     }
-  }, [tokenListAll])
+  }, [tokenListAll]);
+  
 
   const getPopularTokensCurChainId = () => {
-    var popularTokensCur = [{
-      'symbol': 'ETH',
-      'logoURI': extra_token_icons['ETH']
-    }];
+    var popularTokensCur = [ETH_TOKEN];
     for (let tokenSymbol of popularTokensAll[chainId.toString()]) {
-        let token = getTokenBySymbol(tokenSymbol);
-        popularTokensCur.push({
-          'symbol': token['symbol'],
-          'logoURI': token['symbol'] !== 'UNI' ? token['logoURI'] : extra_token_icons['UNI']
-        });
+        popularTokensCur.push(getTokenBySymbol(tokenSymbol));
     }
     setPopularTokensCur(popularTokensCur)
   }
 
   useEffect(() => {
-    if (tokenListCur) {
+    if (tokenListCur && popularTokensCurFlag.current) {
+      popularTokensCurFlag.current = false;
       getPopularTokensCurChainId();
-      setToken(1, 'UNI');
     }
   }, [tokenListCur])
 
+  const [token0InputMask, setToken0InputMask] = useState();
+  const [token1InputMask, setToken1InputMask] = useState();
+  const [chooseModalInput, setChooseModalInput] = useState();
+  const [chooseTokenNum, setChooseTokenNum] = useState();
+
+  useEffect(() => {
+    if (token0InputMask) {
+        token0InputInitHandler();
+    }
+  }, [token0InputMask]);
+
+  useEffect(() => {
+    if (token1InputMask) {
+        token1InputInitHandler();
+    }
+  }, [token1InputMask]);
+
+  useEffect(() => {
+    if ([0, 1].includes(chooseTokenNum)) {
+        openChooseModal();
+    }
+  }, [chooseTokenNum]);
 
   var rotated = false;
   var balances = {
       'ETH': 0.376304703077471623,
       'UNI': 235.000000
   }
-  var token0 = "ETH";
-  var token1 = "unselected";
+  const [token0, setToken0] = useState(ETH_TOKEN);
+  const [token1, setToken1] = useState({"symbol": "uncelected"});
+
   var slip_value = "";
   var dl_value = "";
   var expert = true;
-  var chainId = 4;
+  var chainId = 1;
 
-  var token0_input_mask;
-  var token1_input_mask;
   var slip_mask;
   var dl_mask;
   var slip_may_fail = false;
@@ -132,7 +147,7 @@ export default function Swap() {
 
   }
 
-  const inputsInit = () => {
+  const inputsInitMask = () => {
       const token_inputs = document.getElementsByClassName(styles.input_field);
       const params_token_input = {
           mask: Number,
@@ -159,79 +174,85 @@ export default function Swap() {
           min: 1,
           max: 4320
       }
-      token0_input_mask = IMask(token_inputs[0], params_token_input);
-      token1_input_mask = IMask(token_inputs[1], params_token_input);
+      setToken0InputMask(IMask(token_inputs[0], params_token_input));
+      setToken1InputMask(IMask(token_inputs[1], params_token_input));
       const slip_input = document.getElementById('slip_input');
       slip_mask = IMask(slip_input, params_slip_input);
       const dl_input = document.getElementById('dl_input');
       dl_mask = IMask(dl_input, params_dl_input);
+  }
 
-      const validateToken0Input = () => {
-          console.log('00');
-          console.log(token0_input_mask.value);
-      }
+  const token0InputInitHandler = () => {
+    const token0InputHandler = () => {
+        console.log('00');
+        console.log(token0InputMask.value);
+    }
+    token0InputMask.on('accept', token0InputHandler);
+  }
 
-      const validateToken1Input = () => {
-          console.log('11');
-          console.log(token1_input_mask.value);
-      }
+  const token1InputInitHandler = () => {
+    const token1InputHandler = () => {
+        console.log('11');
+        console.log(token1InputMask.value);
+    }
+    token1InputMask.on('accept', token1InputHandler);
+  }
 
-      const validateSlipInput = () => {
-          slip_value = slip_mask.value;
-          const auto_btn = document.getElementById(styles.auto_btn);
-          const slip_warnings = document.getElementById('slip_warnings');
-          if (slip_value === '') {
-              if (!slip_auto_btn_on) {
-                  auto_btn.classList.toggle(styles.activated_auto_btn);
-                  slip_auto_btn_on = !slip_auto_btn_on;
-              }
-              slip_warnings.innerHTML = '';
-              slip_may_fail = false;
-              slip_may_frontrun = false;
-          } else {
-              if (slip_auto_btn_on) {
-                  auto_btn.classList.toggle(styles.activated_auto_btn);
-                  slip_auto_btn_on = !slip_auto_btn_on;
-              }
-              const slip_value_float = Number.parseFloat(slip_value);
-              if (slip_value_float >= 0.05 && slip_value_float <= 1.0) {
-                  slip_may_fail = false;
-                  slip_may_frontrun = false;
-                  slip_warnings.innerHTML = '';
-              } else {
-                  if (slip_may_fail) {
-                      if (slip_value_float > 1.0) {
-                          slip_may_fail = !slip_may_fail;
-                          slip_may_frontrun = !slip_may_frontrun;
-                          setFrontrun(slip_warnings);
-                      }
-                  } else if (slip_may_frontrun) {
-                      if (slip_value_float < 0.05) {
-                          slip_may_fail = !slip_may_fail;
-                          slip_may_frontrun = !slip_may_frontrun;
-                          setFail(slip_warnings);
-                      }
-                  } else {
-                      if (slip_value_float > 1.0) {
-                          slip_may_frontrun = !slip_may_frontrun;
-                          setFrontrun(slip_warnings);
-                      } else {
-                          slip_may_fail = !slip_may_fail;
-                          setFail(slip_warnings);
-                      }
-                  }
-              }
-          }
-      }
+  const inputsInitHandler = () => {
+    
+    const slipInputHandler = () => {
+        slip_value = slip_mask.value;
+        const auto_btn = document.getElementById(styles.auto_btn);
+        const slip_warnings = document.getElementById('slip_warnings');
+        if (slip_value === '') {
+            if (!slip_auto_btn_on) {
+                auto_btn.classList.toggle(styles.activated_auto_btn);
+                slip_auto_btn_on = !slip_auto_btn_on;
+            }
+            slip_warnings.innerHTML = '';
+            slip_may_fail = false;
+            slip_may_frontrun = false;
+        } else {
+            if (slip_auto_btn_on) {
+                auto_btn.classList.toggle(styles.activated_auto_btn);
+                slip_auto_btn_on = !slip_auto_btn_on;
+            }
+            const slip_value_float = Number.parseFloat(slip_value);
+            if (slip_value_float >= 0.05 && slip_value_float <= 1.0) {
+                slip_may_fail = false;
+                slip_may_frontrun = false;
+                slip_warnings.innerHTML = '';
+            } else {
+                if (slip_may_fail) {
+                    if (slip_value_float > 1.0) {
+                        slip_may_fail = !slip_may_fail;
+                        slip_may_frontrun = !slip_may_frontrun;
+                        setFrontrun(slip_warnings);
+                    }
+                } else if (slip_may_frontrun) {
+                    if (slip_value_float < 0.05) {
+                        slip_may_fail = !slip_may_fail;
+                        slip_may_frontrun = !slip_may_frontrun;
+                        setFail(slip_warnings);
+                    }
+                } else {
+                    if (slip_value_float > 1.0) {
+                        slip_may_frontrun = !slip_may_frontrun;
+                        setFrontrun(slip_warnings);
+                    } else {
+                        slip_may_fail = !slip_may_fail;
+                        setFail(slip_warnings);
+                    }
+                }
+            }
+        }
+    }
+    const dlInputHandler = () => {
+        dl_value = dl_mask.value;
+    }
 
-      const validateDlInput = () => {
-          dl_value = dl_mask.value;
-      }
-
-      token0_input_mask.on('accept', validateToken0Input);
-      token1_input_mask.on('accept', validateToken1Input);
-      slip_mask.on('accept', validateSlipInput)
-      dl_mask.on('accept', validateDlInput)
+    slip_mask.on('accept', slipInputHandler);
+    dl_mask.on('accept', dlInputHandler);
   }
 
   const initCacheValues = () => {
@@ -290,10 +311,11 @@ export default function Swap() {
 
   const getTokenBySymbol = (symbol) => {
       for (let token of tokenListCur) {
-          if (token['symbol'] == symbol) {
-              return token;
-          }
-      }
+        if (token['symbol'] == symbol) {
+            return token;
+        }
+    }
+      
   }
 
   const formatStyle = Intl.NumberFormat('en-US');
@@ -310,16 +332,15 @@ export default function Swap() {
   const setMaxAmount = (event) => {
       // document.getElementById("input0").value = (getBalance(address0) - 0.01).toString();
       const input = event.target.parentNode.parentNode.getElementsByTagName("input")[0];
-      var cur_token;
-      if (input.id === "input0") {
-          cur_token = token0;
-      } else {
-          cur_token = token1;
+      var cur_token = input.id === "input0" ? token0 : token1;
+      const cur_balance = balances[cur_token['symbol']] ? balances[cur_token['symbol']] : 0;
+      if(cur_balance != 0) {
+        if (cur_token['symbol'] != "unselected") {
+          input.value = cur_token === 'ETH' ? cur_balance - 0.01 : cur_balance;
+        }
+        input.blur = true;
       }
-      if (cur_token != "unselected") {
-        input.value = cur_token === 'ETH' ? balances['ETH'] - 0.01 : balances[cur_token];
-      }
-      input.blur = true;
+     
   }
 
   const isInFamilyTree = (child, parent) => {
@@ -343,40 +364,32 @@ export default function Swap() {
       }
   }
 
-  const setToken = (token_num, name) => {
-      var token_div;
-      if (token_num === 0) {
-          token0 = name;
-          token_div = document.getElementById('token_div0');
-      } else {
-          token1 = name;
-          token_div = document.getElementById('token_div1');
+  const setToken = (token) => {
+      const token_div = document.getElementById(`token_div${chooseTokenNum}`);
+      if ([token1, token0][chooseTokenNum] == token) {
+        changeTokens();
+        return;
       }
-      const input = token_div.getElementsByTagName("input")[0];
-      input.value = "";
+      chooseTokenNum == 0 ? setToken0(token) : setToken1(token);
+      
+      token_div.getElementsByTagName("input")[0].value = "";
       const choosed_token_div = token_div.getElementsByClassName(styles.choosed_token_div)[0];
       choosed_token_div.innerHTML = "";
       const balance = token_div.getElementsByClassName(styles.balance_div)[0];
       var div = document.createElement('div');
       div.classList.add(styles.choosed_token_name);
-      if (name === 'unselected') {
+      if (token['symbol'] === 'unselected') {
           div.innerHTML = "Select a token";
           balance.innerHTML = "Balance: ???";
       } else {
-          const token_data = getTokenBySymbol(name);
           var img = document.createElement('img');
-
-          if (Object.keys(extra_token_icons).includes(name)) {
-              img.src = extra_token_icons[name];
-          } else {
-              img.src = token_data['logoURI'];
-          }
+          img.src = token['logoURI'];
           img.classList.add(styles.token_icon);
-          img.alt = name + ' logo';
-          img.draggable = false
+          img.draggable = false;
+          img.addEventListener("error", replaceBrokenImg);
           choosed_token_div.appendChild(img);
-          div.innerHTML = name;
-          balance.innerHTML = 'Balance: ' + formatBalance(balances[name]);
+          div.innerHTML = token['symbol'];
+          balance.innerHTML = 'Balance: ' + (balances[token['symbol']] ? formatBalance(balances[token['symbol']]) : 0);
       }
       choosed_token_div.appendChild(div);
   }
@@ -393,9 +406,10 @@ export default function Swap() {
       [input0.value, input1.value] = [input1.value, input0.value];
       [btn0.innerHTML, btn1.innerHTML] = [btn1.innerHTML, btn0.innerHTML];
       [balance0.innerHTML, balance1.innerHTML] = [balance1.innerHTML, balance0.innerHTML];
-      [token0, token1] = [token1, token0];
-      token0_input_mask.updateValue();
-      token1_input_mask.updateValue();
+      setToken0(token1);
+      setToken1(token0);
+      token0InputMask.updateValue();
+      token1InputMask.updateValue();
   }
 
   const setAutoSlipValue = () => {
@@ -458,9 +472,104 @@ export default function Swap() {
       }
   }
 
-  const chooseToken = (event) => {
-    document.getElementById('choose_modal_outer').classList.add(styles.open);
+  const closeChooseModal = (token = '') => {
+    setTimeout(() => {
+        document.getElementById(styles.choose_modal_inner).innerHTML = '';
+    }, 275);
+    document.getElementById('choose_modal_outer').classList.remove(styles.open);
+    if (token) {
+        setToken(token);
+    }
+    setChooseTokenNum();
   }
+    
+  const getPopularTokenDiv = (popular_token, choosed_tokens) => {
+    const popular_token_div = createElementFromHTML(
+    `
+        <div class="${styles.popular_token}
+                    ${popular_token == choosed_tokens[0] ? styles.disabled_fully : ''}
+                    ${popular_token == choosed_tokens[1] ? styles.disabled_partially : ''}">
+            <img class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false">
+            </img>
+            <div class=${styles.choosed_token_name}>
+                ${popular_token['symbol']}
+            </div>
+        </div>
+    `);
+    popular_token_div.addEventListener('click', () => closeChooseModal(popular_token));
+    
+    return popular_token_div;
+  }
+
+  const getTokenDiv = (token, choosed_tokens) => {
+    const token_div = createElementFromHTML(
+    `
+        <div class="${styles.list_token}
+                    ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
+                    ${token == choosed_tokens[1] ? styles.disabled_partially : ''}">
+            <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false"></img>
+            <div class=${styles.list_token_title}>
+                <span class=${styles.list_token_symbol}>${token['symbol']}</span>
+                <span class=${styles.list_token_name}>${token['name']}</span>
+            </div>
+            <span></span>
+            <div class=${styles.list_token_balance}>
+                ${formatBalance(balances[token['symbol']] ? balances[token['symbol']] : 0)}
+            </div>
+        </div>
+    `);
+    token_div.addEventListener('click', () => closeChooseModal(token));
+    return token_div;
+  }
+
+  const getNoResultDiv = () => {
+    return createElementFromHTML(`<div class="${styles.list_token_no_result}">No results found.</div>`);
+  }
+
+    const openChooseModal = () => {
+        const choose_section = createElementFromHTML(`
+        <div class="${styles.modal_div_main} ${styles.choose_modal_div_main}">
+            <div class="${styles.choose_modal_div_upper} ${styles.choose_modal_div_grid}">
+                <div class=${styles.modal_title}>
+                    <div></div>
+                    <svg class="${styles.close_modal} ${styles.choose_close_modal}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"}>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </div>
+                <input class="${styles.token_search_input} ${styles.no_outline}" type="text" placeholder="Search name or paste address" autoComplete="off"/>
+                <div class=${styles.popular_tokens_div}>
+                </div>
+            </div>
+            <div class=${styles.line}></div>
+            <div class=${styles.choose_modal_div_lower}>
+            </div>
+        </div>`);
+
+        choose_section.getElementsByClassName(styles.close_modal)[0].addEventListener('click', closeChooseModal);
+        const search_input = choose_section.getElementsByClassName(styles.token_search_input)[0];
+        search_input.addEventListener('change', (event) => setChooseModalInput(event.target.value));
+        search_input.addEventListener('input', (event) => setChooseModalInput(event.target.value));
+        const popular_tokens_div = choose_section.getElementsByClassName(styles.popular_tokens_div)[0];
+        const tokens_div = choose_section.getElementsByClassName(styles.choose_modal_div_lower)[0];
+
+        const choosed_tokens = chooseTokenNum == 0 ? [token0, token1] : [token1, token0]; // [currently choosing token, another one]
+        for (let popular_token of popularTokensCur) {
+            popular_tokens_div.appendChild(getPopularTokenDiv(popular_token, choosed_tokens));
+        }
+
+        if (tokenListCur.length) {
+            for (let token of tokenListCur) {
+                tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+            }
+        } else {
+            tokens_div.appendChild(getNoResultDiv());
+        }
+        
+
+        document.getElementById(styles.choose_modal_inner).appendChild(choose_section);
+        document.getElementById('choose_modal_outer').classList.add(styles.open);
+    }
 
   const handleChooseModalClick = (event) => {
     if (!event.target.closest('#' + styles.choose_modal_inner)) {
@@ -468,11 +577,54 @@ export default function Swap() {
     }
   }
 
-  const closeChooseModal = () => {
-    document.getElementById('choose_modal_outer').classList.remove(styles.open);
+  const handleSearchTokenInput = (chooseModalInput) => {
+      console.log('hurai');
+    const tokens_div = document.getElementsByClassName(styles.choose_modal_div_lower)[0];
+    tokens_div.innerHTML = '';
+    const chooseModalInputToLower = chooseModalInput.toLowerCase()
+
+    const choosed_tokens = chooseTokenNum == 0 ? [token0, token1] : [token1, token0]; // [currently choosing token, another one]
+    if (chooseModalInput == '') {
+        for (let token of tokenListCur) {
+            tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+        }
+    } else {
+        for (let token of tokenListCur) {
+            if (token['symbol'].toLowerCase().includes(chooseModalInputToLower) ||
+                token['name'].toLowerCase().includes(chooseModalInputToLower)) {
+                tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+            }
+        }
+    }
+    if (tokens_div.innerHTML == '') {
+        tokens_div.appendChild(getNoResultDiv());
+    }
   }
 
-  const handleSearchTokenInput = (event) => {
+  useEffect(() => {
+    if (chooseModalInput == null) {
+        return;
+    }
+    const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 300);
+    return () => clearTimeout(timeOutId);
+  }, [chooseModalInput]);
+
+  const createElementFromHTML = (htmlString)  => {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+    return div.firstChild;
+  }
+
+  const replaceBrokenImg = (event) => {
+      let svg =  `
+      <svg xmlns="http://www.w3.org/2000/svg" class=${styles.token_icon} viewBox="0 0 24 24" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10">
+          </circle>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07">
+          </line>
+      </svg>
+      `;
+      event.srcElement.parentNode.replaceChild(createElementFromHTML(svg), event.srcElement);
 
   }
 
@@ -523,7 +675,7 @@ export default function Swap() {
                           </button>
                       </div>
                   </div>
-                  <div id="token_div0" className={`${styles.token_div} ${styles.token_div_up}`} onClick={focusInput}>
+                  <div id="token_div0" className={styles.token_div} onClick={focusInput}>
                       <div className={styles.input_div_main}>
                           <div>
                               <div className={styles.swap_label}>
@@ -533,13 +685,13 @@ export default function Swap() {
                                   <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
                               </div>
                           </div>
-                          <button className={styles.choice_btn} onClick={chooseToken}>
+                          <button className={styles.choice_btn} onClick={() => setChooseTokenNum(0)}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
-                                      <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false">
+                                      <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false">
                                       </img>
                                       <div className={styles.choosed_token_name}>
-                                          ETH
+                                        {token0['symbol']}
                                       </div>
                                   </div>
                                   <div>
@@ -557,14 +709,14 @@ export default function Swap() {
                       </div>
                   </div>
                   <div className={styles.change_arrow} onClick={changeTokens}>
-                      <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="18px" viewBox="0, 0, 400,400">
+                      <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0, 0, 400,400">
                           <g id="svgg">
                               <path id="path0" className={styles.path0_change_arrow} d="M192.188 1.238 C 188.081 3.005,58.300 132.899,56.086 137.459 C 51.519 146.864,55.761 157.972,65.625 162.437 C 69.117 164.017,70.020 164.028,200.000 164.028 C 329.980 164.028,330.883 164.017,334.375 162.437 C 344.239 157.972,348.481 146.864,343.914 137.459 C 341.581 132.656,211.867 2.959,207.642 1.206 C 203.968 -0.319,195.767 -0.302,192.188 1.238" stroke="none" fill="#000000" fillRule="evenodd" />
                               <path id="path1" className={styles.path1_change_arrow} d="M65.625 237.563 C 55.761 242.028,51.519 253.136,56.086 262.541 C 58.419 267.344,188.133 397.041,192.358 398.794 C 193.955 399.458,197.394 400.000,200.000 400.000 C 202.606 400.000,206.045 399.458,207.642 398.794 C 211.867 397.041,341.581 267.344,343.914 262.541 C 348.481 253.136,344.239 242.028,334.375 237.563 C 328.832 235.054,71.168 235.054,65.625 237.563" stroke="none" fill="#000000" fillRule="evenodd" />
                           </g>
                       </svg>
                   </div>
-                  <div id="token_div1" className={`${styles.token_div} ${styles.token_div_down}`} onClick={focusInput}>
+                  <div id="token_div1" className={styles.token_div} onClick={focusInput}>
                       <div className={styles.input_div_main}>
                           <div>
                               <div className={styles.swap_label}>
@@ -574,7 +726,7 @@ export default function Swap() {
                                   <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
                               </div>
                           </div>
-                          <button className={styles.choice_btn} onClick={chooseToken}>
+                          <button className={styles.choice_btn} onClick={() => setChooseTokenNum(1)}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
                                       <div className={styles.choosed_token_name}>
@@ -701,75 +853,9 @@ export default function Swap() {
           </div>
           <div id="choose_modal_outer" className={styles.modal_outer} onClick={handleChooseModalClick}>
               <div id={styles.choose_modal_inner} className={styles.modal_inner}>
-                  <div className={`${styles.modal_div_main} ${styles.choose_modal_div_main}`}>
-                      <div className={`${styles.choose_modal_div_upper} ${styles.choose_modal_div_grid}`}>
-                          <div className={styles.modal_title}>
-                            <div></div>
-                            <svg className={`${styles.close_modal} ${styles.choose_close_modal}`}xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" onClick={closeChooseModal}>
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </div>
-                        <input className={`${styles.token_search_input} ${styles.no_outline}`}type="text" placeholder="Search name or paste address" autoComplete="off" onChange={handleSearchTokenInput}/>
-                        <div className={styles.popular_tokens_div}>
-                            <div className={styles.popular_token}>
-                                <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false">
-                                </img>
-                                <div className={styles.choosed_token_name}>
-                                    ETH
-                                </div>
-                            </div>
-                            <div className={styles.popular_token}>
-                                <img className={`${styles.token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false">
-                                </img>
-                                <div className={styles.choosed_token_name}>
-                                    ETH
-                                </div>
-                            </div>
-                        </div>
-                      </div>
-                      <div className={styles.line}></div>
-                      <div className={styles.choose_modal_div_lower}>
-                            <div className={styles.list_token}>
-                                <img className={`${styles.token_icon} ${styles.list_token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false"></img>
-                                <div className={styles.list_token_title}>
-                                    <span className={styles.list_token_symbol}>ETH</span>
-                                    <span className={styles.list_token_name}>Ether</span>
-                                </div>
-                                <span></span>
-                                <div className={styles.list_token_balance}>
-                                    {formatBalance(balances['ETH'])}
-                                </div>
-                            </div>
-                            <div className={styles.list_token}>
-                                <img className={`${styles.token_icon} ${styles.list_token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false"></img>
-                                <div className={styles.list_token_title}>
-                                    <span className={styles.list_token_symbol}>ETH</span>
-                                    <span className={styles.list_token_name}>Ether</span>
-                                </div>
-                                <span></span>
-                                <div className={styles.list_token_balance}>
-                                    {formatBalance(balances['ETH'])}
-                                </div>
-                            </div>
-                            <div className={styles.list_token}>
-                                <img className={`${styles.token_icon} ${styles.list_token_icon}`} alt="ETH logo" src={extra_token_icons['ETH']} draggable="false"></img>
-                                <div className={styles.list_token_title}>
-                                    <span className={styles.list_token_symbol}>ETH</span>
-                                    <span className={styles.list_token_name}>Ether</span>
-                                </div>
-                                <span></span>
-                                <div className={styles.list_token_balance}>
-                                    {formatBalance(balances['ETH'])}
-                                </div>
-                            </div>
-                      </div>
-                  </div>
               </div>
           </div>
       </main>
     </div>
   )
-  
 }
-

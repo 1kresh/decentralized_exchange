@@ -541,7 +541,7 @@ export default function Swap() {
             </div>
         </div>`);
 
-        choose_section.getElementsByClassName(styles.close_modal)[0].addEventListener('click', closeChooseModal);
+        choose_section.getElementsByClassName(styles.close_modal)[0].addEventListener('click', () => closeChooseModal());
         const search_input = choose_section.getElementsByClassName(styles.token_search_input)[0];
         search_input.addEventListener('change', (event) => setChooseModalInput(event.target.value));
         search_input.addEventListener('input', (event) => setChooseModalInput(event.target.value));

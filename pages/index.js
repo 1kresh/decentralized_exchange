@@ -427,18 +427,50 @@ export default function Swap() {
   }
 
   const closeExpModal = () => {
+      setTimeout(() => {
+        document.getElementById('exp_modal_inner').innerHTML = '';
+      }, 275);
       document.getElementById('exp_modal_outer').classList.remove(styles.open);
+      
       if (!expert) {
           document.getElementById('exp_input').checked = false;
       }
   }
 
+  const openExpModal = () => {
+    const html = createElementFromHTML(`
+        <div class="${styles.modal_div_main} ${styles.exp_modal_div_main} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}">
+            <div class="${styles.modal_title} ${styles.exp_modal_title}">
+                <div></div>
+                <div class="${styles.exp_modal_title_text}">Are you sure?</div>
+                <svg class="${styles.close_modal} ${styles.exp_close_modal}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
+            </div>
+            <div class="${styles.line}"></div>
+            <div class="${styles.exp_modal_div} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}">
+                <div class="${styles.modal_secondary_text}">Expert mode turns off the confirm transaction prompt and allows high slippage trades that often result in bad rates and lost funds.</div>
+                <div class="${styles.modal_main_text}">ONLY USE THIS MODE IF YOU KNOW WHAT YOU ARE DOING.</div>
+                <button class="${styles.exp_modal_btn}">
+                    <div class="${styles.exp_modal_btn_text}" id="confirm-expert-mode">Turn On Expert Mode</div>
+                </button>
+            </div>
+        </div>
+    `);
+
+    html.getElementsByTagName('svg')[0].addEventListener('click', closeExpModal);
+    html.getElementsByTagName('button')[0].addEventListener('click', () => setExpert(true));
+
+    document.getElementById('exp_modal_inner').appendChild(html);
+    document.getElementById('exp_modal_outer').classList.add(styles.open);
+    toogleSettings();
+  }
+
   const handleExpCheckboxClick = () => {
-      if (!expert) {
-          document.getElementById('exp_modal_outer').classList.add(styles.open);
-          toogleSettings();
+      if (expert) {
+        setExpert(false);
       } else {
-          setExpert(false);
+        openExpModal();
       }
   }
 
@@ -815,23 +847,6 @@ export default function Swap() {
           </div>
           <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>
               <div id="exp_modal_inner" className={styles.modal_inner}>
-                  <div className={`${styles.modal_div_main} ${styles.exp_modal_div_main} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}`}>
-                      <div className={`${styles.modal_title} ${styles.exp_modal_title}`}>
-                          <div></div>
-                          <div className={styles.exp_modal_title_text}>Are you sure?</div>
-                          <svg className={`${styles.close_modal} ${styles.exp_close_modal}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" onClick={closeExpModal}>
-                              <path d="M18 6 6 18M6 6l12 12"/>
-                          </svg>
-                      </div>
-                      <div className={styles.line}></div>
-                      <div className={`${styles.exp_modal_div} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}`}>
-                          <div className={styles.modal_secondary_text}>Expert mode turns off the confirm transaction prompt and allows high slippage trades that often result in bad rates and lost funds.</div>
-                          <div className={styles.modal_main_text}>ONLY USE THIS MODE IF YOU KNOW WHAT YOU ARE DOING.</div>
-                          <button className={styles.exp_modal_btn} onClick={() => setExpert(true)}>
-                              <div className={styles.exp_modal_btn_text} id="confirm-expert-mode">Turn On Expert Mode</div>
-                          </button>
-                      </div>
-                  </div>
               </div>
           </div>
           <div id="choose_modal_outer" className={styles.modal_outer} onClick={handleChooseModalClick}>

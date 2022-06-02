@@ -1,11 +1,10 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.scss'
+import styles from '../styles/Swap.module.scss'
 import IMask from 'imask'
 import {useEffect, useState, useRef} from "react";
 
 import token_list_all from '../public/token_list_all.json'
 import popular_tokens_all from '../public/popular_tokens_all.json'
-import { createMochaInstanceAlreadyDisposedError } from 'mocha/lib/errors';
 
 const ETH_TOKEN = {
     "chainId": '',

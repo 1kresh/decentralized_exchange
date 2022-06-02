@@ -1411,3 +1411,24 @@ $transition-delay: 275ms;
     text-align: center;
     padding: 20px;
 }
+
+.swap_info_div {
+    margin: -4px 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.swap_info_token_price_div {
+    font-weight: 500;
+    display: inherit;
+    align-items: inherit;
+    margin-left: 0.5rem;
+    height: 1rem;
+
+    & svg {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+    }
+}

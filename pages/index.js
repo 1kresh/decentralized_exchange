@@ -20,8 +20,12 @@ export default function Swap() {
   const initFlag = useRef(true);
   const tokenListCurFlag = useRef(true);
   const popularTokensCurFlag = useRef(true);
+  const settingsOnFlag = useRef(true);
   const expertFlag = useRef(true);
   const cacheFlag = useRef(true);
+  const expCheckboxOnFlag = useRef(true);
+  const openedExpModalFlag = useRef(true);
+  const expIconOnFlag = useRef(true);
 
   const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
 
@@ -92,19 +96,37 @@ export default function Swap() {
     if (chooseModalInput == null) {
         return;
     }
-    const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 300);
+    const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 275);
     return () => clearTimeout(timeOutId);
   }, [chooseModalInput]);
 
   const [token0, setToken0] = useState(ETH_TOKEN);
   const [token1, setToken1] = useState({"symbol": "uncelected"});
-  const [rotatedSettings, setRotatedSettings] = useState(false);
   const [chainId, setChainId] = useState(1);
+  const [settingsOn, setSettingsOn] = useState(false);
+
+  useEffect(() => {
+    if (settingsOnFlag.current) {
+        settingsOnFlag.current = false;
+        return;
+    }
+
+    toogleSettings();
+    const timeOutId = setTimeout(() => {
+        if (!settingsOn) {
+            document.getElementById(styles.settings_div).innerHTML = '';
+        }
+    }, 275);
+    return () => clearTimeout(timeOutId);
+    
+  }, [settingsOn]);
+
   const [slipMask, setSlipMask] = useState();
 
   useEffect(() => {
     if (slipMask) {
         slipMaskInitHandler();
+        document.getElementsByClassName(styles.activated_auto_btn)[0].addEventListener('click', () => { slipMask.value = ''; });
     }
   }, [slipMask]);
 
@@ -121,11 +143,14 @@ export default function Swap() {
   useEffect(() => {
       if (expertFlag.current) {
         expertFlag.current = false;
+        setExpert(Boolean(localStorage.getItem('expert')));
         return;
       }
-      toogleExpIcon();
-      closeExpModal();
+
+      setExpIconOn(expert);
+      setOpenedExpModal(false);
       if (expert) {
+        setExpCheckboxOn(true);
         localStorage.setItem('expert', '1');
       } else {
         localStorage.removeItem('expert');
@@ -133,13 +158,71 @@ export default function Swap() {
   }, [expert]);
 
   useEffect(() => {
-    if (slipMask && dlMask && [false, true].includes(expert) && cacheFlag.current) {
+    if (cacheFlag.current) {
         cacheFlag.current = false;
-        setCacheValues();
+        return;
+    }
+    if (slipMask && dlMask) {
+        const slip_value = localStorage.getItem('slip_value');
+        const dl_value = localStorage.getItem('dl_value');
+        slipMask.value = slip_value ? slip_value : '';
+        dlMask.value = dl_value ? dl_value : '';
     }
   }, [slipMask, dlMask, expert]);
 
+  const [openedExpModal, setOpenedExpModal] = useState(false);
   
+  useEffect(() => {
+        if (openedExpModalFlag.current) {
+            openedExpModalFlag.current = false;
+            return;
+        }
+
+        if (!expert && openedExpModal) {
+            openExpModal();
+        } else {
+            closeExpModal();
+            if (!expert) {
+                setExpCheckboxOn(false);
+            }
+        }
+
+  }, [openedExpModal]);
+
+  const [expCheckboxOn, setExpCheckboxOn] = useState(false);
+
+  useEffect(() => {
+    if (expCheckboxOnFlag.current) {
+        expCheckboxOnFlag.current = false;
+        return;
+    }
+
+    if (expCheckboxOn) {
+        if (!expert) {
+            setOpenedExpModal(true);
+        }
+    } else {
+        setExpert(false);
+    }
+
+  }, [expCheckboxOn]);
+
+    const [expIconOn, setExpIconOn] = useState(false);
+
+    useEffect(() => {
+        if (expIconOnFlag.current) {
+            expIconOnFlag.current = false;
+            return;
+        }
+
+        console.log(expIconOn);
+        const expert_mode_div = document.getElementById("expert_mode_div");
+        expert_mode_div.innerHTML = '';
+        if (expIconOn) {
+            expert_mode_div.appendChild(getExpIcon());
+        }
+    }, [expIconOn]);
+
   var balances = {
     'ETH': 0.376304703077471623,
     'UNI': 235.000000
@@ -179,16 +262,21 @@ export default function Swap() {
 
   }
 
-  const inputsInitMask = () => {
-      const token_inputs = document.getElementsByClassName(styles.input_field);
-      const params_token_input = {
-          mask: Number,
-          scale: 18,
-          signed: false,
-          padFractionalZeros: false,
-          normalizeZeros: true,
-          radix: '.',
-      }
+  const tokenInputsInitMask = () => {
+    const token_inputs = document.getElementsByClassName(styles.input_field);
+    const params_token_input = {
+        mask: Number,
+        scale: 18,
+        signed: false,
+        padFractionalZeros: false,
+        normalizeZeros: true,
+        radix: '.',
+    }
+    setToken0InputMask(IMask(token_inputs[0], params_token_input));
+    setToken1InputMask(IMask(token_inputs[1], params_token_input));
+  }
+  
+  const settingsInputsInitMask = (settings_div) => {
       const params_slip_input = {
           mask: Number,
           scale: 2,
@@ -206,10 +294,8 @@ export default function Swap() {
           min: 1,
           max: 4320
       }
-      setToken0InputMask(IMask(token_inputs[0], params_token_input));
-      setToken1InputMask(IMask(token_inputs[1], params_token_input));
-      setSlipMask(IMask(document.getElementById('slip_input'), params_slip_input));
-      setDlMask(IMask(document.getElementById('dl_input'), params_dl_input));
+      setSlipMask(IMask(settings_div.getElementsByClassName(styles.slip_input_field)[0], params_slip_input));
+      setDlMask(IMask(settings_div.getElementsByClassName(styles.dl_input_field)[0], params_dl_input));
   }
 
   const token0InputInitHandler = () => {
@@ -266,17 +352,6 @@ export default function Swap() {
     dlMask.on('accept', dlInputHandler);
   }
 
-  const setCacheValues = () => {
-      const slip_value = localStorage.getItem('slip_value');
-      const dl_value = localStorage.getItem('dl_value');
-      slipMask.value = slip_value ? slip_value : '';
-      dlMask.value = dl_value ? dl_value : '';
-      if (localStorage.getItem('expert')) {
-        document.getElementById("exp_input").checked = true;
-        setExpert(true);
-      }
-  }
-
   const setFrontrun = (elem) => {
       elem.innerHTML = `
       <svg class=${styles.slip_svg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -309,14 +384,109 @@ export default function Swap() {
 
   const toogleSettings = () => {
       var icon = document.getElementById('settings_icon'),
-          deg = rotatedSettings ? 0 : -120;
+          deg = !settingsOn ? 0 : -120;
       icon.style.webkitTransform = 'rotate(' + deg + 'deg)';
       icon.style.mozTransform = 'rotate(' + deg + 'deg)';
       icon.style.msTransform = 'rotate(' + deg + 'deg)';
       icon.style.oTransform = 'rotate(' + deg + 'deg)';
       icon.style.transform = 'rotate(' + deg + 'deg)';
-      setRotatedSettings(!rotatedSettings);
-      document.getElementById(styles.settings_div).classList.toggle(styles.settings_div_activated);
+      
+      const settings_div = document.getElementById(styles.settings_div);
+      if (settingsOn) {
+        const child = createElementFromHTML(
+        `
+            <div class="${styles.tx_settings_div_main}">
+                <div class="${styles.tx_settings_title} ${styles.settings_title}">Transaction Settings</div>
+                <div class="${styles.tx_settings_div}">
+                    <div class="${styles.tx_settings_div_micro}">
+                        <div class="${styles.info_row}">
+                            <div>
+                                Slippage tolerance
+                            </div>
+                            <div class="${styles.question_icon} ${styles.tooltip}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="#6e6e6e">
+                                    <path d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777zM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14z"/>
+                                </svg>
+                                <span class="${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}">Your transaction will revert if the price changes unfavorably by more than this percentage.</span>
+                            </div>
+                        </div>
+                        <div class="${styles.slip_input_div_main}">
+                            <div id="${styles.auto_btn}" class="${styles.activated_auto_btn}">
+                                Auto
+                            </div>
+                            <div class="${styles.slip_input_div}">
+                                <span id="slip_warnings" class="${styles.slip_svg_span} ${styles.tooltip}">
+                                </span>
+                                <input id="slip_input" class="${styles.slip_input_field} ${styles.no_outline}" inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.10" spellCheck="false"></input>
+                                %
+                            </div>
+                        </div>
+                    </div>
+                    <div class="${styles.tx_settings_div_micro}">
+                        <div class="${styles.info_row}">
+                            <div>
+                                Transaction deadline
+                            </div>
+                            <div class="${styles.question_icon} ${styles.tooltip}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="#6e6e6e">
+                                    <path d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777zM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14z"/>
+                                </svg>
+                                <span class="${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}">Your transaction will revert if it is pending for more than this period of time.</span>
+                            </div>
+                        </div>
+                        <div class="${styles.dl_input_div_main}">
+                            <div class="${styles.dl_input_div}">
+                                <input id="dl_input" class="${styles.dl_input_field} ${styles.no_outline}" inputMode="numeric" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="30" spellCheck="false"></input>
+                            </div>
+                            <div class="${styles.minutes_div}">minutes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        settingsInputsInitMask(child);
+        settings_div.innerHTML = '';
+        settings_div.appendChild(child);
+            
+        child = createElementFromHTML(
+        `
+            <div class="${styles.intrfc_settings_div_main}">
+                <div class="${styles.intrfc_settings_title} ${styles.settings_title}">Interface Settings</div>
+                <div class="${styles.exp_mode_div_main}">
+                    <div class="${styles.exp_mode_div}">
+                        <div class="${styles.info_row} ${styles.exp_mode_info_row}">
+                            <div>
+                                Expert Mode
+                            </div>
+                            <div class="${styles.question_icon} ${styles.tooltip}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="#6e6e6e">
+                                    <path d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777zM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14z"/>
+                                </svg>
+                                <span class="${styles.tooltiptext_up} ${styles.tooltiptext_up_tip}">Allow high price impact trades and skip the confirm screen. Use at your own risk.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="${styles.switch_button}">
+                        <input id="exp_input" class="${styles.switch_button_checkbox}" type="checkbox" ${expCheckboxOn ? 'checked' : ''}></input>
+                        <label class="${styles.switch_button_label}" htmlFor="">
+                            <span class="${styles.switch_button_label_span}">Off</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        `);
+        child.getElementsByClassName(styles.switch_button_checkbox)[0].addEventListener('click', (event) => setExpCheckboxOn(event.target.checked));
+            
+        settings_div.appendChild(child);
+        
+        settings_div.classList.toggle(styles.settings_div_activated);
+      } else {
+        settings_div.classList.toggle(styles.settings_div_activated);
+        
+        setSlipMask();
+        setDlMask();
+      }
   }
 
   const getTokenBySymbol = (symbol) => {
@@ -325,10 +495,8 @@ export default function Swap() {
             return token;
         }
     }
-      
   }
 
-  const formatStyle = Intl.NumberFormat('en-US');
   const formatBalance = (balance) => {
       var d = ",";
       var g = 3;
@@ -369,7 +537,7 @@ export default function Swap() {
   const closeSettings = (event) => {
       if (!event.target.closest('#' + styles.settings_div) && !isInFamilyTree(event.target, document.getElementById("settings_toogle_btn"))) {
           if (document.getElementById(styles.settings_div).classList.contains(styles.settings_div_activated)) {
-              toogleSettings();
+            setSettingsOn(false);
           }
       }
   }
@@ -422,19 +590,11 @@ export default function Swap() {
       token1InputMask.updateValue();
   }
 
-  const setAutoSlipValue = () => {
-        slipMask.value = '';
-  }
-
   const closeExpModal = () => {
       setTimeout(() => {
         document.getElementById('exp_modal_inner').innerHTML = '';
       }, 275);
       document.getElementById('exp_modal_outer').classList.remove(styles.open);
-      
-      if (!expert) {
-          document.getElementById('exp_input').checked = false;
-      }
   }
 
   const openExpModal = () => {
@@ -458,46 +618,36 @@ export default function Swap() {
         </div>
     `);
 
-    html.getElementsByTagName('svg')[0].addEventListener('click', closeExpModal);
+    html.getElementsByTagName('svg')[0].addEventListener('click', () => setOpenedExpModal(false));
     html.getElementsByTagName('button')[0].addEventListener('click', () => setExpert(true));
 
-    document.getElementById('exp_modal_inner').appendChild(html);
+    const exp_modal_inner = document.getElementById('exp_modal_inner');
+    exp_modal_inner.innerHTML = '';
+    exp_modal_inner.appendChild(html);
     document.getElementById('exp_modal_outer').classList.add(styles.open);
-    toogleSettings();
-  }
-
-  const handleExpCheckboxClick = () => {
-      if (expert) {
-        setExpert(false);
-      } else {
-        openExpModal();
-      }
+    setSettingsOn(false);
   }
 
   const handleExpModalClick = (event) => {
       if (!event.target.closest('#exp_modal_inner')) {
-          closeExpModal();
+        setOpenedExpModal(false);
       }
   }
 
   const handleKeydown = (event) => {
       if (event.key === 'Escape') {
-          closeExpModal();
+          setOpenedExpModal(false);
           closeChooseModal();
       }
   }
 
-  const toogleExpIcon = () => {
-      const expert_mode_div = document.getElementById("expert_mode_div");
-      if (expert) {
-          expert_mode_div.innerHTML = `
-          <svg class=${styles.expert_mode_svg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250">
-            <text class=${styles.cls_1} transform="matrix(1.277 0 0 1.472 -11 231.004)">EXPERT</text>
-          </svg>
-        `;
-      } else {
-          expert_mode_div.innerHTML = "";
-      }
+  const getExpIcon = () => {
+    return createElementFromHTML(
+    `
+        <svg class="${styles.expert_mode_svg}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250">
+            <text class="${styles.cls_1}" transform="matrix(1.277 0 0 1.472 -11 231.004)">EXPERT</text>
+        </svg>
+    `);
   }
 
   const closeChooseModal = (token = '') => {
@@ -593,8 +743,9 @@ export default function Swap() {
             tokens_div.appendChild(getNoResultDiv());
         }
         
-
-        document.getElementById(styles.choose_modal_inner).appendChild(choose_section);
+        const choose_modal_inner = document.getElementById(styles.choose_modal_inner);
+        choose_modal_inner.innerHTML = '';
+        choose_modal_inner.appendChild(choose_section);
         document.getElementById('choose_modal_outer').classList.add(styles.open);
     }
 
@@ -647,7 +798,7 @@ export default function Swap() {
   useEffect(() => {
     if (initFlag.current) {
         initFlag.current = false;
-        inputsInitMask();
+        tokenInputsInitMask();
     }
   }, []);
 
@@ -686,7 +837,7 @@ export default function Swap() {
               <div className={styles.swap_div}>
                   <div className={styles.swap_header}>
                       <div className={styles.settings_icon_div}>
-                          <button id="settings_toogle_btn" className={styles.settings_toogle} onClick={toogleSettings}>
+                          <button id="settings_toogle_btn" className={styles.settings_toogle} onClick={() => setSettingsOn(!settingsOn)}>
                               <svg id="settings_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                   <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
                               </svg>
@@ -769,80 +920,7 @@ export default function Swap() {
                       </button>
                   </div>
               </div>
-
               <div id={styles.settings_div}>
-                  <div className={styles.tx_settings_div_main}>
-                      <div className={`${styles.tx_settings_title} ${styles.settings_title}`}>Transaction Settings</div>
-                      <div className={styles.tx_settings_div}>
-                          <div className={styles.tx_settings_div_micro}>
-                              <div className={styles.info_row}>
-                                  <div>
-                                      Slippage tolerance
-                                  </div>
-                                  <div className={`${styles.question_icon} ${styles.tooltip}`}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e">
-                                          <path d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777zM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14z"/>
-                                      </svg>
-                                      <span className={`${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}`}>Your transaction will revert if the price changes unfavorably by more than this percentage.</span>
-                                  </div>
-                              </div>
-                              <div className={styles.slip_input_div_main}>
-                                  <div id={styles.auto_btn} className={styles.activated_auto_btn} onClick={setAutoSlipValue}>
-                                      Auto
-                                  </div>
-                                  <div className={styles.slip_input_div}>
-                                      <span id="slip_warnings" className={`${styles.slip_svg_span} ${styles.tooltip}`}>
-                                      </span>
-                                      <input id="slip_input" className={`${styles.slip_input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.10" spellCheck="false"></input>
-                                      %
-                                  </div>
-                              </div>
-                          </div>
-                          <div className={styles.tx_settings_div_micro}>
-                              <div className={styles.info_row}>
-                                  <div>
-                                      Transaction deadline
-                                  </div>
-                                  <div className={`${styles.question_icon} ${styles.tooltip}`}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e">
-                                          <path d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777zM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14z"/>
-                                      </svg>
-                                      <span className={`${styles.tooltiptext_down} ${styles.tooltiptext_down_tip}`}>Your transaction will revert if it is pending for more than this period of time.</span>
-                                  </div>
-                              </div>
-                              <div className={styles.dl_input_div_main}>
-                                  <div className={styles.dl_input_div}>
-                                      <input id="dl_input" className={`${styles.dl_input_field} ${styles.no_outline}`} inputMode="numeric" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="30" spellCheck="false"></input>
-                                  </div>
-                                  <div className={styles.minutes_div}>minutes</div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-                  <div className={styles.intrfc_settings_div_main}>
-                      <div className={`${styles.intrfc_settings_title} ${styles.settings_title}`}>Interface Settings</div>
-                      <div className={styles.exp_mode_div_main}>
-                          <div className={styles.exp_mode_div}>
-                              <div className={`${styles.info_row} ${styles.exp_mode_info_row}`}>
-                                  <div>
-                                      Expert Mode
-                                  </div>
-                                  <div className={`${styles.question_icon} ${styles.tooltip}`}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6e6e6e">
-                                          <path d="M4.475 5.458c-.284 0-.514-.237-.47-.517C4.28 3.24 5.576 2 7.825 2c2.25 0 3.767 1.36 3.767 3.215 0 1.344-.665 2.288-1.79 2.973-1.1.659-1.414 1.118-1.414 2.01v.03a.5.5 0 0 1-.5.5h-.77a.5.5 0 0 1-.5-.495l-.003-.2c-.043-1.221.477-2.001 1.645-2.712 1.03-.632 1.397-1.135 1.397-2.028 0-.979-.758-1.698-1.926-1.698-1.009 0-1.71.529-1.938 1.402-.066.254-.278.461-.54.461h-.777zM7.496 14c.622 0 1.095-.474 1.095-1.09 0-.618-.473-1.092-1.095-1.092-.606 0-1.087.474-1.087 1.091S6.89 14 7.496 14z"/>
-                                      </svg>
-                                      <span className={`${styles.tooltiptext_up} ${styles.tooltiptext_up_tip}`}>Allow high price impact trades and skip the confirm screen. Use at your own risk.</span>
-                                  </div>
-                              </div>
-                          </div>
-                          <div className={styles.switch_button} onClick={handleExpCheckboxClick}>
-                              <input id="exp_input" className={styles.switch_button_checkbox} type="checkbox"></input>
-                              <label className={styles.switch_button_label} htmlFor="">
-                                  <span className={styles.switch_button_label_span}>Off</span>
-                              </label>
-                          </div>
-                      </div>
-                  </div>
               </div>
           </div>
           <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>

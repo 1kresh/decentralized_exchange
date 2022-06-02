@@ -802,7 +802,8 @@ $transition-delay: 275ms;
 
 .slip_svg {
     margin-left: 5px;
-    height: 100%;
+    height: initial !important;
+    width: initial !important;
 }
 
 .tooltip {
@@ -899,6 +900,8 @@ $transition-delay: 275ms;
     }
 
     & svg {
+        width: 16px;
+        height: 16px;
         -webkit-transition: all $transition-delay ease;
         -o-transition: all $transition-delay ease;
         transition: all $transition-delay ease;

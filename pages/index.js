@@ -21,6 +21,7 @@ export default function Swap() {
   const tokenListCurFlag = useRef(true);
   const popularTokensCurFlag = useRef(true);
   const expertFlag = useRef(true);
+  const cacheFlag = useRef(true);
 
   const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
 
@@ -115,7 +116,7 @@ export default function Swap() {
     }
   }, [dlMask]);
 
-  const [expert, setExpert] = useState(true);
+  const [expert, setExpert] = useState(false);
 
   useEffect(() => {
       if (expertFlag.current) {
@@ -123,10 +124,17 @@ export default function Swap() {
         return;
       }
       toogleExpIcon();
+      closeExpModal();
+      if (expert) {
+        localStorage.setItem('expert', '1');
+      } else {
+        localStorage.removeItem('expert');
+      }
   }, [expert]);
 
   useEffect(() => {
-    if (slipMask && dlMask && expert) {
+    if (slipMask && dlMask && [false, true].includes(expert) && cacheFlag.current) {
+        cacheFlag.current = false;
         setCacheValues();
     }
   }, [slipMask, dlMask, expert]);
@@ -220,10 +228,9 @@ export default function Swap() {
     token1InputMask.on('accept', token1InputHandler);
   }
 
-
   const slipMaskInitHandler = () => {
-
     slipMask.on('accept', () => {
+        localStorage.setItem('slip_value', slipMask.value);
         const auto_btn = document.getElementById(styles.auto_btn);
         const slip_warnings = document.getElementById('slip_warnings');
         if (slipMask.value === '') {
@@ -253,21 +260,20 @@ export default function Swap() {
 
   const dlMaskInitHandler = () => {
     const dlInputHandler = () => {
+        localStorage.setItem('dl_value', dlMask.value);
     }
 
     dlMask.on('accept', dlInputHandler);
   }
 
-  const initCacheValues = () => {
-
-  }
-
   const setCacheValues = () => {
-      slipMask.value = '';
-      dlMask.value = '';
-      if (expert) {
+      const slip_value = localStorage.getItem('slip_value');
+      const dl_value = localStorage.getItem('dl_value');
+      slipMask.value = slip_value ? slip_value : '';
+      dlMask.value = dl_value ? dl_value : '';
+      if (localStorage.getItem('expert')) {
         document.getElementById("exp_input").checked = true;
-        setExpMode();
+        setExpert(true);
       }
   }
 
@@ -449,12 +455,6 @@ export default function Swap() {
       }
   }
 
-  const setExpMode = () => {
-      setExpert(true);
-      toogleExpIcon();
-      closeExpModal();
-  }
-
   const toogleExpIcon = () => {
       const expert_mode_div = document.getElementById("expert_mode_div");
       if (expert) {
@@ -528,7 +528,7 @@ export default function Swap() {
             <div class="${styles.choose_modal_div_upper} ${styles.choose_modal_div_grid}">
                 <div class=${styles.modal_title}>
                     <div></div>
-                    <svg class="${styles.close_modal} ${styles.choose_close_modal}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="${styles.close_modal} ${styles.choose_close_modal}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M18 6 6 18M6 6l12 12"/>
                     </svg>
                 </div>
@@ -603,7 +603,7 @@ export default function Swap() {
 
   const replaceBrokenImg = (event) => {
       let svg =  `
-        <svg class=${styles.token_icon} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class=${styles.token_icon} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" stroke="currentColor" strokeWidth="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <path d="m4.93 4.93 14.14 14.14"/>
         </svg>
@@ -616,7 +616,6 @@ export default function Swap() {
     if (initFlag.current) {
         initFlag.current = false;
         inputsInitMask();
-        initCacheValues();
     }
   }, []);
 
@@ -820,7 +819,7 @@ export default function Swap() {
                       <div className={`${styles.modal_title} ${styles.exp_modal_title}`}>
                           <div></div>
                           <div className={styles.exp_modal_title_text}>Are you sure?</div>
-                          <svg className={`${styles.close_modal} ${styles.exp_close_modal}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onClick={closeExpModal}>
+                          <svg className={`${styles.close_modal} ${styles.exp_close_modal}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" onClick={closeExpModal}>
                               <path d="M18 6 6 18M6 6l12 12"/>
                           </svg>
                       </div>
@@ -828,7 +827,7 @@ export default function Swap() {
                       <div className={`${styles.exp_modal_div} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}`}>
                           <div className={styles.modal_secondary_text}>Expert mode turns off the confirm transaction prompt and allows high slippage trades that often result in bad rates and lost funds.</div>
                           <div className={styles.modal_main_text}>ONLY USE THIS MODE IF YOU KNOW WHAT YOU ARE DOING.</div>
-                          <button className={styles.exp_modal_btn} onClick={setExpMode}>
+                          <button className={styles.exp_modal_btn} onClick={() => setExpert(true)}>
                               <div className={styles.exp_modal_btn_text} id="confirm-expert-mode">Turn On Expert Mode</div>
                           </button>
                       </div>

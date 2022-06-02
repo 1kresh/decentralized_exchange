@@ -654,7 +654,8 @@ export default function Swap() {
     setTimeout(() => {
         document.getElementById(styles.choose_modal_inner).innerHTML = '';
     }, 275);
-    document.getElementById('choose_modal_outer').classList.remove(styles.open);
+    document.getElementById('choose_modal_outer').classList.remove(styles.open_fully);
+    document.getElementById('choose_modal_outer').classList.remove(styles.open_partially);
     if (token) {
         setToken(token);
     }
@@ -746,7 +747,10 @@ export default function Swap() {
         const choose_modal_inner = document.getElementById(styles.choose_modal_inner);
         choose_modal_inner.innerHTML = '';
         choose_modal_inner.appendChild(choose_section);
-        document.getElementById('choose_modal_outer').classList.add(styles.open);
+
+        const choose_modal_outer = document.getElementById('choose_modal_outer');
+        choose_modal_outer.classList.add(styles.open_partially);
+        setTimeout(() => choose_modal_outer.classList.add(styles.open_fully), 275);
     }
 
   const handleChooseModalClick = (event) => {

@@ -1121,8 +1121,11 @@ $transition-delay: 275ms;
     transition: opacity $transition-delay;
     z-index: 9999;
 
-    &.open {
+    &.open_partially {
         opacity: 1;
+    }
+
+    &.open_fully {
         pointer-events: all;
     }
 }

@@ -178,7 +178,7 @@ export default function Swap() {
       }
 
       setExpIconOn(expert);
-      setOpenedExpModal(false);
+      setOpenedExpModal();
       if (expert) {
         setExpCheckboxOn(true);
         localStorage.setItem('expert', '1');
@@ -208,6 +208,7 @@ export default function Swap() {
             return;
         }
 
+        console.log(expert, openedExpModal, 'aaa');
         if (!expert && openedExpModal) {
             openExpModal();
         } else {
@@ -228,6 +229,8 @@ export default function Swap() {
     }
 
     if (expCheckboxOn) {
+        console.log(expCheckboxOn, 'expCheckboxOn');
+        console.log(expert, 'expert');
         if (!expert) {
             setOpenedExpModal(true);
         }
@@ -259,7 +262,7 @@ export default function Swap() {
             token0AmountFlag.current = false;
             return;
         }
-        console.log(token0Amount, 'token0Amount');
+        
         if (token0Amount == undefined && token1Amount != undefined) {
             token0InputMask.value = '';
         } else {
@@ -276,12 +279,11 @@ export default function Swap() {
             token1AmountFlag.current = false;
             return;
         }
-        console.log(token1Amount, 'token1Amount');
+        
         if (token0Amount != undefined && token1Amount == undefined) {
             token1InputMask.value = '';
         } else {
             setToken0Amount();
-            console.log('im here');
             const timeOutId = setTimeout(() => handleToken1Input(token1Amount), 275);
             return () => clearTimeout(timeOutId);
         }
@@ -289,7 +291,7 @@ export default function Swap() {
 
     const handleToken0Input = (token0_amount) => {
         const swap_info_div = document.getElementsByClassName(styles.swap_info_div)[0];
-        console.log(token0_amount);
+        
         if (token0_amount) {
             if (token0 && token1) {
                 const token1_amount = calculateToken1Amount(token0_amount, token0, token1);
@@ -806,7 +808,9 @@ export default function Swap() {
       setTimeout(() => {
         clearDiv(document.getElementById('exp_modal_inner'));
       }, 275);
-      document.getElementById('exp_modal_outer').classList.remove(styles.open);
+      const exp_modal_outer = document.getElementById('exp_modal_outer');
+      exp_modal_outer.classList.remove(styles.open_partially);
+      exp_modal_outer.classList.remove(styles.open_fully);
   }
 
   const openExpModal = () => {
@@ -830,25 +834,29 @@ export default function Swap() {
         </div>
     `);
 
-    html.getElementsByTagName('svg')[0].addEventListener('click', () => setOpenedExpModal(false));
+    html.getElementsByTagName('svg')[0].addEventListener('click', () => setOpenedExpModal());
     html.getElementsByTagName('button')[0].addEventListener('click', () => setExpert(true));
 
     const exp_modal_inner = document.getElementById('exp_modal_inner');
     clearDiv(exp_modal_inner);
     exp_modal_inner.appendChild(html);
-    document.getElementById('exp_modal_outer').classList.add(styles.open);
+
+    const exp_modal_outer = document.getElementById('exp_modal_outer');
+    exp_modal_outer.classList.add(styles.open_partially);
+    setTimeout(() => exp_modal_outer.classList.add(styles.open_fully), 275);
+    
     setSettingsOn(false);
   }
 
   const handleExpModalClick = (event) => {
       if (!event.target.closest('#exp_modal_inner')) {
-        setOpenedExpModal(false);
+        setOpenedExpModal();
       }
   }
 
   const handleKeydown = (event) => {
       if (event.key === 'Escape') {
-          setOpenedExpModal(false);
+          setOpenedExpModal();
           setChooseTokenNum();
       }
   }
@@ -866,8 +874,9 @@ export default function Swap() {
     setTimeout(() => {
         clearDiv(document.getElementById(styles.choose_modal_inner));
     }, 275);
-    document.getElementById('choose_modal_outer').classList.remove(styles.open_fully);
-    document.getElementById('choose_modal_outer').classList.remove(styles.open_partially);
+    const choose_modal_outer = document.getElementById('choose_modal_outer');
+    choose_modal_outer.classList.remove(styles.open_fully);
+    choose_modal_outer.classList.remove(styles.open_partially);
   }
     
   const getPopularTokenDiv = (popular_token, choosed_tokens) => {

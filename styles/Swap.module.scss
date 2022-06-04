@@ -572,6 +572,7 @@ $transition-delay: 275ms;
 }
 
 .balance_div_main {
+    height: calc(16.8px + 0.55rem);
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -1143,6 +1144,7 @@ $transition-delay: 275ms;
     height: 80%;
     min-height: 80%;
     width: 50vw;
+    min-width: 380px;
 }
 
 .modal_title {
@@ -1417,6 +1419,7 @@ $transition-delay: 275ms;
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: 1.2rem;
 }
 
 .swap_info_token_price_div {
@@ -1424,7 +1427,7 @@ $transition-delay: 275ms;
     display: inherit;
     align-items: inherit;
     margin-left: 0.5rem;
-    height: 1rem;
+    height: 1.2rem;;
 
     & svg {
         width: 1rem;

@@ -2,6 +2,7 @@ import Head from 'next/head'
 import styles from '../styles/Swap.module.scss'
 import IMask from 'imask'
 import {useEffect, useState, useRef} from "react";
+import { subtract, bignumber } from "mathjs";
 
 import token_list_all from '../public/token_list_all.json'
 import popular_tokens_all from '../public/popular_tokens_all.json'
@@ -25,6 +26,10 @@ export default function Swap() {
   const expCheckboxOnFlag = useRef(true);
   const openedExpModalFlag = useRef(true);
   const expIconOnFlag = useRef(true);
+  const token0Flag = useRef(true);
+  const token1Flag = useRef(true);
+  const token0AmountFlag = useRef(true);
+  const token1AmountFlag = useRef(true);
 
   const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
 
@@ -86,21 +91,47 @@ export default function Swap() {
   useEffect(() => {
     if ([0, 1].includes(chooseTokenNum)) {
         openChooseModal();
+    } else {
+        closeChooseModal();
     }
   }, [chooseTokenNum]);
 
   const [chooseModalInput, setChooseModalInput] = useState();
 
   useEffect(() => {
-    if (chooseModalInput == null) {
+    if (chooseModalInput == undefined) {
         return;
     }
     const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 275);
     return () => clearTimeout(timeOutId);
   }, [chooseModalInput]);
 
+  
+
   const [token0, setToken0] = useState(ETH_TOKEN);
-  const [token1, setToken1] = useState({"symbol": "uncelected"});
+
+  useEffect(() => {
+    if (token0Flag.current) {
+        token0Flag.current = false;
+        return;
+    }
+
+    checkTokens(token0, token0Amount, token1, token1Amount);
+
+  }, [token0]);
+
+  const [token1, setToken1] = useState();
+
+  useEffect(() => {
+    if (token1Flag.current) {
+        token1Flag.current = false;
+        return;
+    }
+
+    checkTokens(token0, token0Amount, token1, token1Amount);
+    
+  }, [token1]);
+
   const [chainId, setChainId] = useState(1);
   const [settingsOn, setSettingsOn] = useState(false);
 
@@ -113,7 +144,7 @@ export default function Swap() {
     toogleSettings();
     const timeOutId = setTimeout(() => {
         if (!settingsOn) {
-            document.getElementById(styles.settings_div).innerHTML = '';
+            clearDiv(document.getElementById(styles.settings_div));
         }
     }, 275);
     return () => clearTimeout(timeOutId);
@@ -214,17 +245,182 @@ export default function Swap() {
             return;
         }
 
-        console.log(expIconOn);
         const expert_mode_div = document.getElementById("expert_mode_div");
-        expert_mode_div.innerHTML = '';
+        clearDiv(expert_mode_div);
         if (expIconOn) {
             expert_mode_div.appendChild(getExpIcon());
         }
     }, [expIconOn]);
 
-  var balances = {
-    'ETH': 0.376304703077471623,
-    'UNI': 235.000000
+    const [token0Amount, setToken0Amount] = useState();
+
+    useEffect(() => {
+        if (token0AmountFlag.current) {
+            token0AmountFlag.current = false;
+            return;
+        }
+        console.log(token0Amount, 'token0Amount');
+        if (token0Amount == undefined && token1Amount != undefined) {
+            token0InputMask.value = '';
+        } else {
+            setToken1Amount();
+            const timeOutId = setTimeout(() => handleToken0Input(token0Amount), 275);
+            return () => clearTimeout(timeOutId);
+        }
+    }, [token0Amount]);
+
+    const [token1Amount, setToken1Amount] = useState();
+
+    useEffect(() => {
+        if (token1AmountFlag.current) {
+            token1AmountFlag.current = false;
+            return;
+        }
+        console.log(token1Amount, 'token1Amount');
+        if (token0Amount != undefined && token1Amount == undefined) {
+            token1InputMask.value = '';
+        } else {
+            setToken0Amount();
+            console.log('im here');
+            const timeOutId = setTimeout(() => handleToken1Input(token1Amount), 275);
+            return () => clearTimeout(timeOutId);
+        }
+    }, [token1Amount]);
+
+    const handleToken0Input = (token0_amount) => {
+        const swap_info_div = document.getElementsByClassName(styles.swap_info_div)[0];
+        console.log(token0_amount);
+        if (token0_amount) {
+            if (token0 && token1) {
+                const token1_amount = calculateToken1Amount(token0_amount, token0, token1);
+                document.getElementById("input1").value = token1_amount;
+                clearDiv(swap_info_div);
+                swap_info_div.appendChild(
+                    getTokenPriceInfoDiv(
+                        formatTokenPrice(
+                            token0_amount / token1_amount
+                        )
+                    )
+                );
+            }
+        } else {
+            token1InputMask.value = '';
+            clearDiv(swap_info_div);
+        }
+    }
+
+    const calculateToken1Amount = (token0_amount, token0, token1) => {
+        return 500;
+    }
+
+    const handleToken1Input = (token1_amount) => {
+        const swap_info_div = document.getElementsByClassName(styles.swap_info_div)[0];
+        if (token1_amount) {
+            if (token0 && token1) {
+                const token0_amount = calculateToken0Amount(token1_amount, token0, token1);
+                document.getElementById("input0").value = token0_amount;
+                clearDiv(swap_info_div);
+                swap_info_div.appendChild(
+                    getTokenPriceInfoDiv(
+                        formatTokenPrice(
+                            token0_amount / token1_amount
+                        )
+                    )
+                );
+            }
+        } else {
+            token0InputMask.value = '';
+            clearDiv(swap_info_div);
+        }
+    }
+
+    const clearDiv = (div) => {
+        div.innerHTML = '';
+    }
+
+    const calculateToken0Amount = (token1_amount, token0, token1) => {
+        return 400;
+    }
+    
+    const formatTokenPrice = (token_price) => {
+        var d = ",";
+        var g = 3;
+        var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
+        var parts = Number.parseFloat(token_price).toLocaleString('fullwide', { minimumFractionDigits: 18, useGrouping: false }).split(",");
+        var token_price_formated;
+        let n = 0;
+        let k = 0;
+        let nums = false;
+        if (parts[0] == '0') {
+            token_price_formated = parts[0] + '.';
+            for (let i of parts[1]) {
+                k += 1;
+                if (i != '0') {
+                    nums = true;
+                    n += 1
+                } else {
+                    if (nums) {
+                        n += 1
+                    }
+                }
+                token_price_formated += i;
+                if (n == 4) {
+                    break;
+                }
+            }
+        } else {
+            token_price_formated = parts[0].replace(regex, d);
+            if (parts[1]) {
+                token_price_formated += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
+            }
+        };
+
+        token_price_formated = removeSufficientsZeros(token_price_formated);
+        return token_price_formated;
+    }
+    
+    const getTokenPriceInfoDiv = (price) => {
+        return createElementFromHTML(
+        `
+            <div class="${styles.swap_info_token_price_div}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                    <path d="M512 80c0 18.01-14.3 34.6-38.4 48-29.1 16.1-72.4 27.5-122.3 30.9-3.6-1.7-7.4-3.4-11.2-5C300.6 137.4 248.2 128 192 128c-8.3 0-16.4.2-24.5.6l-1.1-.6C142.3 114.6 128 98.01 128 80c0-44.18 85.1-80 192-80 106 0 192 35.82 192 80zm-351.3 81.1c10.2-.7 20.6-1.1 31.3-1.1 62.2 0 117.4 12.3 152.5 31.4 24.8 13.5 39.5 30.3 39.5 48.6 0 3.1-.7 7.9-2.1 11.7-4.6 13.2-17.8 25.3-35 35.6-.1 0-.3.1-.4.2-.3.2-.6.3-.9.5-35 19.4-90.8 32-153.6 32-59.6 0-112.94-11.3-148.16-29.1-1.87-1-3.69-2.8-5.45-2.9C14.28 274.6 0 258 0 240c0-34.8 53.43-64.5 128-75.4 10.5-1.6 21.4-2.8 32.7-3.5zm231.2 25.5c28.3-4.4 54.2-11.4 76.2-20.5 16.3-6.8 31.4-15.2 43.9-25.5V176c0 19.3-16.5 37.1-43.8 50.9-14.7 7.4-32.4 13.6-52.4 18.4.1-1.7.2-3.5.2-5.3 0-21.9-10.6-39.9-24.1-53.4zM384 336c0 18-14.3 34.6-38.4 48-1.8.1-3.6 1.9-5.4 2.9C304.9 404.7 251.6 416 192 416c-62.8 0-118.58-12.6-153.61-32C14.28 370.6 0 354 0 336v-35.4c12.45 10.3 27.62 18.7 43.93 25.5C83.44 342.6 135.8 352 192 352c56.2 0 108.6-9.4 148.1-25.9 7.8-3.2 15.3-6.9 22.4-10.9 6.1-3.4 11.8-7.2 17.2-11.2 1.5-1.1 2.9-2.3 4.3-3.4V336zm32-57.9c18.1-5 36.5-9.5 52.1-16 16.3-6.8 31.4-15.2 43.9-25.5V272c0 10.5-5 21-14.9 30.9-16.3 16.3-45 29.7-81.3 38.4.1-1.7.2-3.5.2-5.3v-57.9zM192 448c56.2 0 108.6-9.4 148.1-25.9 16.3-6.8 31.4-15.2 43.9-25.5V432c0 44.2-86 80-192 80C85.96 512 0 476.2 0 432v-35.4c12.45 10.3 27.62 18.7 43.93 25.5C83.44 438.6 135.8 448 192 448z"/>
+                </svg>
+                1 ${token1['symbol']} = ${price} ${token0['symbol']}
+            </div>
+            
+        `);
+    }
+
+  const checkTokens = (token0, token0Amount, token1, token1Amount) => {
+    if (token0 && token1 && (token0Amount || token1Amount)) {
+        if (token0Amount != undefined) {
+            handleToken0Input(token0Amount);
+        } else {
+            handleToken1Input(token1Amount);
+        }
+    }
+  }
+
+  const floatToString = (number) => {
+    if (number == undefined) {
+        return '';
+    }
+
+    return removeSufficientsZeros(
+        number.toLocaleString('fullwide', 
+            { minimumFractionDigits: 18, useGrouping: false }
+        )
+        .replace(",", ".")
+    )
+  }
+
+  const stringToFloat = (number_str) => {
+    if (number_str == '') {
+        return undefined;
+    }
+    
+    return Number.parseFloat(number_str);
   }
 
   const openTab = (page) => {
@@ -298,19 +494,11 @@ export default function Swap() {
   }
 
   const token0InputInitHandler = () => {
-    const token0InputHandler = () => {
-        console.log('00');
-        console.log(token0InputMask.value);
-    }
-    token0InputMask.on('accept', token0InputHandler);
+    token0InputMask.on('accept', () => setToken0Amount(stringToFloat(token0InputMask.value)));
   }
 
   const token1InputInitHandler = () => {
-    const token1InputHandler = () => {
-        console.log('11');
-        console.log(token1InputMask.value);
-    }
-    token1InputMask.on('accept', token1InputHandler);
+    token1InputMask.on('accept', () => setToken1Amount(stringToFloat(token1InputMask.value)));
   }
 
   const slipMaskInitHandler = () => {
@@ -320,12 +508,12 @@ export default function Swap() {
         const slip_warnings = document.getElementById('slip_warnings');
         if (slipMask.value === '') {
             auto_btn.classList.add(styles.activated_auto_btn);
-            slip_warnings.innerHTML = '';
+            clearDiv(slip_warnings);
         } else {
             auto_btn.classList.remove(styles.activated_auto_btn);
             const slip_value_float = Number.parseFloat(slipMask.value);
             if (slip_value_float >= 0.05 && slip_value_float <= 1.0) {
-                slip_warnings.innerHTML = '';
+                clearDiv(slip_warnings);
             } else {
                 if (slip_value_float > 1.0) {
                     setFrontrun(slip_warnings);
@@ -445,7 +633,7 @@ export default function Swap() {
         `);
         
         settingsInputsInitMask(child);
-        settings_div.innerHTML = '';
+        clearDiv(settings_div);
         settings_div.appendChild(child);
             
         child = createElementFromHTML(
@@ -496,29 +684,68 @@ export default function Swap() {
     }
   }
 
-  const formatBalance = (balance) => {
-      var d = ",";
-      var g = 3;
-      var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
-      var parts = Number.parseFloat(balance).toString().split(".");
-      var formatedBalance = parts[0].replace(regex, d);
-      formatedBalance += (parts[1] ? "." + parts[1].slice(0, 4) : "");
-      return formatedBalance;
+  var balances = {
+    'ETH': 241,
+    'UNI': 235.000000
   }
 
-  const setMaxAmount = (event) => {
-      // document.getElementById("input0").value = (getBalance(address0) - 0.01).toString();
-      const input = event.target.parentNode.parentNode.getElementsByTagName("input")[0];
-      var cur_token = input.id === "input0" ? token0 : token1;
-      const cur_balance = balances[cur_token['symbol']] ? balances[cur_token['symbol']] : 0;
-      if(cur_balance != 0) {
-        if (cur_token['symbol'] != "unselected") {
-          input.value = cur_token === 'ETH' ? cur_balance - 0.01 : cur_balance;
+  const formatBalance = (balance) => {
+      if (!Number.isInteger(balance)) {
+        if (balance == undefined) { return 0; }
+        var d = ",";
+        var g = 3;
+        var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
+        var parts = Number.parseFloat(balance).toLocaleString('fullwide', { minimumFractionDigits: 18, useGrouping: false }).split(",");
+        var balance = parts[0].replace(regex, d);
+        if (parts[1]) {
+            balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
+            balance = removeSufficientsZeros(balance);
         }
-        input.blur = true;
       }
-     
+      return balance;
   }
+
+  const removeSufficientsZeros = (number_str) => {
+    if (number_str.includes('.')) {
+        let i;
+        for (i = number_str.length - 1; i > -1; i--) {
+            if (number_str[i] != '0') {
+                break;
+            }
+        }
+
+        if (number_str[i] == '.') {
+            i--;
+        }
+        return number_str.slice(0, i + 1);
+    }
+    
+    return number_str;
+  }
+
+  const setMaxAmount = (event, token_num, token_symbol, balances) => {
+      // document.getElementById("input0").value = (getBalance(address0) - 0.01).toString();
+      const cur_balance = balances[token_symbol] ? balances[token_symbol] : 0;
+
+      if (cur_balance < 0.0000001) {
+        cur_balance = 0;
+      }
+
+      if (token_symbol === 'ETH') {
+        cur_balance = Math.max(subtract(bignumber(cur_balance), 0.01), 0);
+      }
+
+      if(cur_balance == 0) {
+        cur_balance = undefined;
+      }
+
+      if (token_num == 0) {
+          token0InputMask.value = floatToString(cur_balance);
+      } else {
+        token1InputMask.value = floatToString(cur_balance);
+      } 
+  }
+
 
   const isInFamilyTree = (child, parent) => {
       if (child === parent) {
@@ -541,12 +768,9 @@ export default function Swap() {
       }
   }
 
-  const setToken = (token) => {
+  const setToken = (chooseTokenNum, token) => {
       const token_div = document.getElementById(`token_div${chooseTokenNum}`);
-      if ([token1, token0][chooseTokenNum] == token) {
-        changeTokens();
-        return;
-      }
+      
       chooseTokenNum == 0 ? setToken0(token) : setToken1(token);
       
       token_div.getElementsByTagName("input")[0].value = "";
@@ -555,9 +779,8 @@ export default function Swap() {
       const balance = token_div.getElementsByClassName(styles.balance_div)[0];
       var div = document.createElement('div');
       div.classList.add(styles.choosed_token_name);
-      if (token['symbol'] === 'unselected') {
+      if (!token) {
           div.innerHTML = "Select a token";
-          balance.innerHTML = "Balance: ???";
       } else {
           var img = document.createElement('img');
           img.src = token['logoURI'];
@@ -572,26 +795,16 @@ export default function Swap() {
   }
 
   const changeTokens = () => {
-      const token_div0 = document.getElementById('token_div0');
-      const token_div1 = document.getElementById('token_div1');
-      const input0 = token_div0.getElementsByTagName("input")[0];
-      const input1 = token_div1.getElementsByTagName("input")[0];
-      const btn0 = token_div0.getElementsByTagName("button")[0];
-      const btn1 = token_div1.getElementsByTagName("button")[0];
-      const balance0 = token_div0.getElementsByClassName(styles.balance_div)[0];
-      const balance1 = token_div1.getElementsByClassName(styles.balance_div)[0];
-      [input0.value, input1.value] = [input1.value, input0.value];
-      [btn0.innerHTML, btn1.innerHTML] = [btn1.innerHTML, btn0.innerHTML];
-      [balance0.innerHTML, balance1.innerHTML] = [balance1.innerHTML, balance0.innerHTML];
-      setToken0(token1);
-      setToken1(token0);
-      token0InputMask.updateValue();
-      token1InputMask.updateValue();
+    setToken0(token1);
+    setToken1(token0);
+    const tmp = token0InputMask.value;
+    token0InputMask.value = token1InputMask.value;
+    token1InputMask.value = tmp;
   }
 
   const closeExpModal = () => {
       setTimeout(() => {
-        document.getElementById('exp_modal_inner').innerHTML = '';
+        clearDiv(document.getElementById('exp_modal_inner'));
       }, 275);
       document.getElementById('exp_modal_outer').classList.remove(styles.open);
   }
@@ -621,7 +834,7 @@ export default function Swap() {
     html.getElementsByTagName('button')[0].addEventListener('click', () => setExpert(true));
 
     const exp_modal_inner = document.getElementById('exp_modal_inner');
-    exp_modal_inner.innerHTML = '';
+    clearDiv(exp_modal_inner);
     exp_modal_inner.appendChild(html);
     document.getElementById('exp_modal_outer').classList.add(styles.open);
     setSettingsOn(false);
@@ -636,7 +849,7 @@ export default function Swap() {
   const handleKeydown = (event) => {
       if (event.key === 'Escape') {
           setOpenedExpModal(false);
-          closeChooseModal();
+          setChooseTokenNum();
       }
   }
 
@@ -649,16 +862,12 @@ export default function Swap() {
     `);
   }
 
-  const closeChooseModal = (token = '') => {
+  const closeChooseModal = () => {
     setTimeout(() => {
-        document.getElementById(styles.choose_modal_inner).innerHTML = '';
+        clearDiv(document.getElementById(styles.choose_modal_inner));
     }, 275);
     document.getElementById('choose_modal_outer').classList.remove(styles.open_fully);
     document.getElementById('choose_modal_outer').classList.remove(styles.open_partially);
-    if (token) {
-        setToken(token);
-    }
-    setChooseTokenNum();
   }
     
   const getPopularTokenDiv = (popular_token, choosed_tokens) => {
@@ -674,17 +883,21 @@ export default function Swap() {
             </div>
         </div>
     `);
-    popular_token_div.addEventListener('click', () => closeChooseModal(popular_token));
+    popular_token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
+        [setToken0, setToken1][chooseTokenNum](popular_token);
+        return;
+    }));
     
     return popular_token_div;
   }
 
   const getTokenDiv = (token, choosed_tokens) => {
+    const disabled_partially = token == choosed_tokens[1];
     const token_div = createElementFromHTML(
     `
         <div class="${styles.list_token}
                     ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
-                    ${token == choosed_tokens[1] ? styles.disabled_partially : ''}">
+                    ${disabled_partially ? styles.disabled_partially : ''}">
             <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false"></img>
             <div class=${styles.list_token_title}>
                 <span class=${styles.list_token_symbol}>${token['symbol']}</span>
@@ -696,7 +909,17 @@ export default function Swap() {
             </div>
         </div>
     `);
-    token_div.addEventListener('click', () => closeChooseModal(token));
+    if (disabled_partially) {
+        token_div.addEventListener('click', () => setChooseTokenNum(() => {
+            changeTokens();
+            return;
+        }));
+    } else {
+        token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
+            [setToken0, setToken1][chooseTokenNum](token);
+            return;
+        }));
+    }
     return token_div;
   }
 
@@ -723,7 +946,7 @@ export default function Swap() {
             </div>
         </div>`);
 
-        choose_section.getElementsByClassName(styles.close_modal)[0].addEventListener('click', () => closeChooseModal());
+        choose_section.getElementsByClassName(styles.close_modal)[0].addEventListener('click', () => setChooseTokenNum());
         const search_input = choose_section.getElementsByClassName(styles.token_search_input)[0];
         search_input.addEventListener('change', (event) => setChooseModalInput(event.target.value));
         search_input.addEventListener('input', (event) => setChooseModalInput(event.target.value));
@@ -744,7 +967,7 @@ export default function Swap() {
         }
         
         const choose_modal_inner = document.getElementById(styles.choose_modal_inner);
-        choose_modal_inner.innerHTML = '';
+        clearDiv(choose_modal_inner);
         choose_modal_inner.appendChild(choose_section);
 
         const choose_modal_outer = document.getElementById('choose_modal_outer');
@@ -754,13 +977,13 @@ export default function Swap() {
 
   const handleChooseModalClick = (event) => {
     if (!event.target.closest('#' + styles.choose_modal_inner)) {
-      closeChooseModal();
+        setChooseTokenNum();
     }
   }
 
   const handleSearchTokenInput = (chooseModalInput) => {
     const tokens_div = document.getElementsByClassName(styles.choose_modal_div_lower)[0];
-    tokens_div.innerHTML = '';
+    clearDiv(tokens_div);
     const chooseModalInputToLower = chooseModalInput.toLowerCase()
 
     const choosed_tokens = chooseTokenNum == 0 ? [token0, token1] : [token1, token0]; // [currently choosing token, another one]
@@ -861,11 +1084,20 @@ export default function Swap() {
                           <button className={styles.choice_btn} onClick={() => setChooseTokenNum(0)}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
-                                      <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false">
-                                      </img>
-                                      <div className={styles.choosed_token_name}>
-                                        {token0['symbol']}
-                                      </div>
+                                      {token0 &&
+                                        <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false">
+                                        </img>
+                                      }
+                                      {token0 &&
+                                        <div className={styles.choosed_token_name}>
+                                          {token0['symbol']}
+                                        </div>
+                                      }
+                                      {!token0 &&
+                                        <div className={styles.choosed_token_name}>
+                                          Select a token
+                                        </div>
+                                      }
                                   </div>
                                   <div>
                                       <svg className={styles.input_arrow} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
@@ -876,9 +1108,11 @@ export default function Swap() {
                           </button>
                       </div>
                       <div className={styles.balance_div_main}>
-                          <div id="balance_div0" className={styles.balance_div} onClick={setMaxAmount}>
-                              Balance: {formatBalance(balances['ETH'])}
-                          </div>
+                            {token0 && balances &&
+                              <div id="balance_div0" className={styles.balance_div} onClick={(event) => setMaxAmount(event, 0, token0['symbol'], balances)}>
+                                Balance: {formatBalance(balances[token0['symbol']])}
+                              </div>
+                            }
                       </div>
                   </div>
                   <div className={styles.change_arrow} onClick={changeTokens}>
@@ -899,9 +1133,20 @@ export default function Swap() {
                           <button className={styles.choice_btn} onClick={() => setChooseTokenNum(1)}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
-                                      <div className={styles.choosed_token_name}>
+                                      {token1 &&
+                                        <img className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false">
+                                        </img>
+                                      }
+                                      {token1 &&
+                                        <div className={styles.choosed_token_name}>
+                                          {token1['symbol']}
+                                        </div>
+                                      }
+                                      {!token1 &&
+                                        <div className={styles.choosed_token_name}>
                                           Select a token
-                                      </div>
+                                        </div>
+                                      }
                                   </div>
                                   <div>
                                       <svg className={styles.input_arrow} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
@@ -912,18 +1157,14 @@ export default function Swap() {
                           </button>
                       </div>
                       <div className={styles.balance_div_main}>
-                          <div id="balance_div1" className={styles.balance_div} onClick={setMaxAmount}>
-                              Balance: ???
-                          </div>
+                            {token1 && balances &&
+                              <div id="balance_div1" className={styles.balance_div} onClick={(event) => setMaxAmount(event, 1, token1['symbol'], balances)}>
+                                Balance: {formatBalance(balances[token1['symbol']])}
+                              </div>
+                            }
                       </div>
                   </div>
                   <div className={styles.swap_info_div}>
-                      <div className={styles.swap_info_token_price_div}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                            <path d="M512 80c0 18.01-14.3 34.6-38.4 48-29.1 16.1-72.4 27.5-122.3 30.9-3.6-1.7-7.4-3.4-11.2-5C300.6 137.4 248.2 128 192 128c-8.3 0-16.4.2-24.5.6l-1.1-.6C142.3 114.6 128 98.01 128 80c0-44.18 85.1-80 192-80 106 0 192 35.82 192 80zm-351.3 81.1c10.2-.7 20.6-1.1 31.3-1.1 62.2 0 117.4 12.3 152.5 31.4 24.8 13.5 39.5 30.3 39.5 48.6 0 3.1-.7 7.9-2.1 11.7-4.6 13.2-17.8 25.3-35 35.6-.1 0-.3.1-.4.2-.3.2-.6.3-.9.5-35 19.4-90.8 32-153.6 32-59.6 0-112.94-11.3-148.16-29.1-1.87-1-3.69-2.8-5.45-2.9C14.28 274.6 0 258 0 240c0-34.8 53.43-64.5 128-75.4 10.5-1.6 21.4-2.8 32.7-3.5zm231.2 25.5c28.3-4.4 54.2-11.4 76.2-20.5 16.3-6.8 31.4-15.2 43.9-25.5V176c0 19.3-16.5 37.1-43.8 50.9-14.7 7.4-32.4 13.6-52.4 18.4.1-1.7.2-3.5.2-5.3 0-21.9-10.6-39.9-24.1-53.4zM384 336c0 18-14.3 34.6-38.4 48-1.8.1-3.6 1.9-5.4 2.9C304.9 404.7 251.6 416 192 416c-62.8 0-118.58-12.6-153.61-32C14.28 370.6 0 354 0 336v-35.4c12.45 10.3 27.62 18.7 43.93 25.5C83.44 342.6 135.8 352 192 352c56.2 0 108.6-9.4 148.1-25.9 7.8-3.2 15.3-6.9 22.4-10.9 6.1-3.4 11.8-7.2 17.2-11.2 1.5-1.1 2.9-2.3 4.3-3.4V336zm32-57.9c18.1-5 36.5-9.5 52.1-16 16.3-6.8 31.4-15.2 43.9-25.5V272c0 10.5-5 21-14.9 30.9-16.3 16.3-45 29.7-81.3 38.4.1-1.7.2-3.5.2-5.3v-57.9zM192 448c56.2 0 108.6-9.4 148.1-25.9 16.3-6.8 31.4-15.2 43.9-25.5V432c0 44.2-86 80-192 80C85.96 512 0 476.2 0 432v-35.4c12.45 10.3 27.62 18.7 43.93 25.5C83.44 438.6 135.8 448 192 448z"/>
-                        </svg>
-                        1 USDT = 0.41241 USDT
-                      </div>
                   </div>
                   <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
                       <button className={styles.swap_tokens_btn}>

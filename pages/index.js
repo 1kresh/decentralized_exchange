@@ -208,7 +208,6 @@ export default function Swap() {
             return;
         }
 
-        console.log(expert, openedExpModal, 'aaa');
         if (!expert && openedExpModal) {
             openExpModal();
         } else {
@@ -229,8 +228,6 @@ export default function Swap() {
     }
 
     if (expCheckboxOn) {
-        console.log(expCheckboxOn, 'expCheckboxOn');
-        console.log(expert, 'expert');
         if (!expert) {
             setOpenedExpModal(true);
         }
@@ -807,6 +804,7 @@ export default function Swap() {
   const closeExpModal = () => {
       setTimeout(() => {
         clearDiv(document.getElementById('exp_modal_inner'));
+        makeBodyScrollable();
       }, 275);
       const exp_modal_outer = document.getElementById('exp_modal_outer');
       exp_modal_outer.classList.remove(styles.open_partially);
@@ -846,6 +844,8 @@ export default function Swap() {
     setTimeout(() => exp_modal_outer.classList.add(styles.open_fully), 275);
     
     setSettingsOn(false);
+
+    makeBodyUnscrollable();
   }
 
   const handleExpModalClick = (event) => {
@@ -873,6 +873,7 @@ export default function Swap() {
   const closeChooseModal = () => {
     setTimeout(() => {
         clearDiv(document.getElementById(styles.choose_modal_inner));
+        makeBodyScrollable();
     }, 275);
     const choose_modal_outer = document.getElementById('choose_modal_outer');
     choose_modal_outer.classList.remove(styles.open_fully);
@@ -912,7 +913,6 @@ export default function Swap() {
                 <span class=${styles.list_token_symbol}>${token['symbol']}</span>
                 <span class=${styles.list_token_name}>${token['name']}</span>
             </div>
-            <span></span>
             <div class=${styles.list_token_balance}>
                 ${formatBalance(balances[token['symbol']] ? balances[token['symbol']] : 0)}
             </div>
@@ -982,6 +982,16 @@ export default function Swap() {
         const choose_modal_outer = document.getElementById('choose_modal_outer');
         choose_modal_outer.classList.add(styles.open_partially);
         setTimeout(() => choose_modal_outer.classList.add(styles.open_fully), 275);
+
+        makeBodyUnscrollable();
+    }
+
+    const makeBodyUnscrollable = () => {
+        document.body.classList.add(styles.unscrollable);
+    }
+
+    const makeBodyScrollable = () => {
+        document.body.classList.remove(styles.unscrollable);
     }
 
   const handleChooseModalClick = (event) => {
@@ -1053,9 +1063,11 @@ export default function Swap() {
               <path className={styles.arrow_down} d="M96 252.5V324H31.5l52.3 52.2 52.2 52.3 52.2-52.3 52.3-52.2H176V181H96v71.5zM96 125v40h80V85H96v40z"/>
           </svg>
           </a>
-          <div id="menuDiv" className={`${styles.menu} ${styles.swap_toogle}`}>
-              <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
-              <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
+          <div className={styles.menu_main}>
+            <div id="menuDiv" className={`${styles.menu} ${styles.swap_toogle}`}>
+                <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
+                <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
+            </div>
           </div>
           <button id="connectBtn" className={`${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWallet}>Connect wallet 
               <div>

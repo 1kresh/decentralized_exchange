@@ -12,11 +12,19 @@ $border-radius-secondary: 1rem;
 $transition-delay: 275ms;
 
 
+.unscrollable {
+    overflow: hidden;
+}
+
 .container {
     font-family: "Inter var", sans-serif;
     -webkit-font-feature-settings: "ss01", "ss02";
     font-feature-settings: "ss01", "ss02";
     line-height: normal;
+
+    & nav {
+        flex-wrap: nowrap;
+    }
 }
 
 .main {
@@ -34,7 +42,7 @@ $transition-delay: 275ms;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    padding: 120px 0px;
+    padding: 120px 1rem;
 }
 
 .icon {
@@ -43,12 +51,20 @@ $transition-delay: 275ms;
     height: 3rem;
 }
 
-.menu {
+.menu_main {
+    padding: 1rem;
     position: fixed;
     right: 50%;
     -webkit-transform: translateX(50%);
     -ms-transform: translateX(50%);
     transform: translateX(50%);
+    max-width: calc(400px + 2rem);
+    width: 100%;
+    min-width:  calc(300px + 2rem);
+    line-height: 1.65rem;
+}
+
+.menu {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -58,10 +74,6 @@ $transition-delay: 275ms;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    max-width: 400px;
-    width: 100%;
-    min-width: 370px;
-    line-height: 1.65rem;
     -webkit-transition: background-position $transition-delay linear;
     -o-transition: background-position $transition-delay linear;
     transition: background-position $transition-delay linear;
@@ -77,15 +89,9 @@ $transition-delay: 275ms;
     border-radius: $border-radius-main;
 }
 
-@media screen and (max-width: 1280px) {
-    .menu {
-        position: initial;
-        transform: none;
-    }
-}
 
 @media screen and (max-width: 960px) {
-    .menu {
+    .menu_main {
         position: fixed;
         bottom: 0;
         transform: translate(50%, -50%);
@@ -128,9 +134,7 @@ $transition-delay: 275ms;
     vertical-align: middle;
     cursor: pointer;
     padding: 0.375rem 0.75rem;
-    max-width: 240px;
     width: 100%;
-    min-width: 200px;
     font-size: 1.1rem;
     font-weight: 500;
 
@@ -344,10 +348,8 @@ $transition-delay: 275ms;
     position: relative;
     max-width: 480px;
     width: 100%;
-    min-width: 410px;
+    min-width: 300px;
     margin-top: 1rem;
-    margin-left: auto;
-    margin-right: auto;
     overflow: hidden;
 }
 
@@ -627,6 +629,18 @@ $transition-delay: 275ms;
     background-color: $light-grey;
     opacity: 0;
     font-size: 16px;
+}
+
+@media screen and (max-width: 450px) {
+    #settings_div {
+        width: 83% !important;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    #settings_div {
+        width: 90% !important;
+    }
 }
 
 .settings_div_activated {
@@ -1133,10 +1147,11 @@ $transition-delay: 275ms;
 }
 
 .modal_inner {
+    padding: 0 1rem;
     max-width: 420px;
     max-height: 100vh;
     min-height: 200px;
-    width: 65vw;
+    min-width: 300px;
 }
 
 #choose_modal_inner {
@@ -1144,7 +1159,6 @@ $transition-delay: 275ms;
     height: 80%;
     min-height: 80%;
     width: 50vw;
-    min-width: 380px;
 }
 
 .modal_title {
@@ -1196,8 +1210,9 @@ $transition-delay: 275ms;
 .line {
     height: 1px;
     width: 100%;
-    background-color: $black;
+    background-color: $dark-grey;
     opacity: 0.75;
+    margin-bottom: 1px;
 }
 
 .exp_modal_div {
@@ -1352,7 +1367,7 @@ $transition-delay: 275ms;
     height: 56px;
     width: 100%;
     padding: 4px 20px;
-    display: grid;
+    display: flex;
     grid-template-columns: auto minmax(auto, 1fr) auto minmax(0px, 72px);
     gap: 16px;
     cursor: pointer;
@@ -1390,6 +1405,8 @@ $transition-delay: 275ms;
 .list_token_title {
     display: flex;
     flex-direction: column;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .list_token_symbol {
@@ -1401,10 +1418,12 @@ $transition-delay: 275ms;
     font-weight: 300;
     font-size: 12px;
     color: $dark-grey;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .list_token_balance {
-    justify-self: flex-end;
+    margin-left: auto;
 }
 
 .list_token_no_result {

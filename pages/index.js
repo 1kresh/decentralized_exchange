@@ -1,8 +1,16 @@
 import Head from 'next/head'
 import styles from '../styles/Swap.module.scss'
 import IMask from 'imask'
-import {useEffect, useState, useRef} from "react";
-import { subtract, bignumber, divide } from "mathjs";
+import {
+    useEffect,
+    useState,
+    useRef
+} from "react";
+import {
+    subtract,
+    bignumber,
+    divide
+} from "mathjs";
 import Web3 from "web3";
 import jazzicon from "@metamask/jazzicon"
 
@@ -15,286 +23,294 @@ import genericErc20Abi from '../public/Erc20.json';
 
 
 export default function Swap() {
-  const avatarRef = useRef()
+    const avatarRef = useRef()
 
-  const [provider, setProvider] = useState();
-  const [web3, setWeb3] = useState();
-  const [chainId, setChainId] = useState();
-  const [address, setAddress] = useState();
-  const [ethBalance, setEthBalance] = useState();
-  const [balances, setBalances] = useState();
-  const [swapContract, setSwapContract] = useState();
+    const [provider, setProvider] = useState();
+    const [web3, setWeb3] = useState();
+    const [chainId, setChainId] = useState();
+    const [address, setAddress] = useState();
+    const [ethBalance, setEthBalance] = useState();
+    const [balances, setBalances] = useState();
+    const [swapContract, setSwapContract] = useState();
 
-  const checkConnection = () => {
-    if (window.ethereum) {
-        setProvider(window.ethereum);
-        setWeb3(new Web3(window.ethereum));
+    const checkConnection = () => {
+        if (window.ethereum) {
+            setProvider(window.ethereum);
+            setWeb3(new Web3(window.ethereum));
+        };
     };
-  };
 
-  useEffect(() => {
-    if (provider) {
-        provider.on('chainChanged', (chainId) => {
-            clearAccountStates();
-            filterChainId(chainId)
-        });
-        provider.on('accountsChanged', (address) => {
-            clearAccountStates();
-            setAddress(address[0]);
-        });
-    }
-}, [provider]);
+    useEffect(() => {
+        if (provider) {
+            provider.on('chainChanged', (chainId) => {
+                clearAccountStates();
+                filterChainId(chainId)
+            });
+            provider.on('accountsChanged', (address) => {
+                clearAccountStates();
+                setAddress(address[0]);
+            });
+        }
+    }, [provider]);
 
     const clearAccountStates = () => {
         setEthBalance();
         setBalances();
     }
 
-  useEffect(() => {
-      if (web3) {
-        web3.eth.net.getId()
-            .then(filterChainId);
-        web3.eth.getAccounts()
-            .then((addrs) => {
-                if (addrs) {
-                    setAddress(addrs[0]);
-                }
-            });
-      }
-  }, [web3]);
-
-  useEffect(() => {
-    if (web3 && address && chainId) {
-        web3.eth.getBalance(address)
-            .then((balance) => setEthBalance(web3.utils.fromWei(balance, 'ether')));
-    }
-  }, [web3, address, chainId]);
-
-  useEffect(() => {
-    const element = avatarRef.current;
-    if (element && address) {
-        const addr = address.slice(2, 10);
-        const seed = parseInt(addr, 16);
-        const icon = jazzicon(16, seed);
-        if (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
-        element.appendChild(icon);
-    }
-  }, [address, avatarRef, ethBalance]);
-
-  const connectWalletHandler = async () => {
-      if (provider) {
-        provider.request({ method: "eth_requestAccounts" })
-            .then(() => setWeb3(new Web3(provider)));
-      }
-  }
-
-  const switchNetworkHandler = async () => {
-    if (provider) {
-        provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x1' }],
-        })
-        .then(() =>
+    useEffect(() => {
+        if (web3) {
             web3.eth.net.getId()
-                .then(filterChainId));
-      }
-  }
-
-  useEffect(() => {
-
-  }, [balances]);
-
-  const filterChainId = (chainId_) => {
-    chainId_ = Number.parseInt(chainId_);
-    if (ALLOWED_CHAINIDS.includes(chainId_)) {
-        setChainId(chainId_);
-    } else {
-        setChainId();
-    }
-  }
-
-  const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
-
-  useEffect(() => {
-    if (tokenListAll && chainId) {
-        getTokensCurChainId(tokenListAll, chainId);
-    }
-  }, [tokenListAll, chainId]);
-
-  const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all);
-  const [tokenListCur, setTokenListCur] = useState();
-
-  useEffect(() => {
-    if (tokenListCur && popularTokensAll && chainId) {
-      getPopularTokensCurChainId(tokenListCur, popularTokensAll, chainId);
-    }
-  }, [tokenListCur, popularTokensAll, chainId])
-
-  const [popularTokensCur, setPopularTokensCur] = useState();
-
-  const getTokensCurChainId = (tokenListAll_, chainId_) => {
-    var tokenListCur = [ETH_TOKEN]
-    for (let token of tokenListAll_) {
-        if (token['chainId'] === chainId_) {
-            tokenListCur.push(token);
+                .then(filterChainId);
+            web3.eth.getAccounts()
+                .then((addrs) => {
+                    if (addrs) {
+                        setAddress(addrs[0]);
+                    }
+                });
         }
-    }
-    setTokenListCur(tokenListCur);
-  }
+    }, [web3]);
 
-  const getPopularTokensCurChainId = (tokenListCur_, popularTokensAll_, chainId_) => {
-    var popularTokensCur = [ETH_TOKEN];
-    for (let token of popularTokensAll_[chainId_.toString()]) {
-        popularTokensCur.push(token);
-    }
-    setPopularTokensCur(popularTokensCur)
-  }
+    useEffect(() => {
+        if (web3 && address && chainId) {
+            web3.eth.getBalance(address)
+                .then((balance) => setEthBalance(web3.utils.fromWei(balance, 'ether')));
+        }
+    }, [web3, address, chainId]);
 
-  useEffect(() => {
-    if (address && tokenListCur && chainId) {
-        const web3_tmp = new Web3(window.ethereum);
-        var balances_tmp = {};
-        for (let token of tokenListCur) {
-            if (token['address']) {
-                const contract = new web3_tmp.eth.Contract(genericErc20Abi, token['address']);
-                contract.methods.balanceOf(address).call()
-                .then((balance) => {
-                    balances_tmp[token['address']] = balance != 0 ? divide(bignumber(balance), bignumber(10 ** token['decimals'])) : 0;
+    useEffect(() => {
+        const element = avatarRef.current;
+        if (element && address) {
+            const addr = address.slice(2, 10);
+            const seed = parseInt(addr, 16);
+            const icon = jazzicon(16, seed);
+            if (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+            element.appendChild(icon);
+        }
+    }, [address, avatarRef, ethBalance]);
+
+    const connectWalletHandler = async () => {
+        if (provider) {
+            provider.request({
+                    method: "eth_requestAccounts"
                 })
-                .catch(() => { balances_tmp[token['address']] = 0; })
-            }
-            
+                .then(() => setWeb3(new Web3(provider)));
         }
-        setBalances(balances_tmp);
     }
-}, [address, tokenListCur, chainId]);
 
-  const [chooseTokenNum, setChooseTokenNum] = useState();
+    const switchNetworkHandler = async () => {
+        if (provider) {
+            provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{
+                        chainId: '0x1'
+                    }],
+                })
+                .then(() =>
+                    web3.eth.net.getId()
+                    .then(filterChainId));
+        }
+    }
 
-  useEffect(() => {
-      var clearDivTimeout;
-      if (popularTokensCur && tokenListCur) {
-        if ([0, 1].includes(chooseTokenNum)) {
-            clearTimeout(clearDivTimeout);
-            openChooseModal();
+    useEffect(() => {
+
+    }, [balances]);
+
+    const filterChainId = (chainId_) => {
+        chainId_ = Number.parseInt(chainId_);
+        if (ALLOWED_CHAINIDS.includes(chainId_)) {
+            setChainId(chainId_);
         } else {
-            clearDivTimeout = setTimeout(() => {
-                clearDiv(document.getElementById(styles.choose_modal_inner));
-            }, 275);
-            closeChooseModal();
+            setChainId();
         }
-      } else {
-        setChooseTokenNum();
-      }
-  }, [popularTokensCur, tokenListCur, chooseTokenNum]);
-
-  const [chooseModalInput, setChooseModalInput] = useState();
-
-  useEffect(() => {
-    if (chooseModalInput == undefined) {
-        return;
     }
-    const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 275);
-    return () => clearTimeout(timeOutId);
-  }, [chooseModalInput]);
 
-  
+    const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
 
-  const [token0, setToken0] = useState(ETH_TOKEN);
+    useEffect(() => {
+        if (tokenListAll && chainId) {
+            getTokensCurChainId(tokenListAll, chainId);
+        }
+    }, [tokenListAll, chainId]);
 
-  useEffect(() => {
-    checkTokens(token0, token0Amount, token1, token1Amount, tokenInputFocus);
-  }, [token0]);
+    const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all);
+    const [tokenListCur, setTokenListCur] = useState();
 
-  const [token1, setToken1] = useState();
+    useEffect(() => {
+        if (tokenListCur && popularTokensAll && chainId) {
+            getPopularTokensCurChainId(tokenListCur, popularTokensAll, chainId);
+        }
+    }, [tokenListCur, popularTokensAll, chainId])
 
-  useEffect(() => {
-    checkTokens(token0, token0Amount, token1, token1Amount, tokenInputFocus);
-  }, [token1]);
+    const [popularTokensCur, setPopularTokensCur] = useState();
 
-  const [settingsOn, setSettingsOn] = useState();
-
-  useEffect(() => {
-    if (settingsOn != undefined) {
-        toggleSettings();
-        const timeOutId = setTimeout(() => {
-            if (!settingsOn) {
-                clearDiv(document.getElementById(styles.settings_div));
+    const getTokensCurChainId = (tokenListAll_, chainId_) => {
+        var tokenListCur = [ETH_TOKEN]
+        for (let token of tokenListAll_) {
+            if (token['chainId'] === chainId_) {
+                tokenListCur.push(token);
             }
-        }, 275);
+        }
+        setTokenListCur(tokenListCur);
+    }
+
+    const getPopularTokensCurChainId = (tokenListCur_, popularTokensAll_, chainId_) => {
+        var popularTokensCur = [ETH_TOKEN];
+        for (let token of popularTokensAll_[chainId_.toString()]) {
+            popularTokensCur.push(token);
+        }
+        setPopularTokensCur(popularTokensCur)
+    }
+
+    useEffect(() => {
+        if (address && tokenListCur && chainId) {
+            const web3_tmp = new Web3(window.ethereum);
+            var balances_tmp = {};
+            for (let token of tokenListCur) {
+                if (token['address']) {
+                    const contract = new web3_tmp.eth.Contract(genericErc20Abi, token['address']);
+                    contract.methods.balanceOf(address).call()
+                        .then((balance) => {
+                            balances_tmp[token['address']] = balance != 0 ? divide(bignumber(balance), bignumber(10 ** token['decimals'])) : 0;
+                        })
+                        .catch(() => {
+                            balances_tmp[token['address']] = 0;
+                        })
+                }
+
+            }
+            setBalances(balances_tmp);
+        }
+    }, [address, tokenListCur, chainId]);
+
+    const [chooseTokenNum, setChooseTokenNum] = useState();
+
+    useEffect(() => {
+        var clearDivTimeout;
+        if (popularTokensCur && tokenListCur) {
+            if ([0, 1].includes(chooseTokenNum)) {
+                clearTimeout(clearDivTimeout);
+                openChooseModal();
+            } else {
+                clearDivTimeout = setTimeout(() => {
+                    clearDiv(document.getElementById(styles.choose_modal_inner));
+                }, 275);
+                closeChooseModal();
+            }
+        } else {
+            setChooseTokenNum();
+        }
+    }, [popularTokensCur, tokenListCur, chooseTokenNum]);
+
+    const [chooseModalInput, setChooseModalInput] = useState();
+
+    useEffect(() => {
+        if (chooseModalInput == undefined) {
+            return;
+        }
+        const timeOutId = setTimeout(() => handleSearchTokenInput(chooseModalInput), 275);
         return () => clearTimeout(timeOutId);
-    }
-  }, [settingsOn]);
+    }, [chooseModalInput]);
 
-  const [slipMask, setSlipMask] = useState();
 
-  useEffect(() => {
-    if (slipMask) {
-        slipMaskInitHandler();
-        document.getElementsByClassName(styles.activated_auto_btn)[0].addEventListener('click', () => { slipMask.value = ''; });
-    }
-  }, [slipMask]);
 
-  const [dlMask, setDlMask] = useState();
+    const [token0, setToken0] = useState(ETH_TOKEN);
 
-  useEffect(() => {
-    if (dlMask) {
-        dlMaskInitHandler();
-    }
-  }, [dlMask]);
+    useEffect(() => {
+        checkTokens(token0, token0Amount, token1, token1Amount, tokenInputFocus);
+    }, [token0]);
 
-  const [expert, setExpert] = useState();
+    const [token1, setToken1] = useState();
 
-  useEffect(() => {
-      if (expert != undefined) {
-        setExpIconOn(expert);
-        setOpenedExpModal();
-        if (expert) {
-          setExpCheckboxOn(true);
-          localStorage.setItem('expert', '1');
-        } else {
-          localStorage.removeItem('expert');
+    useEffect(() => {
+        checkTokens(token0, token0Amount, token1, token1Amount, tokenInputFocus);
+    }, [token1]);
+
+    const [settingsOn, setSettingsOn] = useState();
+
+    useEffect(() => {
+        if (settingsOn != undefined) {
+            toggleSettings();
+            const timeOutId = setTimeout(() => {
+                if (!settingsOn) {
+                    clearDiv(document.getElementById(styles.settings_div));
+                }
+            }, 275);
+            return () => clearTimeout(timeOutId);
         }
-      }
-  }, [expert]);
+    }, [settingsOn]);
 
-  useEffect(() => {
-    if (slipMask && dlMask) {
-        const slip_value = localStorage.getItem('slip_value');
-        const dl_value = localStorage.getItem('dl_value');
-        slipMask.value = slip_value ? slip_value : '';
-        dlMask.value = dl_value ? dl_value : '';
-    }
-  }, [slipMask, dlMask, expert]);
+    const [slipMask, setSlipMask] = useState();
 
-  const [openedExpModal, setOpenedExpModal] = useState();
-  
-  useEffect(() => {
-    if (!expert && openedExpModal) {
-        openExpModal();
-    } else {
-        closeExpModal();
-        if (!expert) {
-            setExpCheckboxOn(false);
+    useEffect(() => {
+        if (slipMask) {
+            slipMaskInitHandler();
+            document.getElementsByClassName(styles.activated_auto_btn)[0].addEventListener('click', () => {
+                slipMask.value = '';
+            });
         }
-    }
-  }, [openedExpModal]);
+    }, [slipMask]);
 
-  const [expCheckboxOn, setExpCheckboxOn] = useState(false);
+    const [dlMask, setDlMask] = useState();
 
-  useEffect(() => {
-    if (expCheckboxOn != undefined) {
-        if (expCheckboxOn) {
-            if (!expert) {
-                setOpenedExpModal(true);
+    useEffect(() => {
+        if (dlMask) {
+            dlMaskInitHandler();
+        }
+    }, [dlMask]);
+
+    const [expert, setExpert] = useState();
+
+    useEffect(() => {
+        if (expert != undefined) {
+            setExpIconOn(expert);
+            setOpenedExpModal();
+            if (expert) {
+                setExpCheckboxOn(true);
+                localStorage.setItem('expert', '1');
+            } else {
+                localStorage.removeItem('expert');
             }
-        } else {
-            setExpert(false);
         }
-    }
-  }, [expCheckboxOn]);
+    }, [expert]);
+
+    useEffect(() => {
+        if (slipMask && dlMask) {
+            const slip_value = localStorage.getItem('slip_value');
+            const dl_value = localStorage.getItem('dl_value');
+            slipMask.value = slip_value ? slip_value : '';
+            dlMask.value = dl_value ? dl_value : '';
+        }
+    }, [slipMask, dlMask, expert]);
+
+    const [openedExpModal, setOpenedExpModal] = useState();
+
+    useEffect(() => {
+        if (!expert && openedExpModal) {
+            openExpModal();
+        } else {
+            closeExpModal();
+            if (!expert) {
+                setExpCheckboxOn(false);
+            }
+        }
+    }, [openedExpModal]);
+
+    const [expCheckboxOn, setExpCheckboxOn] = useState(false);
+
+    useEffect(() => {
+        if (expCheckboxOn != undefined) {
+            if (expCheckboxOn) {
+                if (!expert) {
+                    setOpenedExpModal(true);
+                }
+            } else {
+                setExpert(false);
+            }
+        }
+    }, [expCheckboxOn]);
 
     const [expIconOn, setExpIconOn] = useState();
 
@@ -339,7 +355,7 @@ export default function Swap() {
                     token0Amount_ / token1Amount_
                 )
             )
-        );    
+        );
     }
 
     const [token1Amount, setToken1Amount] = useState();
@@ -371,7 +387,7 @@ export default function Swap() {
                     token0Amount_ / token1Amount_
                 )
             )
-        );    
+        );
     }
 
     const calculateToken1Amount = (token0_amount, token0, token1) => {
@@ -381,7 +397,7 @@ export default function Swap() {
     const calculateToken0Amount = (token1_amount, token0, token1) => {
         return (token1_amount / 34).toFixed(8);
     }
-    
+
     const clearDiv = (div) => {
         div.innerHTML = '';
     }
@@ -390,7 +406,10 @@ export default function Swap() {
         var d = ",";
         var g = 3;
         var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
-        var parts = Number.parseFloat(token_price).toLocaleString('fullwide', { minimumFractionDigits: 18, useGrouping: false }).split(",");
+        var parts = Number.parseFloat(token_price).toLocaleString('fullwide', {
+            minimumFractionDigits: 18,
+            useGrouping: false
+        }).split(",");
         var token_price_formated;
         let n = 0;
         let k = 0;
@@ -422,10 +441,10 @@ export default function Swap() {
         token_price_formated = removeSufficientsZeros(token_price_formated);
         return token_price_formated;
     }
-    
+
     const getTokenPriceInfoDiv = (price) => {
         return createElementFromHTML(
-        `
+            `
             <div class="${styles.swap_info_token_price_div}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                     <path d="M512 80c0 18.01-14.3 34.6-38.4 48-29.1 16.1-72.4 27.5-122.3 30.9-3.6-1.7-7.4-3.4-11.2-5C300.6 137.4 248.2 128 192 128c-8.3 0-16.4.2-24.5.6l-1.1-.6C142.3 114.6 128 98.01 128 80c0-44.18 85.1-80 192-80 106 0 192 35.82 192 80zm-351.3 81.1c10.2-.7 20.6-1.1 31.3-1.1 62.2 0 117.4 12.3 152.5 31.4 24.8 13.5 39.5 30.3 39.5 48.6 0 3.1-.7 7.9-2.1 11.7-4.6 13.2-17.8 25.3-35 35.6-.1 0-.3.1-.4.2-.3.2-.6.3-.9.5-35 19.4-90.8 32-153.6 32-59.6 0-112.94-11.3-148.16-29.1-1.87-1-3.69-2.8-5.45-2.9C14.28 274.6 0 258 0 240c0-34.8 53.43-64.5 128-75.4 10.5-1.6 21.4-2.8 32.7-3.5zm231.2 25.5c28.3-4.4 54.2-11.4 76.2-20.5 16.3-6.8 31.4-15.2 43.9-25.5V176c0 19.3-16.5 37.1-43.8 50.9-14.7 7.4-32.4 13.6-52.4 18.4.1-1.7.2-3.5.2-5.3 0-21.9-10.6-39.9-24.1-53.4zM384 336c0 18-14.3 34.6-38.4 48-1.8.1-3.6 1.9-5.4 2.9C304.9 404.7 251.6 416 192 416c-62.8 0-118.58-12.6-153.61-32C14.28 370.6 0 354 0 336v-35.4c12.45 10.3 27.62 18.7 43.93 25.5C83.44 342.6 135.8 352 192 352c56.2 0 108.6-9.4 148.1-25.9 7.8-3.2 15.3-6.9 22.4-10.9 6.1-3.4 11.8-7.2 17.2-11.2 1.5-1.1 2.9-2.3 4.3-3.4V336zm32-57.9c18.1-5 36.5-9.5 52.1-16 16.3-6.8 31.4-15.2 43.9-25.5V272c0 10.5-5 21-14.9 30.9-16.3 16.3-45 29.7-81.3 38.4.1-1.7.2-3.5.2-5.3v-57.9zM192 448c56.2 0 108.6-9.4 148.1-25.9 16.3-6.8 31.4-15.2 43.9-25.5V432c0 44.2-86 80-192 80C85.96 512 0 476.2 0 432v-35.4c12.45 10.3 27.62 18.7 43.93 25.5C83.44 438.6 135.8 448 192 448z"/>
@@ -436,184 +455,185 @@ export default function Swap() {
         `);
     }
 
-  const checkTokens = (token0_, token0Amount_, token1_, token1Amount_, tokenInputFocus_) => {
-    if (token0_ && token1_ && (Boolean(token0Amount_) || Boolean(token1Amount_)) & [0, 1].includes(tokenInputFocus_)) {
-        if (tokenInputFocus_ == 0) {
-            handleToken0Input(token0Amount_, token0_, token1_);
-        } else {
-            handleToken1Input(token1Amount_, token0_, token1_);
+    const checkTokens = (token0_, token0Amount_, token1_, token1Amount_, tokenInputFocus_) => {
+        if (token0_ && token1_ && (Boolean(token0Amount_) || Boolean(token1Amount_)) & [0, 1].includes(tokenInputFocus_)) {
+            if (tokenInputFocus_ == 0) {
+                handleToken0Input(token0Amount_, token0_, token1_);
+            } else {
+                handleToken1Input(token1Amount_, token0_, token1_);
+            }
         }
     }
-  }
 
-  const floatToString = (number) => {
-    if (number == undefined) {
-        return '';
-    }
+    const floatToString = (number) => {
+        if (number == undefined) {
+            return '';
+        }
 
-    return removeSufficientsZeros(
-        number.toLocaleString('fullwide', 
-            { minimumFractionDigits: 18, useGrouping: false }
+        return removeSufficientsZeros(
+            number.toLocaleString('fullwide', {
+                minimumFractionDigits: 18,
+                useGrouping: false
+            })
+            .replace(",", ".")
         )
-        .replace(",", ".")
-    )
-  }
-
-  const stringToFloat = (number_str) => {
-    if (number_str == '' || number_str == undefined|| number_str == null) {
-        return undefined;
     }
-    
-    return Number.parseFloat(number_str);
-  }
 
-  const openTab = (page) => {
-      window.open(page, '_blank');
-  }
+    const stringToFloat = (number_str) => {
+        if (number_str == '' || number_str == undefined || number_str == null) {
+            return undefined;
+        }
 
-  const togglePage = (event) => {
-      event.preventDefault();
-
-      if (event.which) { // if event.which, use 2 for middle button
-          if (event.which === 2) {
-              openTab("/liquidity");
-          }
-      } else if (event.button) { // and if event.button, use 1 or 4 for middle button
-          if (navigator.userAgent.indexOf("Chrome") != -1 && event.button === 1) {
-              openTab("/liquidity");
-          } else if (event.button === 4) {
-              openTab("/liquidity");
-          }
-      } else {
-          setTimeout(() => {
-              window.location.href = "/liquidity";
-          }, 275);
-          document.getElementById('menuDiv').classList.toggle(styles.toggle_menu);
-          document.getElementById('liqBtn').classList.remove(styles.hover_effect);
-      }
-  }
-
-  const pageUp = () => {
-      window.location.href = "#";
-  }
-
-  const tokenInputsInitMask = () => {
-    const token_inputs = document.getElementsByClassName(styles.input_field);
-    const params_token_input = {
-        mask: Number,
-        scale: 18,
-        signed: false,
-        padFractionalZeros: false,
-        normalizeZeros: true,
-        radix: '.',
+        return Number.parseFloat(number_str);
     }
-    IMask(token_inputs[0], params_token_input)
-    IMask(token_inputs[1], params_token_input)
-  }
-  
-  const settingsInputsInitMask = (settings_div) => {
-      const params_slip_input = {
-          mask: Number,
-          scale: 2,
-          signed: false,
-          padFractionalZeros: true,
-          normalizeZeros: true,
-          radix: '.',
-          min: 0.0,
-          max: 50.0
-      }
-      const params_dl_input = {
-          mask: Number,
-          scale: 0,
-          signed: false,
-          min: 1,
-          max: 4320
-      }
-      setSlipMask(IMask(settings_div.getElementsByClassName(styles.slip_input_field)[0], params_slip_input));
-      setDlMask(IMask(settings_div.getElementsByClassName(styles.dl_input_field)[0], params_dl_input));
-  }
 
-  const slipMaskInitHandler = () => {
-    slipMask.on('accept', () => {
-        localStorage.setItem('slip_value', slipMask.value);
-        const auto_btn = document.getElementById(styles.auto_btn);
-        const slip_warnings = document.getElementById('slip_warnings');
-        if (slipMask.value === '') {
-            auto_btn.classList.add(styles.activated_auto_btn);
-            clearDiv(slip_warnings);
+    const openTab = (page) => {
+        window.open(page, '_blank');
+    }
+
+    const togglePage = (event) => {
+        event.preventDefault();
+
+        if (event.which) { // if event.which, use 2 for middle button
+            if (event.which === 2) {
+                openTab("/liquidity");
+            }
+        } else if (event.button) { // and if event.button, use 1 or 4 for middle button
+            if (navigator.userAgent.indexOf("Chrome") != -1 && event.button === 1) {
+                openTab("/liquidity");
+            } else if (event.button === 4) {
+                openTab("/liquidity");
+            }
         } else {
-            auto_btn.classList.remove(styles.activated_auto_btn);
-            const slip_value_float = Number.parseFloat(slipMask.value);
-            if (slip_value_float >= 0.05 && slip_value_float <= 1.0) {
+            setTimeout(() => {
+                window.location.href = "/liquidity";
+            }, 275);
+            document.getElementById('menuDiv').classList.toggle(styles.toggle_menu);
+            document.getElementById('liqBtn').classList.remove(styles.hover_effect);
+        }
+    }
+
+    const pageUp = () => {
+        window.location.href = "#";
+    }
+
+    const tokenInputsInitMask = () => {
+        const token_inputs = document.getElementsByClassName(styles.input_field);
+        const params_token_input = {
+            mask: Number,
+            scale: 18,
+            signed: false,
+            padFractionalZeros: false,
+            normalizeZeros: true,
+            radix: '.',
+        }
+        IMask(token_inputs[0], params_token_input)
+        IMask(token_inputs[1], params_token_input)
+    }
+
+    const settingsInputsInitMask = (settings_div) => {
+        const params_slip_input = {
+            mask: Number,
+            scale: 2,
+            signed: false,
+            padFractionalZeros: true,
+            normalizeZeros: true,
+            radix: '.',
+            min: 0.0,
+            max: 50.0
+        }
+        const params_dl_input = {
+            mask: Number,
+            scale: 0,
+            signed: false,
+            min: 1,
+            max: 4320
+        }
+        setSlipMask(IMask(settings_div.getElementsByClassName(styles.slip_input_field)[0], params_slip_input));
+        setDlMask(IMask(settings_div.getElementsByClassName(styles.dl_input_field)[0], params_dl_input));
+    }
+
+    const slipMaskInitHandler = () => {
+        slipMask.on('accept', () => {
+            localStorage.setItem('slip_value', slipMask.value);
+            const auto_btn = document.getElementById(styles.auto_btn);
+            const slip_warnings = document.getElementById('slip_warnings');
+            if (slipMask.value === '') {
+                auto_btn.classList.add(styles.activated_auto_btn);
                 clearDiv(slip_warnings);
             } else {
-                if (slip_value_float > 1.0) {
-                    setFrontrun(slip_warnings);
-                } else if (slip_value_float < 0.05) {
-                    setFail(slip_warnings);
+                auto_btn.classList.remove(styles.activated_auto_btn);
+                const slip_value_float = Number.parseFloat(slipMask.value);
+                if (slip_value_float >= 0.05 && slip_value_float <= 1.0) {
+                    clearDiv(slip_warnings);
                 } else {
                     if (slip_value_float > 1.0) {
                         setFrontrun(slip_warnings);
-                    } else {
+                    } else if (slip_value_float < 0.05) {
                         setFail(slip_warnings);
+                    } else {
+                        if (slip_value_float > 1.0) {
+                            setFrontrun(slip_warnings);
+                        } else {
+                            setFail(slip_warnings);
+                        }
                     }
                 }
             }
-        }
-    });
-  }
-
-  const dlMaskInitHandler = () => {
-    const dlInputHandler = () => {
-        localStorage.setItem('dl_value', dlMask.value);
+        });
     }
 
-    dlMask.on('accept', dlInputHandler);
-  }
+    const dlMaskInitHandler = () => {
+        const dlInputHandler = () => {
+            localStorage.setItem('dl_value', dlMask.value);
+        }
 
-  const setFrontrun = (elem) => {
-      elem.innerHTML = `
+        dlMask.on('accept', dlInputHandler);
+    }
+
+    const setFrontrun = (elem) => {
+        elem.innerHTML = `
       <svg class=${styles.slip_svg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path d="M362.5-.5h21c31.609 9.516 46.109 30.85 43.5 64-5.194 25.194-20.36 40.36-45.5 45.5-27.958 3.264-48.125-7.569-60.5-32.5-9.477-27.89-2.644-50.723 20.5-68.5 6.687-3.943 13.687-6.776 21-8.5zm-20 512h-18c-12.104-2.94-19.27-10.607-21.5-23a5819.74 5819.74 0 0 0 0-130 841.18 841.18 0 0 0-59.5-35.5 390.675 390.675 0 0 0-26-21c-10.228-10.236-17.062-22.403-20.5-36.5-1.636-12.152.697-23.486 7-34a14539.583 14539.583 0 0 0 60.5-97.5c-25-.667-50-.667-75 0a39.785 39.785 0 0 0-8.5 10.5 559.459 559.459 0 0 1-21 34c-13.883 14.607-27.883 14.607-42 0-5.083-10.341-4.417-20.341 2-30a2314.027 2314.027 0 0 0 34-55c3.649-4.742 8.482-7.242 14.5-7.5l31.5-.5a2067.34 2067.34 0 0 1 90.5 2.5 47.352 47.352 0 0 1 12 5 3166.57 3166.57 0 0 1 63 42c7.886 5.886 12.386 13.72 13.5 23.5.5 21.997.667 43.997.5 66a995.37 995.37 0 0 1 75 1.5c13.002 4.484 18.502 13.651 16.5 27.5-2.167 10.167-8.333 16.333-18.5 18.5-36.333.667-72.667.667-109 0-5.947-1.613-9.447-5.447-10.5-11.5l-1-51a4618.213 4618.213 0 0 1-44.5 68 3552.01 3552.01 0 0 0 68 42.5c4.785 4.069 7.619 9.236 8.5 15.5.667 50.667.667 101.333 0 152-1.899 12.842-9.066 20.842-21.5 24zm77-319c11.338-.167 22.672 0 34 .5 3.205 1.415 4.872 3.915 5 7.5a52.024 52.024 0 0 1-7 13.5c-10 .667-20 .667-30 0-3.433-3.932-5.766-8.432-7-13.5.172-3.693 1.839-6.359 5-8zm-241 84c8.962 21.143 22.962 38.31 42 51.5 1.304.804 1.971 1.971 2 3.5a3764.455 3764.455 0 0 1-31.5 76c-7.069 10.391-16.236 12.558-27.5 6.5a8352.81 8352.81 0 0 0-113-47c-11.326-3.983-16.992-11.983-17-24 .192-22.185 11.192-33.852 33-35a51.439 51.439 0 0 1 11 3 2416.022 2416.022 0 0 0 72.5 29.5 2797.132 2797.132 0 0 0 28.5-64zm242 4c12.386-.394 24.72.106 37 1.5 4.708 1.378 8.208 4.212 10.5 8.5 5.076 17.372 8.076 35.038 9 53-3.292 13.294-11.459 22.127-24.5 26.5a256.122 256.122 0 0 1-32 0c-18.68-6.509-26.847-19.676-24.5-39.5l8-38c3.216-7.34 8.716-11.34 16.5-12z"/>
       </svg>
       <span class=${styles.tooltiptext_down}>Your transaction may be frontrun.</span>
       `
-  }
+    }
 
-  const setFail = (elem) => {
-      elem.innerHTML = `
+    const setFail = (elem) => {
+        elem.innerHTML = `
       <svg class=${styles.slip_svg} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
         <path d="M94.646 1.553c-9.304 3.364-16.199 9.61-20.65 18.705l-2.512 5.133-.39 100.781-.391 100.781-2.018 4.297c-1.11 2.363-4.946 8.164-8.526 12.891-3.58 4.726-8.5 11.23-10.934 14.453-42.779 56.637-29.117 125.053 27.858 139.505L84.575 400l95.017-.005c91.764-.005 95.094-.056 97.251-1.478 5.588-3.684 5.177 3.033 5.183-84.756l.005-78.818 7.342.384c16.154.845 15.614-.84 16.096 50.22l.39 41.406 2.512 5.132c13.277 27.132 51.159 27.33 64.348.337l2.672-5.469.21-91.406.211-91.406-2.01-7.014c-5.822-20.325-21.861-35.964-42.091-41.044-5.427-1.363-8.825-1.552-27.899-1.552h-21.719l-.226-34.57-.226-34.57-2.672-5.469c-3.497-7.156-9.704-13.363-16.86-16.859L256.641.391 177.734.216C101.432.047 98.69.091 94.646 1.553m157.698 23.979c6.266 3.905 5.832-1.319 6.076 73.101l.216 66.211H94.489l.216-66.211.217-66.211 1.713-2.734c4.015-6.408.2-6.128 81.49-5.985l71.484.125 2.735 1.704M123.157 49.139c-5.395 3.557-5.178 1.652-5.178 45.392s-.217 41.835 5.178 45.393c3.472 2.289 103.339 2.289 106.811 0 5.395-3.558 5.178-1.653 5.178-45.393s.217-41.835-5.178-45.392c-3.472-2.289-103.339-2.289-106.811 0m88.562 45.392v23.438h-23.438l-.005-8.008c-.007-11.45-3.022-15.419-11.713-15.419-8.692 0-11.707 3.969-11.714 15.419l-.005 8.008h-23.438V71.094H211.719v23.437m93.901 45.899.239 22.461 2.512 5.132c6.866 14.03 17.547 20.258 34.741 20.258h9.274l-.216 65.821c-.212 64.234-.255 65.882-1.779 68.413-4.515 7.492-15.017 7.492-19.532 0-1.496-2.483-1.579-4.352-1.953-43.999l-.39-41.407-2.672-5.468c-6.526-13.357-16.548-19.353-33.071-19.789l-10.742-.283v-93.6h23.35l.239 22.461m36.736-10.807c7.007 7.653 9.896 16.482 9.964 30.444l.024 4.99-7.302-.382c-14.53-.76-15.655-2.635-16.005-26.669l-.26-17.854 4.793 2.555c2.729 1.454 6.513 4.433 8.786 6.916m-83.762 152.799v94.141H147.719l3.687-4.883c18.257-24.177 18.18-59.845-.18-83.008-6.581-8.303-8.842-12.517-9.429-17.574-.914-7.877-4.88-11.713-12.109-11.713-9.811 0-11.229 2.692-11.725 22.256-.35 13.785-.58 15.93-1.953 18.218-4.497 7.491-15.011 7.491-19.526 0-1.516-2.518-1.569-4.185-1.783-57.086l-.22-54.492h164.113v94.141M74.156 309.766c11.99 24.537 47.367 26.991 61.953 4.297l1.255-1.954 1.388 3.125c2.019 4.546 2.447 18.816.762 25.394-6.703 26.163-34.37 41.58-59.238 33.009-36.727-12.659-42.803-56.425-13.549-97.591l3.976-5.594.391 16.922.39 16.923 2.672 5.469"/>
       </svg>
       <span class=${styles.tooltiptext_down}>Your transaction may fail.</span>`
-  }
+    }
 
-  const focusInput = (event) => {
-      if (!event.target.id.includes('balance_div') &&
-          event.target.tagName !== 'input') {
-          var elem = event.target;
-          while (!elem.id.includes('token_div')) {
-              elem = elem.parentNode;
-          }
-          if (!isInFamilyTree(event.target, elem.getElementsByClassName(styles.choice_btn)[0])) {
-              elem.getElementsByTagName("input")[0].focus();
-          }
-      }
-  }
+    const focusInput = (event) => {
+        if (!event.target.id.includes('balance_div') &&
+            event.target.tagName !== 'input') {
+            var elem = event.target;
+            while (!elem.id.includes('token_div')) {
+                elem = elem.parentNode;
+            }
+            if (!isInFamilyTree(event.target, elem.getElementsByClassName(styles.choice_btn)[0])) {
+                elem.getElementsByTagName("input")[0].focus();
+            }
+        }
+    }
 
-  const toggleSettings = () => {
-      var icon = document.getElementById('settings_icon'),
-          deg = !settingsOn ? 0 : -120;
-      icon.style.webkitTransform = 'rotate(' + deg + 'deg)';
-      icon.style.mozTransform = 'rotate(' + deg + 'deg)';
-      icon.style.msTransform = 'rotate(' + deg + 'deg)';
-      icon.style.oTransform = 'rotate(' + deg + 'deg)';
-      icon.style.transform = 'rotate(' + deg + 'deg)';
-      
-      const settings_div = document.getElementById(styles.settings_div);
-      if (settingsOn) {
-        const child = createElementFromHTML(
-        `
+    const toggleSettings = () => {
+        var icon = document.getElementById('settings_icon'),
+            deg = !settingsOn ? 0 : -120;
+        icon.style.webkitTransform = 'rotate(' + deg + 'deg)';
+        icon.style.mozTransform = 'rotate(' + deg + 'deg)';
+        icon.style.msTransform = 'rotate(' + deg + 'deg)';
+        icon.style.oTransform = 'rotate(' + deg + 'deg)';
+        icon.style.transform = 'rotate(' + deg + 'deg)';
+
+        const settings_div = document.getElementById(styles.settings_div);
+        if (settingsOn) {
+            const child = createElementFromHTML(
+                `
             <div class="${styles.tx_settings_div_main}">
                 <div class="${styles.tx_settings_title} ${styles.settings_title}">Transaction Settings</div>
                 <div class="${styles.tx_settings_div}">
@@ -663,13 +683,13 @@ export default function Swap() {
                 </div>
             </div>
         `);
-        
-        settingsInputsInitMask(child);
-        clearDiv(settings_div);
-        settings_div.appendChild(child);
-            
-        child = createElementFromHTML(
-        `
+
+            settingsInputsInitMask(child);
+            clearDiv(settings_div);
+            settings_div.appendChild(child);
+
+            child = createElementFromHTML(
+                `
             <div class="${styles.intrfc_settings_div_main}">
                 <div class="${styles.intrfc_settings_title} ${styles.settings_title}">Interface Settings</div>
                 <div class="${styles.exp_mode_div_main}">
@@ -695,128 +715,133 @@ export default function Swap() {
                 </div>
             </div>
         `);
-        child.getElementsByClassName(styles.switch_button_checkbox)[0].addEventListener('click', (event) => setExpCheckboxOn(event.target.checked));
-            
-        settings_div.appendChild(child);
-        
-        settings_div.classList.toggle(styles.settings_div_activated);
-      } else {
-        settings_div.classList.toggle(styles.settings_div_activated);
-        
-        setSlipMask();
-        setDlMask();
-      }
-  }
+            child.getElementsByClassName(styles.switch_button_checkbox)[0].addEventListener('click', (event) => setExpCheckboxOn(event.target.checked));
 
-  const formatBalance = (balance) => {
-      if (!Number.isInteger(balance)) {
-        if (balance == undefined) { return 0; }
-        var d = ",";
-        var g = 3;
-        var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
-        var parts = Number.parseFloat(balance).toLocaleString('fullwide', { minimumFractionDigits: 18, useGrouping: false }).split(",");
-        var balance = parts[0].replace(regex, d);
-        if (parts[1]) {
-            balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
-            balance = removeSufficientsZeros(balance);
+            settings_div.appendChild(child);
+
+            settings_div.classList.toggle(styles.settings_div_activated);
+        } else {
+            settings_div.classList.toggle(styles.settings_div_activated);
+
+            setSlipMask();
+            setDlMask();
         }
-      }
-      return balance;
-  }
+    }
 
-  const removeSufficientsZeros = (number_str) => {
-    if (number_str.includes('.')) {
-        let i;
-        for (i = number_str.length - 1; i > -1; i--) {
-            if (number_str[i] != '0') {
-                break;
+    const formatBalance = (balance) => {
+        if (!Number.isInteger(balance)) {
+            if (balance == undefined) {
+                return 0;
+            }
+            var d = ",";
+            var g = 3;
+            var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
+            var parts = Number.parseFloat(balance).toLocaleString('fullwide', {
+                minimumFractionDigits: 18,
+                useGrouping: false
+            }).split(",");
+            var balance = parts[0].replace(regex, d);
+            if (parts[1]) {
+                balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
+                balance = removeSufficientsZeros(balance);
             }
         }
+        return balance;
+    }
 
-        if (number_str[i] == '.') {
-            i--;
+    const removeSufficientsZeros = (number_str) => {
+        if (number_str.includes('.')) {
+            let i;
+            for (i = number_str.length - 1; i > -1; i--) {
+                if (number_str[i] != '0') {
+                    break;
+                }
+            }
+
+            if (number_str[i] == '.') {
+                i--;
+            }
+            return number_str.slice(0, i + 1);
         }
-        return number_str.slice(0, i + 1);
+
+        return number_str;
     }
-    
-    return number_str;
-  }
 
-  const setMaxAmount = (token_num, token) => {
-      // document.getElementById("input0").value = (getBalance(address0) - 0.01).toString();
-      const cur_balance = getBalance(token);
+    const setMaxAmount = (token_num, token) => {
+        // document.getElementById("input0").value = (getBalance(address0) - 0.01).toString();
+        const cur_balance = getBalance(token);
 
-      if (cur_balance < 0.0000001) {
-        cur_balance = 0;
-      }
+        if (cur_balance < 0.0000001) {
+            cur_balance = 0;
+        }
 
-      if (!token['address']) {
-        cur_balance = Math.max(subtract(bignumber(cur_balance), 0.01), 0);
-      }
+        if (!token['address']) {
+            cur_balance = Math.max(subtract(bignumber(cur_balance), 0.01), 0);
+        }
 
-      if(cur_balance == 0) {
-        cur_balance = undefined;
-      }
+        if (cur_balance == 0) {
+            cur_balance = undefined;
+        }
 
-      setTokenInputFocus(token_num);
-      if (token_num == 0) {
-        document.getElementById('input0').value = cur_balance;
-        setToken0Amount(cur_balance);
-      } else {
-        document.getElementById('input1').value = cur_balance;
-        setToken1Amount(cur_balance);
-      } 
-  }
-
-
-  const isInFamilyTree = (child, parent) => {
-      if (child === parent) {
-          return true;
-      }
-      const children = parent.getElementsByTagName("*");
-      for (let curChild of children) {
-          if (curChild === child) {
-              return true;
-          }
-      }
-      return false;
-  }
-
-  const closeSettings = (event) => {
-      if (!event.target.closest('#' + styles.settings_div) && !isInFamilyTree(event.target, document.getElementById("settings_toggle_btn"))) {
-          if (document.getElementById(styles.settings_div).classList.contains(styles.settings_div_activated)) {
-            setSettingsOn(false);
-          }
-      }
-  }
-
-  const changeTokens = () => {
-    setToken0(token1);
-    setToken1(token0);
-    if ([0, 1].includes(tokenInputFocus)) {
-        setTokenInputFocus(1 - tokenInputFocus);
-        setToken0Amount(token1Amount);
-        setToken1Amount(token0Amount);
-        const input0 = document.getElementById('input0');
-        const input1 = document.getElementById('input1');
-        const tmp = input0.value;
-        input0.value = input1.value;
-        input1.value = tmp;
+        setTokenInputFocus(token_num);
+        if (token_num == 0) {
+            document.getElementById('input0').value = cur_balance;
+            setToken0Amount(cur_balance);
+        } else {
+            document.getElementById('input1').value = cur_balance;
+            setToken1Amount(cur_balance);
+        }
     }
-  }
 
-  const closeExpModal = () => {
-      setTimeout(() => {
-        clearDiv(document.getElementById('exp_modal_inner'));
-        makeBodyScrollable();
-      }, 275);
-      const exp_modal_outer = document.getElementById('exp_modal_outer');
-      exp_modal_outer.classList.remove(styles.open_partially);
-      exp_modal_outer.classList.remove(styles.open_fully);
-  }
 
-  const openExpModal = () => {
-    const html = createElementFromHTML(`
+    const isInFamilyTree = (child, parent) => {
+        if (child === parent) {
+            return true;
+        }
+        const children = parent.getElementsByTagName("*");
+        for (let curChild of children) {
+            if (curChild === child) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    const closeSettings = (event) => {
+        if (!event.target.closest('#' + styles.settings_div) && !isInFamilyTree(event.target, document.getElementById("settings_toggle_btn"))) {
+            if (document.getElementById(styles.settings_div).classList.contains(styles.settings_div_activated)) {
+                setSettingsOn(false);
+            }
+        }
+    }
+
+    const changeTokens = () => {
+        setToken0(token1);
+        setToken1(token0);
+        if ([0, 1].includes(tokenInputFocus)) {
+            setTokenInputFocus(1 - tokenInputFocus);
+            setToken0Amount(token1Amount);
+            setToken1Amount(token0Amount);
+            const input0 = document.getElementById('input0');
+            const input1 = document.getElementById('input1');
+            const tmp = input0.value;
+            input0.value = input1.value;
+            input1.value = tmp;
+        }
+    }
+
+    const closeExpModal = () => {
+        setTimeout(() => {
+            clearDiv(document.getElementById('exp_modal_inner'));
+            makeBodyScrollable();
+        }, 275);
+        const exp_modal_outer = document.getElementById('exp_modal_outer');
+        exp_modal_outer.classList.remove(styles.open_partially);
+        exp_modal_outer.classList.remove(styles.open_fully);
+    }
+
+    const openExpModal = () => {
+        const html = createElementFromHTML(`
         <div class="${styles.modal_div_main} ${styles.exp_modal_div_main} ${styles.modal_div_grid} ${styles.exp_modal_div_grid}">
             <div class="${styles.modal_title} ${styles.exp_modal_title}">
                 <div></div>
@@ -836,56 +861,56 @@ export default function Swap() {
         </div>
     `);
 
-    html.getElementsByTagName('svg')[0].addEventListener('click', () => setOpenedExpModal());
-    html.getElementsByTagName('button')[0].addEventListener('click', () => setExpert(true));
+        html.getElementsByTagName('svg')[0].addEventListener('click', () => setOpenedExpModal());
+        html.getElementsByTagName('button')[0].addEventListener('click', () => setExpert(true));
 
-    const exp_modal_inner = document.getElementById('exp_modal_inner');
-    clearDiv(exp_modal_inner);
-    exp_modal_inner.appendChild(html);
+        const exp_modal_inner = document.getElementById('exp_modal_inner');
+        clearDiv(exp_modal_inner);
+        exp_modal_inner.appendChild(html);
 
-    const exp_modal_outer = document.getElementById('exp_modal_outer');
-    exp_modal_outer.classList.add(styles.open_partially);
-    setTimeout(() => exp_modal_outer.classList.add(styles.open_fully), 275);
-    
-    setSettingsOn(false);
+        const exp_modal_outer = document.getElementById('exp_modal_outer');
+        exp_modal_outer.classList.add(styles.open_partially);
+        setTimeout(() => exp_modal_outer.classList.add(styles.open_fully), 275);
 
-    makeBodyUnscrollable();
-  }
+        setSettingsOn(false);
 
-  const handleExpModalClick = (event) => {
-      if (!event.target.closest('#exp_modal_inner')) {
-        setOpenedExpModal();
-      }
-  }
+        makeBodyUnscrollable();
+    }
 
-  const handleKeydown = (event) => {
-      if (event.key === 'Escape') {
-          setOpenedExpModal();
-          setChooseTokenNum();
-      }
-  }
+    const handleExpModalClick = (event) => {
+        if (!event.target.closest('#exp_modal_inner')) {
+            setOpenedExpModal();
+        }
+    }
 
-  const getExpIcon = () => {
-    return createElementFromHTML(
-    `
+    const handleKeydown = (event) => {
+        if (event.key === 'Escape') {
+            setOpenedExpModal();
+            setChooseTokenNum();
+        }
+    }
+
+    const getExpIcon = () => {
+        return createElementFromHTML(
+            `
         <svg class="${styles.expert_mode_svg}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250">
             <text class="${styles.cls_1}" transform="matrix(1.277 0 0 1.472 -11 231.004)">EXPERT</text>
         </svg>
     `);
-  }
+    }
 
-  const closeChooseModal = () => {
-    setTimeout(() => {
-        makeBodyScrollable();
-    }, 275);
-    const choose_modal_outer = document.getElementById('choose_modal_outer');
-    choose_modal_outer.classList.remove(styles.open_fully);
-    choose_modal_outer.classList.remove(styles.open_partially);
-  }
-    
-  const getPopularTokenDiv = (popular_token, choosed_tokens) => {
-    const popular_token_div = createElementFromHTML(
-    `
+    const closeChooseModal = () => {
+        setTimeout(() => {
+            makeBodyScrollable();
+        }, 275);
+        const choose_modal_outer = document.getElementById('choose_modal_outer');
+        choose_modal_outer.classList.remove(styles.open_fully);
+        choose_modal_outer.classList.remove(styles.open_partially);
+    }
+
+    const getPopularTokenDiv = (popular_token, choosed_tokens) => {
+        const popular_token_div = createElementFromHTML(
+            `
         <div class="${styles.popular_token}
                     ${popular_token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${popular_token == choosed_tokens[1] ? styles.disabled_partially : ''}">
@@ -895,20 +920,20 @@ export default function Swap() {
             </div>
         </div>
     `);
-    popular_token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
-    popular_token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
-        [setToken0, setToken1][chooseTokenNum](popular_token);
-        return;
-    }));
-    
-    return popular_token_div;
-  }
+        popular_token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
+        popular_token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
+            [setToken0, setToken1][chooseTokenNum](popular_token);
+            return;
+        }));
 
-  const getTokenDiv = (token, choosed_tokens) => {
-    const disabled_partially = token == choosed_tokens[1];
-    const cur_balance = getBalance(token);
-    const token_div = createElementFromHTML(
-    `
+        return popular_token_div;
+    }
+
+    const getTokenDiv = (token, choosed_tokens) => {
+        const disabled_partially = token == choosed_tokens[1];
+        const cur_balance = getBalance(token);
+        const token_div = createElementFromHTML(
+            `
         <div class="${styles.list_token}
                     ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${disabled_partially ? styles.disabled_partially : ''}">
@@ -922,24 +947,24 @@ export default function Swap() {
             </div>
         </div>
     `);
-    token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
-    if (disabled_partially) {
-        token_div.addEventListener('click', () => setChooseTokenNum(() => {
-            changeTokens();
-            return;
-        }));
-    } else {
-        token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
-            [setToken0, setToken1][chooseTokenNum](token);
-            return;
-        }));
+        token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
+        if (disabled_partially) {
+            token_div.addEventListener('click', () => setChooseTokenNum(() => {
+                changeTokens();
+                return;
+            }));
+        } else {
+            token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
+                [setToken0, setToken1][chooseTokenNum](token);
+                return;
+            }));
+        }
+        return token_div;
     }
-    return token_div;
-  }
 
-  const getNoResultDiv = () => {
-    return createElementFromHTML(`<div class="${styles.list_token_no_result}">No results found.</div>`);
-  }
+    const getNoResultDiv = () => {
+        return createElementFromHTML(`<div class="${styles.list_token_no_result}">No results found.</div>`);
+    }
 
     const openChooseModal = () => {
         const choose_section = createElementFromHTML(`
@@ -979,7 +1004,7 @@ export default function Swap() {
         } else {
             tokens_div.appendChild(getNoResultDiv());
         }
-        
+
         const choose_modal_inner = document.getElementById(styles.choose_modal_inner);
         clearDiv(choose_modal_inner);
         choose_modal_inner.appendChild(choose_section);
@@ -999,96 +1024,96 @@ export default function Swap() {
         document.body.classList.remove(styles.unscrollable);
     }
 
-  const handleChooseModalClick = (event) => {
-    if (!event.target.closest('#' + styles.choose_modal_inner)) {
-        setChooseTokenNum();
-    }
-  }
-
-  const handleSearchTokenInput = (chooseModalInput) => {
-    const tokens_div = document.getElementsByClassName(styles.choose_modal_div_lower)[0];
-    clearDiv(tokens_div);
-    const chooseModalInputToLower = chooseModalInput.toLowerCase()
-
-    const choosed_tokens = chooseTokenNum == 0 ? [token0, token1] : [token1, token0]; // [currently choosing token, another one]
-    if (chooseModalInput == '') {
-        for (let token of tokenListCur) {
-            tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+    const handleChooseModalClick = (event) => {
+        if (!event.target.closest('#' + styles.choose_modal_inner)) {
+            setChooseTokenNum();
         }
-    } else {
-        for (let token of tokenListCur) {
-            if (token['symbol'].toLowerCase().includes(chooseModalInputToLower) ||
-                token['name'].toLowerCase().includes(chooseModalInputToLower)) {
+    }
+
+    const handleSearchTokenInput = (chooseModalInput) => {
+        const tokens_div = document.getElementsByClassName(styles.choose_modal_div_lower)[0];
+        clearDiv(tokens_div);
+        const chooseModalInputToLower = chooseModalInput.toLowerCase()
+
+        const choosed_tokens = chooseTokenNum == 0 ? [token0, token1] : [token1, token0]; // [currently choosing token, another one]
+        if (chooseModalInput == '') {
+            for (let token of tokenListCur) {
                 tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
             }
+        } else {
+            for (let token of tokenListCur) {
+                if (token['symbol'].toLowerCase().includes(chooseModalInputToLower) ||
+                    token['name'].toLowerCase().includes(chooseModalInputToLower)) {
+                    tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+                }
+            }
+        }
+        if (tokens_div.innerHTML == '') {
+            tokens_div.appendChild(getNoResultDiv());
         }
     }
-    if (tokens_div.innerHTML == '') {
-        tokens_div.appendChild(getNoResultDiv());
+
+    const createElementFromHTML = (htmlString) => {
+        var div = document.createElement('div');
+        div.innerHTML = htmlString.trim();
+        return div.firstChild;
     }
-  }
 
-  const createElementFromHTML = (htmlString)  => {
-    var div = document.createElement('div');
-    div.innerHTML = htmlString.trim();
-    return div.firstChild;
-  }
-
-  const replaceBrokenImg = (event) => {
-      let svg =  `
+    const replaceBrokenImg = (event) => {
+        let svg = `
         <svg class=${styles.token_icon} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" stroke="currentColor" strokeWidth="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <path d="m4.93 4.93 14.14 14.14"/>
         </svg>
       `;
-      event.srcElement.parentNode.replaceChild(createElementFromHTML(svg), event.srcElement);
+        event.srcElement.parentNode.replaceChild(createElementFromHTML(svg), event.srcElement);
 
-  }
+    }
 
-  const formatAddress = (addr) => {
-    return addr.slice(0, 6) + "..." + addr.slice(addr.length - 4, addr.length);
-  }
+    const formatAddress = (addr) => {
+        return addr.slice(0, 6) + "..." + addr.slice(addr.length - 4, addr.length);
+    }
 
-  const getBalance = (token) => {
-    if (ethBalance || balances) {
-        if (token['address']) {
-            return balances[token['address']];
+    const getBalance = (token) => {
+        if (ethBalance || balances) {
+            if (token['address']) {
+                return balances[token['address']];
+            }
+            return ethBalance;
         }
-        return ethBalance;
+        return undefined;
     }
-    return undefined;
-  }
 
-  const isAmount = (token0Amount_) => {
-    return Boolean(token0Amount_);
-  }
-
-  const isEnough = (token0_, token0Amount_) => {
-    if (token0Amount_) {
-        return isEnoughBalance(token0_, token0Amount_);
+    const isAmount = (token0Amount_) => {
+        return Boolean(token0Amount_);
     }
-    return isEnoughBalance(token0_, Number.parseFloat(document.getElementById("input0").value));
-  }
 
-  const isEnoughBalance = (token, tokenAmount) => {
-    var balance = getBalance(token);
-    if (token['symbol'] == 'ETH') {
-        balance -= 0.01;
+    const isEnough = (token0_, token0Amount_) => {
+        if (token0Amount_) {
+            return isEnoughBalance(token0_, token0Amount_);
+        }
+        return isEnoughBalance(token0_, Number.parseFloat(document.getElementById("input0").value));
     }
-    return balance >= tokenAmount;
-  }
 
-  const swapTokens = (token0_, token0Amount_, token1_) => {
+    const isEnoughBalance = (token, tokenAmount) => {
+        var balance = getBalance(token);
+        if (token['symbol'] == 'ETH') {
+            balance -= 0.01;
+        }
+        return balance >= tokenAmount;
+    }
 
-  }
+    const swapTokens = (token0_, token0Amount_, token1_) => {
 
-  useEffect(() => {
-    tokenInputsInitMask();
-    checkConnection();
-    setExpert(Boolean(localStorage.getItem('expert')));
-  }, []);
+    }
 
-  return (
+    useEffect(() => {
+        tokenInputsInitMask();
+        checkConnection();
+        setExpert(Boolean(localStorage.getItem('expert')));
+    }, []);
+
+    return (
     <div className={`${styles.container} ${styles.unselectable}`} onClick={closeSettings} onKeyDown={handleKeydown}>
 
       <Head>

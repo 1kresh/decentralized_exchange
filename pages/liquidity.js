@@ -1,8 +1,16 @@
 import Head from 'next/head'
 import styles from '../styles/Liquidity.module.scss'
 import IMask from 'imask'
-import {useEffect, useState, useRef} from "react";
-import { subtract, bignumber, divide } from "mathjs";
+import {
+    useEffect,
+    useState,
+    useRef
+} from "react";
+import {
+    subtract,
+    bignumber,
+    divide
+} from "mathjs";
 import Web3 from "web3";
 import jazzicon from "@metamask/jazzicon"
 
@@ -14,180 +22,189 @@ import popular_tokens_all from '../public/popular_tokens_all.json';
 import genericErc20Abi from '../public/Erc20.json';
 
 export default function Liquidity() {
-  
-  const avatarRef = useRef()
 
-  const [provider, setProvider] = useState();
-  const [web3, setWeb3] = useState();
-  const [chainId, setChainId] = useState();
-  const [address, setAddress] = useState();
-  const [ethBalance, setEthBalance] = useState();
-  const [balances, setBalances] = useState();
-  const [liquidityContract, setLiquidityContract] = useState();
+    const avatarRef = useRef()
 
-  const checkConnection = () => {
-    if (window.ethereum) {
-        setProvider(window.ethereum);
-        setWeb3(new Web3(window.ethereum));
+    const [provider, setProvider] = useState();
+    const [web3, setWeb3] = useState();
+    const [chainId, setChainId] = useState();
+    const [address, setAddress] = useState();
+    const [ethBalance, setEthBalance] = useState();
+    const [balances, setBalances] = useState();
+    const [liquidityContract, setLiquidityContract] = useState();
+
+    const checkConnection = () => {
+        if (window.ethereum) {
+            setProvider(window.ethereum);
+            setWeb3(new Web3(window.ethereum));
+        };
     };
-  };
 
-  useEffect(() => {
-    if (provider) {
-        provider.on('chainChanged', (chainId) => {
-            clearAccountStates();
-            filterChainId(chainId)
-        });
-        provider.on('accountsChanged', (address) => {
-            clearAccountStates();
-            setAddress(address[0]);
-        });
-    }
-}, [provider]);
+    useEffect(() => {
+        if (provider) {
+            provider.on('chainChanged', (chainId) => {
+                clearAccountStates();
+                filterChainId(chainId)
+            });
+            provider.on('accountsChanged', (address) => {
+                clearAccountStates();
+                setAddress(address[0]);
+            });
+        }
+    }, [provider]);
 
     const clearAccountStates = () => {
         setEthBalance();
         setBalances();
     }
 
-  useEffect(() => {
-      if (web3) {
-        web3.eth.net.getId()
-            .then(filterChainId);
-        web3.eth.getAccounts()
-            .then((addrs) => {
-                if (addrs) {
-                    setAddress(addrs[0]);
-                }
-            });
-      }
-  }, [web3]);
-
-  useEffect(() => {
-    if (web3 && address && chainId) {
-        web3.eth.getBalance(address)
-            .then((balance) => setEthBalance(web3.utils.fromWei(balance, 'ether')));
-    }
-  }, [web3, address, chainId]);
-
-  useEffect(() => {
-    const element = avatarRef.current;
-    if (element && address) {
-        const addr = address.slice(2, 10);
-        const seed = parseInt(addr, 16);
-        const icon = jazzicon(16, seed);
-        if (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
-        element.appendChild(icon);
-    }
-  }, [address, avatarRef, ethBalance]);
-
-  const connectWalletHandler = async () => {
-      if (provider) {
-        provider.request({ method: "eth_requestAccounts" })
-            .then(() => setWeb3(new Web3(provider)));
-      }
-  }
-
-  const switchNetworkHandler = async () => {
-    if (provider) {
-        provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x1' }],
-        })
-        .then(() =>
+    useEffect(() => {
+        if (web3) {
             web3.eth.net.getId()
-                .then(filterChainId));
-      }
-  }
-
-  useEffect(() => {
-
-  }, [balances]);
-
-  const filterChainId = (chainId_) => {
-    chainId_ = Number.parseInt(chainId_);
-    if (ALLOWED_CHAINIDS.includes(chainId_)) {
-        setChainId(chainId_);
-    } else {
-        setChainId();
-    }
-  }
-
-  const openTab = (page) => {
-    window.open(page, '_blank');
-}
-
-const togglePage = (event) => {
-    event.preventDefault();
-
-    if (event.which) { // if event.which, use 2 for middle button
-        if (event.which === 2) {
-            openTab("/");
+                .then(filterChainId);
+            web3.eth.getAccounts()
+                .then((addrs) => {
+                    if (addrs) {
+                        setAddress(addrs[0]);
+                    }
+                });
         }
-    } else if (event.button) { // and if event.button, use 1 or 4 for middle button
-        if (navigator.userAgent.indexOf("Chrome") != -1 && event.button === 1) {
-            openTab("/");
-        } else if (event.button === 4) {
-            openTab("/");
+    }, [web3]);
+
+    useEffect(() => {
+        if (web3 && address && chainId) {
+            web3.eth.getBalance(address)
+                .then((balance) => setEthBalance(web3.utils.fromWei(balance, 'ether')));
         }
-    } else {
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 275);
-        document.getElementById('menuDiv').classList.toggle(styles.toggle_menu);
-        document.getElementById('swpBtn').classList.remove(styles.hover_effect);
-    }
-}
+    }, [web3, address, chainId]);
 
-const pageUp = () => {
-    window.location.href = "#";
-}
+    useEffect(() => {
+        const element = avatarRef.current;
+        if (element && address) {
+            const addr = address.slice(2, 10);
+            const seed = parseInt(addr, 16);
+            const icon = jazzicon(16, seed);
+            if (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+            element.appendChild(icon);
+        }
+    }, [address, avatarRef, ethBalance]);
 
-const formatBalance = (balance) => {
-  if (!Number.isInteger(balance)) {
-    if (balance == undefined) { return 0; }
-    var d = ",";
-    var g = 3;
-    var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
-    var parts = Number.parseFloat(balance).toLocaleString('fullwide', { minimumFractionDigits: 18, useGrouping: false }).split(",");
-    var balance = parts[0].replace(regex, d);
-    if (parts[1]) {
-        balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
-        balance = removeSufficientsZeros(balance);
-    }
-  }
-  return balance;
-}
-
-const removeSufficientsZeros = (number_str) => {
-if (number_str.includes('.')) {
-    let i;
-    for (i = number_str.length - 1; i > -1; i--) {
-        if (number_str[i] != '0') {
-            break;
+    const connectWalletHandler = async () => {
+        if (provider) {
+            provider.request({
+                    method: "eth_requestAccounts"
+                })
+                .then(() => setWeb3(new Web3(provider)));
         }
     }
 
-    if (number_str[i] == '.') {
-        i--;
+    const switchNetworkHandler = async () => {
+        if (provider) {
+            provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{
+                        chainId: '0x1'
+                    }],
+                })
+                .then(() =>
+                    web3.eth.net.getId()
+                    .then(filterChainId));
+        }
     }
-    return number_str.slice(0, i + 1);
-}
 
-return number_str;
-}
+    useEffect(() => {
 
-const formatAddress = (addr) => {
-  return addr.slice(0, 6) + "..." + addr.slice(addr.length - 4, addr.length);
-}
+    }, [balances]);
 
-useEffect(() => {
-  checkConnection();
-}, []);
+    const filterChainId = (chainId_) => {
+        chainId_ = Number.parseInt(chainId_);
+        if (ALLOWED_CHAINIDS.includes(chainId_)) {
+            setChainId(chainId_);
+        } else {
+            setChainId();
+        }
+    }
 
-  return (
+    const openTab = (page) => {
+        window.open(page, '_blank');
+    }
+
+    const togglePage = (event) => {
+        event.preventDefault();
+
+        if (event.which) { // if event.which, use 2 for middle button
+            if (event.which === 2) {
+                openTab("/");
+            }
+        } else if (event.button) { // and if event.button, use 1 or 4 for middle button
+            if (navigator.userAgent.indexOf("Chrome") != -1 && event.button === 1) {
+                openTab("/");
+            } else if (event.button === 4) {
+                openTab("/");
+            }
+        } else {
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 275);
+            document.getElementById('menuDiv').classList.toggle(styles.toggle_menu);
+            document.getElementById('swpBtn').classList.remove(styles.hover_effect);
+        }
+    }
+
+    const pageUp = () => {
+        window.location.href = "#";
+    }
+
+    const formatBalance = (balance) => {
+        if (!Number.isInteger(balance)) {
+            if (balance == undefined) {
+                return 0;
+            }
+            var d = ",";
+            var g = 3;
+            var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');
+            var parts = Number.parseFloat(balance).toLocaleString('fullwide', {
+                minimumFractionDigits: 18,
+                useGrouping: false
+            }).split(",");
+            var balance = parts[0].replace(regex, d);
+            if (parts[1]) {
+                balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
+                balance = removeSufficientsZeros(balance);
+            }
+        }
+        return balance;
+    }
+
+    const removeSufficientsZeros = (number_str) => {
+        if (number_str.includes('.')) {
+            let i;
+            for (i = number_str.length - 1; i > -1; i--) {
+                if (number_str[i] != '0') {
+                    break;
+                }
+            }
+
+            if (number_str[i] == '.') {
+                i--;
+            }
+            return number_str.slice(0, i + 1);
+        }
+
+        return number_str;
+    }
+
+    const formatAddress = (addr) => {
+        return addr.slice(0, 6) + "..." + addr.slice(addr.length - 4, addr.length);
+    }
+
+    useEffect(() => {
+        checkConnection();
+    }, []);
+
+    return (
     <div className={`${styles.container} ${styles.unselectable}`}>
 
       <Head>

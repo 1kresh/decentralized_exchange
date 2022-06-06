@@ -12,8 +12,6 @@ import popular_tokens_all from '../public/popular_tokens_all.json'
 import genericErc20Abi from '../public/Erc20.json'
 
 export default function Swap() {
-  const tokenListCurFlag = useRef(true);
-  const popularTokensCurFlag = useRef(true);
   const settingsOnFlag = useRef(true);
   const expertFlag = useRef(true);
   const cacheFlag = useRef(true);
@@ -93,7 +91,7 @@ export default function Swap() {
     }
   }, [tokenListAll, chainId]);
 
-  const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all['tokens']);
+  const [popularTokensAll, setPopularTokensAll] = useState(popular_tokens_all);
   const [tokenListCur, setTokenListCur] = useState();
 
   useEffect(() => {
@@ -116,8 +114,8 @@ export default function Swap() {
 
   const getPopularTokensCurChainId = (tokenListCur_, popularTokensAll_, chainId_) => {
     var popularTokensCur = [ETH_TOKEN];
-    for (let tokenSymbol of popularTokensAll_[chainId_.toString()]) {
-        popularTokensCur.push(getTokenBySymbol(tokenListCur_, tokenSymbol));
+    for (let token of popularTokensAll_[chainId_.toString()]) {
+        popularTokensCur.push(token);
     }
     setPopularTokensCur(popularTokensCur)
   }

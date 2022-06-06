@@ -174,10 +174,15 @@ export default function Swap() {
   const [chooseTokenNum, setChooseTokenNum] = useState();
 
   useEffect(() => {
+      var clearDivTimeout;
       if (popularTokensCur && tokenListCur) {
         if ([0, 1].includes(chooseTokenNum)) {
+            clearTimeout(clearDivTimeout);
             openChooseModal();
         } else {
+            clearDivTimeout = setTimeout(() => {
+                clearDiv(document.getElementById(styles.choose_modal_inner));
+            }, 275);
             closeChooseModal();
         }
       } else {
@@ -871,7 +876,6 @@ export default function Swap() {
 
   const closeChooseModal = () => {
     setTimeout(() => {
-        clearDiv(document.getElementById(styles.choose_modal_inner));
         makeBodyScrollable();
     }, 275);
     const choose_modal_outer = document.getElementById('choose_modal_outer');

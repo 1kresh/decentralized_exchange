@@ -25,7 +25,7 @@ $toogle-init: 100%;
 
     & nav {
         -ms-flex-wrap: nowrap;
-            flex-wrap: nowrap;
+        flex-wrap: nowrap;
     }
 }
 
@@ -62,7 +62,7 @@ $toogle-init: 100%;
     transform: translateX(50%);
     max-width: calc(400px + 2rem);
     width: 100%;
-    min-width:  calc(300px + 2rem);
+    min-width: calc(300px + 2rem);
     line-height: 1.65rem;
 }
 
@@ -97,8 +97,8 @@ $toogle-init: 100%;
         position: fixed;
         bottom: 0;
         -webkit-transform: translate(50%, -50%);
-            -ms-transform: translate(50%, -50%);
-                transform: translate(50%, -50%);
+        -ms-transform: translate(50%, -50%);
+        transform: translate(50%, -50%);
     }
 }
 
@@ -277,11 +277,11 @@ $toogle-init: 100%;
     display: -ms-flexbox;
     display: flex;
     -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     line-height: 1.5;
     background-color: $white;
     height: 43.2px;
@@ -307,11 +307,11 @@ $toogle-init: 100%;
     display: -ms-flexbox;
     display: flex;
     -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     background-color: $white;
     cursor: pointer;
     padding: 0.375rem 0.75rem;
@@ -324,13 +324,13 @@ $toogle-init: 100%;
     display: flex;
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
-        -ms-flex-direction: row;
-            flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
     padding: 0.375rem;
     font-size: 1rem;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     cursor: unset;
     font-weight: 500;
     width: 100%;
@@ -356,8 +356,8 @@ $toogle-init: 100%;
     display: flex;
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
-        -ms-flex-direction: row;
-            flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
     margin-left: auto;
     background-color: $grey;
     -webkit-transition: border-color $transition-delay ease;
@@ -375,16 +375,15 @@ $toogle-init: 100%;
     }
 }
 
-.address_div {
-}
+.address_div {}
 
 .avatar_div {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     margin-left: 0.375rem;
 }
 
@@ -541,7 +540,7 @@ $toogle-init: 100%;
         -o-transition-property: all;
         transition-property: all;
         -o-transition-duration: $transition-delay;
-           transition-duration: $transition-delay;
+        transition-duration: $transition-delay;
         -webkit-transition-property: all !important;
         -webkit-transition-duration: $transition-delay !important;
         -ms-transition-property: all !important;
@@ -606,11 +605,11 @@ $toogle-init: 100%;
     display: -ms-flexbox;
     display: flex;
     -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     width: initial;
     border: solid;
     border-radius: $border-radius-main;
@@ -1429,8 +1428,8 @@ $toogle-init: 100%;
     display: flex;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
     padding-bottom: 16px;
 }
 
@@ -1462,7 +1461,8 @@ $toogle-init: 100%;
     border-radius: $border-radius-secondary;
     border-width: $border-width-secondary;
     padding: 16px;
-    font-size: 18px;;
+    font-size: 18px;
+    ;
     background-color: $white;
 }
 
@@ -1471,17 +1471,17 @@ $toogle-init: 100%;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
+    flex-wrap: wrap;
     margin: -4px;
     -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     -webkit-box-pack: start;
-        -ms-flex-pack: start;
-            justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
 }
 
 .popular_token {
@@ -1490,8 +1490,8 @@ $toogle-init: 100%;
     display: flex;
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
-        -ms-flex-direction: row;
-            flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
     padding: 6px;
     margin: 4px;
     border: solid;
@@ -1499,15 +1499,15 @@ $toogle-init: 100%;
     border-radius: $border-radius-main;
     border-width: $border-width-secondary;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     cursor: pointer;
     -webkit-transition: background-color $transition-delay ease;
     -o-transition: background-color $transition-delay ease;
     transition: background-color $transition-delay ease;
     font-weight: 500;
     font-size: 16px;
-    
+
     &:hover {
         background-color: $grey;
     }
@@ -1515,7 +1515,7 @@ $toogle-init: 100%;
     &.disabled_fully {
         pointer-events: none;
         -webkit-filter: grayscale(1);
-                filter: grayscale(1);
+        filter: grayscale(1);
         opacity: 0.75;
         background-color: $grey;
         color: $dark-grey;
@@ -1523,7 +1523,7 @@ $toogle-init: 100%;
 
     &.disabled_partially {
         -webkit-filter: grayscale(1);
-                filter: grayscale(1);
+        filter: grayscale(1);
         opacity: 0.75;
         background-color: $grey;
         color: $dark-grey;
@@ -1537,8 +1537,8 @@ $toogle-init: 100%;
 .choose_modal_div_lower {
     overflow: auto;
     -webkit-box-flex: 1;
-        -ms-flex: 1 1 0%;
-            flex: 1 1 0%;
+    -ms-flex: 1 1 0%;
+    flex: 1 1 0%;
     margin-right: 2px;
 
     &::-webkit-scrollbar {
@@ -1549,13 +1549,13 @@ $toogle-init: 100%;
         border-radius: 2px;
     }
 
-      /* Up */
-      &::-webkit-scrollbar-button:single-button:vertical:decrement {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23828282' viewBox='0 0 512 512' style='shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality;fill-rule:evenodd;clip-rule:evenodd'%3E%3Cpath style='opacity:1' d='M511.5 365.5v9c-2.205 10.046-8.205 16.879-18 20.5-158.667.667-317.333.667-476 0-9.795-3.621-15.795-10.454-18-20.5v-9a74.513 74.513 0 0 1 5.5-10L239.5 121c10.651-7.275 21.317-7.275 32 0L506 355.5a74.483 74.483 0 0 1 5.5 10z'/%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-      }
-      /* Down */
-      &::-webkit-scrollbar-button:single-button:vertical:increment {
+    /* Up */
+    &::-webkit-scrollbar-button:single-button:vertical:decrement {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23828282' viewBox='0 0 512 512' style='shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality;fill-rule:evenodd;clip-rule:evenodd'%3E%3Cpath style='opacity:1' d='M511.5 365.5v9c-2.205 10.046-8.205 16.879-18 20.5-158.667.667-317.333.667-476 0-9.795-3.621-15.795-10.454-18-20.5v-9a74.513 74.513 0 0 1 5.5-10L239.5 121c10.651-7.275 21.317-7.275 32 0L506 355.5a74.483 74.483 0 0 1 5.5 10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+    }
+    /* Down */
+    &::-webkit-scrollbar-button:single-button:vertical:increment {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23828282' viewBox='0 0 512 512' style='shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality;fill-rule:evenodd;clip-rule:evenodd'%3E%3Cpath style='opacity:1' d='M511.5 135.5v9c-1.34 3.817-3.174 7.483-5.5 11L271.5 390c-10.683 7.275-21.349 7.275-32 0L5 155.5c-2.326-3.517-4.16-7.183-5.5-11v-9c2.643-9.481 8.643-15.981 18-19.5 158.667-.667 317.333-.667 476 0 9.357 3.519 15.357 10.019 18 19.5z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
     }
@@ -1578,11 +1578,11 @@ $toogle-init: 100%;
     cursor: pointer;
     opacity: 1;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     -webkit-box-pack: justify;
-        -ms-flex-pack: justify;
-            justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
 
     &:hover {
         background-color: $grey;
@@ -1617,8 +1617,8 @@ $toogle-init: 100%;
     display: flex;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
     white-space: nowrap;
     overflow: hidden;
 }
@@ -1634,7 +1634,7 @@ $toogle-init: 100%;
     color: $dark-grey;
     overflow: hidden;
     -o-text-overflow: ellipsis;
-       text-overflow: ellipsis;
+    text-overflow: ellipsis;
 }
 
 .list_token_balance {
@@ -1656,11 +1656,11 @@ $toogle-init: 100%;
     display: flex;
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
-        -ms-flex-direction: row;
-            flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     height: 1.2rem;
 }
 
@@ -1668,10 +1668,11 @@ $toogle-init: 100%;
     font-weight: 500;
     display: inherit;
     -webkit-box-align: inherit;
-        -ms-flex-align: inherit;
-            align-items: inherit;
+    -ms-flex-align: inherit;
+    align-items: inherit;
     margin-left: 0.5rem;
-    height: 1.2rem;;
+    height: 1.2rem;
+    ;
 
     & svg {
         width: 1rem;

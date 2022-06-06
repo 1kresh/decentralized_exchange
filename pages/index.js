@@ -6,10 +6,11 @@ import { subtract, bignumber, divide } from "mathjs";
 import Web3 from "web3";
 import jazzicon from "@metamask/jazzicon"
 
-import ETH_TOKEN from '../public/eth_token.json'
-import token_list_all from '../public/token_list_all.json'
-import popular_tokens_all from '../public/popular_tokens_all.json'
-import genericErc20Abi from '../public/Erc20.json'
+import ETH_TOKEN from '../public/eth_token.json';
+import token_list_all from '../public/token_list_all.json';
+import popular_tokens_all from '../public/popular_tokens_all.json';
+import genericErc20Abi from '../public/Erc20.json';
+import ETH_PREFIXES from '../public/eth_prefixes.json';
 
 export default function Swap() {
   const settingsOnFlag = useRef(true);
@@ -1149,7 +1150,7 @@ export default function Swap() {
             {address && ethBalance && 
             <div className={`${styles.connect_button} ${styles.menu_button} ${styles.account_div_main}`}>
                 <div className={styles.eth_balance_div} onClick={() => {navigator.clipboard.writeText(ethBalance); }}>
-                    {formatBalance(ethBalance)} ETH
+                    {formatBalance(ethBalance)} {ETH_PREFIXES[chainId.toString()]}ETH
                 </div>
                 <div className={styles.account_div} onClick={() => {navigator.clipboard.writeText(address); }}>
                     <div className={styles.address_div}>

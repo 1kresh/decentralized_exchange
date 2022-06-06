@@ -252,7 +252,7 @@ export default function Swap() {
         return;
     }
 
-    toogleSettings();
+    toggleSettings();
     const timeOutId = setTimeout(() => {
         if (!settingsOn) {
             clearDiv(document.getElementById(styles.settings_div));
@@ -537,7 +537,7 @@ export default function Swap() {
       window.open(page, '_blank');
   }
 
-  const tooglePage = (event) => {
+  const togglePage = (event) => {
       event.preventDefault();
 
       if (event.which) { // if event.which, use 2 for middle button
@@ -554,7 +554,7 @@ export default function Swap() {
           setTimeout(() => {
               window.location.href = "/liquidity";
           }, 275);
-          document.getElementById('menuDiv').classList.toggle(styles.toogle_menu);
+          document.getElementById('menuDiv').classList.toggle(styles.toggle_menu);
           document.getElementById('liqBtn').classList.remove(styles.hover_effect);
       }
   }
@@ -675,7 +675,7 @@ export default function Swap() {
       }
   }
 
-  const toogleSettings = () => {
+  const toggleSettings = () => {
       var icon = document.getElementById('settings_icon'),
           deg = !settingsOn ? 0 : -120;
       icon.style.webkitTransform = 'rotate(' + deg + 'deg)';
@@ -854,7 +854,7 @@ export default function Swap() {
   }
 
   const closeSettings = (event) => {
-      if (!event.target.closest('#' + styles.settings_div) && !isInFamilyTree(event.target, document.getElementById("settings_toogle_btn"))) {
+      if (!event.target.closest('#' + styles.settings_div) && !isInFamilyTree(event.target, document.getElementById("settings_toggle_btn"))) {
           if (document.getElementById(styles.settings_div).classList.contains(styles.settings_div_activated)) {
             setSettingsOn(false);
           }
@@ -1190,9 +1190,9 @@ export default function Swap() {
           </svg>
           </a>
           <div className={styles.menu_main}>
-            <div id="menuDiv" className={`${styles.menu} ${styles.swap_toogle}`}>
+            <div id="menuDiv" className={`${styles.menu} ${styles.toggle_init}`}>
                 <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
-                <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
+                <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={togglePage}>Liquidity</div>
             </div>
           </div>
           <div className={`${styles.connect_button_div}`}>
@@ -1232,7 +1232,6 @@ export default function Swap() {
                 </div>
                 }
           </div>
-          
       </nav>
 
       <main className={styles.main}>
@@ -1241,7 +1240,7 @@ export default function Swap() {
               <div className={styles.swap_div}>
                   <div className={styles.swap_header}>
                       <div className={styles.settings_icon_div}>
-                          <button id="settings_toogle_btn" className={styles.settings_toogle} onClick={() => setSettingsOn(!settingsOn)}>
+                          <button id="settings_toggle_btn" className={styles.settings_toggle} onClick={() => setSettingsOn(!settingsOn)}>
                               <svg id="settings_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                   <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
                               </svg>

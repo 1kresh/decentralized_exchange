@@ -11,6 +11,7 @@ $border-radius-secondary: 1rem;
 
 $transition-delay: 275ms;
 
+$toogle-init: 100%;
 
 .unscrollable {
     overflow: hidden;
@@ -163,12 +164,12 @@ $transition-delay: 275ms;
     }
 }
 
-.swap_toogle {
-    background-position: 100% 0;
+.toggle_init {
+    background-position: $toogle-init 0;
 }
 
-.toogle_menu {
-    background-position: 0 0 !important;
+.toggle_menu {
+    background-position: max($toogle-init - 100%, -1 * ($toogle-init - 100%)) 0 !important;
 }
 
 .unselectable {
@@ -486,7 +487,7 @@ $transition-delay: 275ms;
     align-items: center;
 }
 
-.settings_toogle {
+.settings_toggle {
     position: relative;
     border: none;
     background-color: inherit;

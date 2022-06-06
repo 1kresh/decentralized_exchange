@@ -90,14 +90,15 @@ $transition-delay: 275ms;
     height: 43.2px;
 }
 
-
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 1000px) {
     .menu_main {
         position: fixed;
         bottom: 0;
         transform: translate(50%, -50%);
     }
+}
 
+@media screen and (max-width: 960px) {
     #choose_modal_inner {
         width: 65vw !important;
     }
@@ -260,34 +261,64 @@ $transition-delay: 275ms;
     }
 }
 
-.connect_button {
+.connect_button_div {
     margin-right: 2rem;
     justify-self: flex-end;
     border: solid;
     border-color: $black;
     border-radius: $border-radius-main;
-    width: 16rem;
+    max-width: 16rem;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     line-height: 1.5;
     background-color: $white;
+    height: 43.2px;
+    color: $black;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    font-size: 1.1rem;
+
+    &:focus {
+        outline: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+}
+
+.connect_button {
+    border: none;
+    border-radius: $border-radius-main;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $white;
+    cursor: pointer;
+    padding: 0.375rem 0.75rem;
+    font-weight: 500;
 }
 
 .account_div_main {
     display: flex;
     flex-direction: row;
-    height: 43.2px;
     padding: 0.375rem;
     font-size: 1rem;
     align-items: center;
     cursor: unset;
+    font-weight: 500;
+    width: 100%;
 }
 
 .eth_balance_div {
     cursor: pointer;
     transition: color $transition-delay ease;
     white-space: nowrap;
+    margin-left: auto;
+    padding-right: 0.375rem;
 
     &:hover {
         color: $dark-grey;
@@ -352,7 +383,7 @@ $transition-delay: 275ms;
         margin-left: 4px;
 
         & svg {
-            height: 19px;
+            height: 20px;
         }
     }
 
@@ -360,6 +391,34 @@ $transition-delay: 275ms;
         transform: rotate(20deg) !important;
         -webkit-transform: rotate(20deg) !important;
         -ms-transform: rotate(20deg) !important;
+    }
+}
+
+.rotate_on_hover_new {
+    & div {
+        display: inline-block;
+        transition-property: -webkit-transform !important;
+        -o-transition-property: transform !important;
+        transition-property: transform !important;
+        transition-property: transform, -webkit-transform !important;
+        -o-transition-duration: $transition-delay !important;
+        transition-duration: $transition-delay !important;
+        -webkit-transition-property: -webkit-transform;
+        -webkit-transition-duration: $transition-delay;
+        -ms-transition-property: -ms-transform !important;
+        -ms-transition-duration: $transition-delay !important;
+        display: flex;
+        margin-left: 7px;
+
+        & svg {
+            height: 20px;
+        }
+    }
+
+    &:hover div {
+        transform: rotate(90deg) !important;
+        -webkit-transform: rotate(90deg) !important;
+        -ms-transform: rotate(90deg) !important;
     }
 }
 
@@ -500,27 +559,41 @@ $transition-delay: 275ms;
     overflow: hidden;
 }
 
-.swap_tokens_btn {
+.swap_tokens_default_div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: initial;
     border: solid;
     border-radius: $border-radius-main;
     border-width: $border-width-main;
     margin: 16px;
+    font-size: 22.4px;
+    font-weight: 500;
+    padding: 1rem;
+    align-items: center;
+}
+
+.swap_tokens_connect_btn {
     -webkit-transition: color $transition-delay,
         border-color $transition-delay;
     -o-transition: color $transition-delay,
         border-color $transition-delay;
     transition: color $transition-delay,
         border-color $transition-delay;
-    font-size: 22.4px;
-    font-weight: 500;
-    padding: 1rem;
     background-color: $light-grey;
+    cursor: pointer;
 
     &:hover {
         border-color: $dark-grey;
         color: $dark-grey;
     }
+}
+
+.swap_tokens_select_div {
+    border: none;
+    background-color: $light-grey;
+    color: $grey;
 }
 
 .swap_label {

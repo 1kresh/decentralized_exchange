@@ -7,10 +7,12 @@ import Web3 from "web3";
 import jazzicon from "@metamask/jazzicon"
 
 import ETH_TOKEN from '../public/eth_token.json';
+import ETH_PREFIXES from '../public/eth_prefixes.json';
+import ALLOWED_CHAINIDS from '../public/allowed_chainids.json';
 import token_list_all from '../public/token_list_all.json';
 import popular_tokens_all from '../public/popular_tokens_all.json';
 import genericErc20Abi from '../public/Erc20.json';
-import ETH_PREFIXES from '../public/eth_prefixes.json';
+
 
 export default function Swap() {
   const settingsOnFlag = useRef(true);
@@ -26,6 +28,7 @@ export default function Swap() {
 
   const avatarRef = useRef()
 
+  const [provider, setProvider] = useState();
   const [web3, setWeb3] = useState();
   const [chainId, setChainId] = useState();
   const [address, setAddress] = useState();
@@ -35,17 +38,33 @@ export default function Swap() {
 
   const checkConnection = () => {
     if (window.ethereum) {
+        setProvider(window.ethereum);
         setWeb3(new Web3(window.ethereum));
-    } else if (window.web3) {
-        setWeb3(new Web3(window.web3.currentProvider));
     };
-
   };
+
+  useEffect(() => {
+    if (provider) {
+        provider.on('chainChanged', (chainId) => {
+            clearAccountStates();
+            filterChainId(chainId)
+        });
+        provider.on('accountsChanged', (address) => {
+            clearAccountStates();
+            setAddress(address[0]);
+        });
+    }
+}, [provider]);
+
+    const clearAccountStates = () => {
+        setEthBalance();
+        setBalances();
+    }
 
   useEffect(() => {
       if (web3) {
         web3.eth.net.getId()
-            .then(setChainId);
+            .then(filterChainId);
         web3.eth.getAccounts()
             .then((addrs) => {
                 if (addrs) {
@@ -56,11 +75,11 @@ export default function Swap() {
   }, [web3]);
 
   useEffect(() => {
-    if (web3 && address) {
+    if (web3 && address && chainId) {
         web3.eth.getBalance(address)
             .then((balance) => setEthBalance(web3.utils.fromWei(balance, 'ether')));
     }
-  }, [address]);
+  }, [web3, address, chainId]);
 
   useEffect(() => {
     const element = avatarRef.current;
@@ -76,13 +95,36 @@ export default function Swap() {
   }, [address, avatarRef, ethBalance]);
 
   const connectWalletHandler = async () => {
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-    setWeb3(new Web3(window.ethereum));
+      if (provider) {
+        provider.request({ method: "eth_requestAccounts" })
+            .then(() => setWeb3(new Web3(provider)));
+      }
+  }
+
+  const switchNetworkHandler = async () => {
+    if (provider) {
+        provider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x1' }],
+        })
+        .then(() =>
+            web3.eth.net.getId()
+                .then(filterChainId));
+      }
   }
 
   useEffect(() => {
-   console.log(balances);
+
   }, [balances]);
+
+  const filterChainId = (chainId_) => {
+    chainId_ = Number.parseInt(chainId_);
+    if (ALLOWED_CHAINIDS.includes(chainId_)) {
+        setChainId(chainId_);
+    } else {
+        setChainId();
+    }
+  }
 
   const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
 
@@ -122,23 +164,23 @@ export default function Swap() {
   }
 
   useEffect(() => {
-    if (address && tokenListCur) {
-       var balances_tmp = {};
+    if (address && tokenListCur && chainId) {
+        const web3_tmp = new Web3(window.ethereum);
+        var balances_tmp = {};
         for (let token of tokenListCur) {
             if (token['address']) {
-                const contract = new web3.eth.Contract(genericErc20Abi, token['address']);
+                const contract = new web3_tmp.eth.Contract(genericErc20Abi, token['address']);
                 contract.methods.balanceOf(address).call()
-                    .then((balance) => {
-                        console.log(token['symbol'], balance, token['address']);
-                        balances_tmp[token['address']] = divide(bignumber(balance), bignumber(10 ** token['decimals']));
-                    })
+                .then((balance) => {
+                    balances_tmp[token['address']] = balance != 0 ? divide(bignumber(balance), bignumber(10 ** token['decimals'])) : 0;
+                })
+                .catch(() => { balances_tmp[token['address']] = 0; })
             }
             
         }
         setBalances(balances_tmp);
     }
-}, [address, tokenListCur]);
-
+}, [address, tokenListCur, chainId]);
 
   const [token0InputMask, setToken0InputMask] = useState();
 
@@ -740,14 +782,6 @@ export default function Swap() {
       }
   }
 
-  const getTokenBySymbol = (tokenListCur_, symbol) => {
-      for (let token of tokenListCur) {
-        if (token['symbol'] == symbol) {
-            return token;
-        }
-    }
-  }
-
   const formatBalance = (balance) => {
       if (!Number.isInteger(balance)) {
         if (balance == undefined) { return 0; }
@@ -1111,6 +1145,29 @@ export default function Swap() {
     return ethBalance;
   }
 
+  const isAmount = (token0Amount_, token0InputMask_) => {
+    return Boolean(token0Amount_) || Boolean(Number.parseFloat(token0InputMask_));
+  }
+
+  const isEnough = (token0_, token0Amount_, token0InputMask_) => {
+    if (token0Amount_) {
+        return isEnoughBalance(token0_, token0Amount_);
+    }
+    return isEnoughBalance(token0_, Number.parseFloat(token0InputMask_.value));
+  }
+
+  const isEnoughBalance = (token, tokenAmount) => {
+    var balance = getBalance(token);
+    if (token['symbol'] == 'ETH') {
+        balance -= 0.01;
+    }
+    return balance > tokenAmount;
+  }
+
+  const swapTokens = (token0_, token0Amount_, token0InputMask_, token1_) => {
+
+  }
+
   useEffect(() => {
     tokenInputsInitMask();
     checkConnection();
@@ -1138,30 +1195,43 @@ export default function Swap() {
                 <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={tooglePage}>Liquidity</div>
             </div>
           </div>
-            {!address && 
-            <button id="connectBtn" className={`${styles.menu_button} ${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWalletHandler}>Connect wallet 
-                <div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>
-                </svg>
-                </div>
-            </button>
-            }
-            {address && ethBalance && 
-            <div className={`${styles.connect_button} ${styles.menu_button} ${styles.account_div_main}`}>
-                <div className={styles.eth_balance_div} onClick={() => {navigator.clipboard.writeText(ethBalance); }}>
-                    {formatBalance(ethBalance)} {ETH_PREFIXES[chainId.toString()]}ETH
-                </div>
-                <div className={styles.account_div} onClick={() => {navigator.clipboard.writeText(address); }}>
-                    <div className={styles.address_div}>
-                        {formatAddress(address)}
+          <div className={`${styles.connect_button_div}`}>
+                {!address && 
+                <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWalletHandler}>
+                    Connect wallet 
+                    <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>
+                    </svg>
                     </div>
-                    <div ref={avatarRef} className={styles.avatar_div}>
+                </button>
+                }
+                {address && !chainId &&
+                <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover_new} ${styles.bg_change_on_hover}`} onClick={switchNetworkHandler}>
+                    Switch network 
+                    <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                        <path fillRule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                    </svg>
+                    </div>
+                </button>
+                }
+                {address && ethBalance && chainId &&
+                <div className={`${styles.account_div_main}`}>
+                    <div className={styles.eth_balance_div} onClick={() => {navigator.clipboard.writeText(ethBalance); }}>
+                        {formatBalance(ethBalance)} {ETH_PREFIXES[chainId.toString()]}ETH
+                    </div>
+                    <div className={styles.account_div} onClick={() => {navigator.clipboard.writeText(address); }}>
+                        <div className={styles.address_div}>
+                            {formatAddress(address)}
+                        </div>
+                        <div ref={avatarRef} className={styles.avatar_div}>
+                        </div>
                     </div>
                 </div>
-                
-            </div>
-            }
+                }
+          </div>
           
       </nav>
 
@@ -1265,7 +1335,7 @@ export default function Swap() {
                           </button>
                       </div>
                       <div className={styles.balance_div_main}>
-                            {token1 && ethBalance && balances &&
+                            {balances && token1 && ethBalance &&
                               <div id="balance_div1" className={styles.balance_div} onClick={(event) => setMaxAmount(event, 1, token1)}>
                                 Balance: {formatBalance(getBalance(token1))}
                               </div>
@@ -1275,9 +1345,36 @@ export default function Swap() {
                   <div className={styles.swap_info_div}>
                   </div>
                   <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
-                      <button className={styles.swap_tokens_btn}>
-                          Connect wallet
+                      {!address &&
+                      <button className={` ${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`}>
+                        Connect wallet
                       </button>
+                      }
+                      {address && !(token0 && token1) &&
+                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                          Select a token
+                      </div>
+                      }
+                      {address && token0 && token1 &&
+                        !isAmount(token0Amount, token0InputMask) &&
+                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                          Enter an amount
+                      </div>
+                      }
+                      {address && token0 && token1 &&
+                        isAmount(token0Amount, token0InputMask) &&
+                            !isEnough(token0, token0Amount, token0InputMask) &&
+                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                          Insufficient {token0['symbol']} balance
+                      </div>
+                      }
+                      {address && token0 && token1 &&
+                        isAmount(token0Amount, token0InputMask) &&
+                            isEnough(token0, token0Amount, token0InputMask) &&
+                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token0InputMask, token1)}>
+                          Swap
+                      </div>
+                      }
                   </div>
               </div>
               <div id={styles.settings_div}>

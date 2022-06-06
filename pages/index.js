@@ -1114,224 +1114,224 @@ export default function Swap() {
     }, []);
 
     return (
-    <div className={`${styles.container} ${styles.unselectable}`} onClick={closeSettings} onKeyDown={handleKeydown}>
+        <div className={`${styles.container} ${styles.unselectable}`} onClick={closeSettings} onKeyDown={handleKeydown}>
 
-      <Head>
-          <title>Simple Swap</title>
-          <meta name="description" content="Exchange for ethereum network" />
-          <link rel="icon" href="/icon.ico" />
-      </Head>
-
-      <nav className="navbar navbar-light fixed-top">
-          <a className={`navbar-brand ${styles.translate_on_hover}`} href="#" draggable="false">
-          <svg className={`d-inline-block ${styles.icon}`} version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-              <path className={styles.arrow_up} d="m323.5 136-52 52H336v143h80V188h64.5l-52-52c-28.6-28.6-52.2-52-52.5-52-.3 0-23.9 23.4-52.5 52zM336 387v40h80v-80h-80v40zm64 0v24h-48v-48h48v24z"/>
-              <path className={styles.arrow_down} d="M96 252.5V324H31.5l52.3 52.2 52.2 52.3 52.2-52.3 52.3-52.2H176V181H96v71.5zM96 125v40h80V85H96v40z"/>
-          </svg>
-          </a>
-          <div className={styles.menu_main}>
-            <div id="menuDiv" className={`${styles.menu} ${styles.toggle_init}`}>
-                <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
-                <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={togglePage}>Liquidity</div>
-            </div>
-          </div>
-          <div className={`${styles.connect_button_div}`}>
-                {!address && 
-                <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWalletHandler}>
-                    Connect wallet 
-                    <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>
+            <Head>
+                <title>Simple Swap</title>
+                <meta name="description" content="Exchange for ethereum network" />
+                <link rel="icon" href="/icon.ico" />
+            </Head>
+        
+            <nav className="navbar navbar-light fixed-top">
+                <a className={`navbar-brand ${styles.translate_on_hover}`} href="#" draggable="false">
+                    <svg className={`d-inline-block ${styles.icon}`} version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                        <path className={styles.arrow_up} d="m323.5 136-52 52H336v143h80V188h64.5l-52-52c-28.6-28.6-52.2-52-52.5-52-.3 0-23.9 23.4-52.5 52zM336 387v40h80v-80h-80v40zm64 0v24h-48v-48h48v24z" />
+                        <path className={styles.arrow_down} d="M96 252.5V324H31.5l52.3 52.2 52.2 52.3 52.2-52.3 52.3-52.2H176V181H96v71.5zM96 125v40h80V85H96v40z" />
                     </svg>
-                    </div>
-                </button>
-                }
-                {address && !chainId &&
-                <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover_new} ${styles.bg_change_on_hover}`} onClick={switchNetworkHandler}>
-                    Switch network 
-                    <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
-                        <path fillRule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
-                    </svg>
-                    </div>
-                </button>
-                }
-                {address && ethBalance && chainId &&
-                <div className={`${styles.account_div_main}`}>
-                    <div className={styles.eth_balance_div} onClick={() => {navigator.clipboard.writeText(ethBalance); }}>
-                        {formatBalance(ethBalance)} {ETH_PREFIXES[chainId.toString()]}ETH
-                    </div>
-                    <div className={styles.account_div} onClick={() => {navigator.clipboard.writeText(address); }}>
-                        <div className={styles.address_div}>
-                            {formatAddress(address)}
-                        </div>
-                        <div ref={avatarRef} className={styles.avatar_div}>
-                        </div>
+                </a>
+                <div className={styles.menu_main}>
+                    <div id="menuDiv" className={`${styles.menu} ${styles.toggle_init}`}>
+                        <div className={`${styles.swap_button} ${styles.menu_button}`} onClick={pageUp}>Swap</div>
+                        <div id="liqBtn" className={`${styles.liquidity_button} ${styles.menu_button} ${styles.hover_effect}`} onMouseDown={togglePage}>Liquidity</div>
                     </div>
                 </div>
-                }
-          </div>
-      </nav>
-
-      <main className={styles.main}>
-          <noscript>You need to enable JavaScript to run this app.</noscript>
-          <div className={styles.swap_div_main}>
-              <div className={styles.swap_div}>
-                  <div className={styles.swap_header}>
-                      <div className={styles.settings_icon_div}>
-                          <button id="settings_toggle_btn" className={styles.settings_toggle} onClick={() => setSettingsOn(!Boolean(settingsOn))}>
-                              <svg id="settings_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                                  <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
-                              </svg>
-                              <div id="expert_mode_div" className={styles.expert_mode}></div>
-                          </button>
-                      </div>
-                  </div>
-                  <div id="token_div0" className={styles.token_div} onClick={focusInput}>
-                      <div className={styles.input_div_main}>
-                          <div>
-                              <div className={styles.swap_label}>
-                                  From
-                              </div>
-                              <div className={styles.input_div}>
-                                  <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false" onInput={(event) => {
-                                      setTokenInputFocus(0);
-                                      setToken0Amount(stringToFloat(event.target.value));
-                                  }}/>
-                              </div>
-                          </div>
-                          <button className={styles.choice_btn} onClick={() => setChooseTokenNum(0)}>
-                              <span className={styles.choice_span}>
-                                  <div className={styles.choosed_token_div}>
-                                      {token0 &&
-                                        <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false" onError={replaceBrokenImg} />
-                                      }
-                                      {token0 &&
-                                        <div className={styles.choosed_token_name}>
-                                          {token0['symbol']}
-                                        </div>
-                                      }
-                                      {!token0 &&
-                                        <div className={styles.choosed_token_name}>
-                                          Select a token
-                                        </div>
-                                      }
-                                  </div>
-                                  <div>
-                                      <svg className={styles.input_arrow} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                                          <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                      </svg>
-                                  </div>
-                              </span>
-                          </button>
-                      </div>
-                      <div className={styles.balance_div_main}>
-                            {token0 && ethBalance && balances &&
-                              <div id="balance_div0" className={styles.balance_div} onClick={() => setMaxAmount(0, token0)}>
-                                Balance: {formatBalance(getBalance(token0))}
-                              </div>
-                            }
-                      </div>
-                  </div>
-                  <div className={styles.change_arrow} onClick={changeTokens}>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 385 400">
-                          <path d="M192.188 1.238C188.081 3.005 58.3 132.899 56.086 137.459c-4.567 9.405-.325 20.513 9.539 24.978 3.492 1.58 4.395 1.591 134.375 1.591s130.883-.011 134.375-1.591c9.864-4.465 14.106-15.573 9.539-24.978-2.333-4.803-132.047-134.5-136.272-136.253-3.674-1.525-11.875-1.508-15.454.032M65.625 237.563c-9.864 4.465-14.106 15.573-9.539 24.978 2.333 4.803 132.047 134.5 136.272 136.253 1.597.664 5.036 1.206 7.642 1.206 2.606 0 6.045-.542 7.642-1.206 4.225-1.753 133.939-131.45 136.272-136.253 4.567-9.405.325-20.513-9.539-24.978-5.543-2.509-263.207-2.509-268.75 0"/>
-                      </svg>
-                  </div>
-                  <div id="token_div1" className={styles.token_div} onClick={focusInput}>
-                      <div className={styles.input_div_main}>
-                          <div>
-                              <div className={styles.swap_label}>
-                                  To
-                              </div>
-                              <div className={styles.input_div}>
-                                  <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false" onInput={(event) => {
-                                      setTokenInputFocus(1);
-                                      setToken1Amount(stringToFloat(event.target.value));
-                                  }}/>
-                              </div>
-                          </div>
-                          <button className={styles.choice_btn} onClick={() => setChooseTokenNum(1)}>
-                              <span className={styles.choice_span}>
-                                  <div className={styles.choosed_token_div}>
-                                      {token1 &&
-                                        <img className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false" onError={replaceBrokenImg} />
-                                      }
-                                      {token1 &&
-                                        <div className={styles.choosed_token_name}>
-                                          {token1['symbol']}
-                                        </div>
-                                      }
-                                      {!token1 &&
-                                        <div className={styles.choosed_token_name}>
-                                          Select a token
-                                        </div>
-                                      }
-                                  </div>
-                                  <div>
-                                      <svg className={styles.input_arrow} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                                          <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                      </svg>
-                                  </div>
-                              </span>
-                          </button>
-                      </div>
-                      <div className={styles.balance_div_main}>
-                            {balances && token1 && ethBalance &&
-                              <div id="balance_div1" className={styles.balance_div} onClick={() => setMaxAmount(1, token1)}>
-                                Balance: {formatBalance(getBalance(token1))}
-                              </div>
-                            }
-                      </div>
-                  </div>
-                  <div className={styles.swap_info_div}>
-                  </div>
-                  <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
-                      {!address &&
-                      <button className={` ${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`}>
+                <div className={`${styles.connect_button_div}`}>
+                    {!address &&
+                    <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWalletHandler}>
                         Connect wallet
-                      </button>
-                      }
-                      {address && !(token0 && token1) &&
-                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
-                          Select a token
-                      </div>
-                      }
-                      {address && token0 && token1 &&
-                        !isAmount(token0Amount) &&
-                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
-                          Enter an amount
-                      </div>
-                      }
-                      {address && token0 && token1 &&
-                        isAmount(token0Amount) &&
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z" />
+                            </svg>
+                        </div>
+                    </button>
+                    }
+                    {address && !chainId &&
+                    <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover_new} ${styles.bg_change_on_hover}`} onClick={switchNetworkHandler}>
+                        Switch network
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+                                <path fillRule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
+                            </svg>
+                        </div>
+                    </button>
+                    }
+                    {address && ethBalance && chainId &&
+                    <div className={`${styles.account_div_main}`}>
+                        <div className={styles.eth_balance_div} onClick={()=> {navigator.clipboard.writeText(ethBalance); }}>
+                            {formatBalance(ethBalance)} {ETH_PREFIXES[chainId.toString()]}ETH
+                        </div>
+                        <div className={styles.account_div} onClick={()=> {navigator.clipboard.writeText(address); }}>
+                            <div className={styles.address_div}>
+                                {formatAddress(address)}
+                            </div>
+                            <div ref={avatarRef} className={styles.avatar_div}>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </nav>
+        
+            <main className={styles.main}>
+                <noscript>You need to enable JavaScript to run this app.</noscript>
+                <div className={styles.swap_div_main}>
+                    <div className={styles.swap_div}>
+                        <div className={styles.swap_header}>
+                            <div className={styles.settings_icon_div}>
+                                <button id="settings_toggle_btn" className={styles.settings_toggle} onClick={()=> setSettingsOn(!Boolean(settingsOn))}>
+                                    <svg id="settings_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
+                                    </svg>
+                                    <div id="expert_mode_div" className={styles.expert_mode}></div>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="token_div0" className={styles.token_div} onClick={focusInput}>
+                            <div className={styles.input_div_main}>
+                                <div>
+                                    <div className={styles.swap_label}>
+                                        From
+                                    </div>
+                                    <div className={styles.input_div}>
+                                        <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false" onInput={(event)=> {
+                                        setTokenInputFocus(0);
+                                        setToken0Amount(stringToFloat(event.target.value));
+                                        }}/>
+                                    </div>
+                                </div>
+                                <button className={styles.choice_btn} onClick={()=> setChooseTokenNum(0)}>
+                                    <span className={styles.choice_span}>
+                                        <div className={styles.choosed_token_div}>
+                                            {token0 &&
+                                            <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false" onError={replaceBrokenImg} />
+                                            }
+                                            {token0 &&
+                                            <div className={styles.choosed_token_name}>
+                                                {token0['symbol']}
+                                            </div>
+                                            }
+                                            {!token0 &&
+                                            <div className={styles.choosed_token_name}>
+                                                Select a token
+                                            </div>
+                                            }
+                                        </div>
+                                        <div>
+                                            <svg className={styles.input_arrow} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                            </svg>
+                                        </div>
+                                    </span>
+                                </button>
+                            </div>
+                            <div className={styles.balance_div_main}>
+                                {token0 && ethBalance && balances &&
+                                <div id="balance_div0" className={styles.balance_div} onClick={()=> setMaxAmount(0, token0)}>
+                                    Balance: {formatBalance(getBalance(token0))}
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div className={styles.change_arrow} onClick={changeTokens}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 385 400">
+                                <path d="M192.188 1.238C188.081 3.005 58.3 132.899 56.086 137.459c-4.567 9.405-.325 20.513 9.539 24.978 3.492 1.58 4.395 1.591 134.375 1.591s130.883-.011 134.375-1.591c9.864-4.465 14.106-15.573 9.539-24.978-2.333-4.803-132.047-134.5-136.272-136.253-3.674-1.525-11.875-1.508-15.454.032M65.625 237.563c-9.864 4.465-14.106 15.573-9.539 24.978 2.333 4.803 132.047 134.5 136.272 136.253 1.597.664 5.036 1.206 7.642 1.206 2.606 0 6.045-.542 7.642-1.206 4.225-1.753 133.939-131.45 136.272-136.253 4.567-9.405.325-20.513-9.539-24.978-5.543-2.509-263.207-2.509-268.75 0" />
+                            </svg>
+                        </div>
+                        <div id="token_div1" className={styles.token_div} onClick={focusInput}>
+                            <div className={styles.input_div_main}>
+                                <div>
+                                    <div className={styles.swap_label}>
+                                        To
+                                    </div>
+                                    <div className={styles.input_div}>
+                                        <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false" onInput={(event)=> {
+                                        setTokenInputFocus(1);
+                                        setToken1Amount(stringToFloat(event.target.value));
+                                        }}/>
+                                    </div>
+                                </div>
+                                <button className={styles.choice_btn} onClick={()=> setChooseTokenNum(1)}>
+                                    <span className={styles.choice_span}>
+                                        <div className={styles.choosed_token_div}>
+                                            {token1 &&
+                                            <img className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false" onError={replaceBrokenImg} />
+                                            }
+                                            {token1 &&
+                                            <div className={styles.choosed_token_name}>
+                                                {token1['symbol']}
+                                            </div>
+                                            }
+                                            {!token1 &&
+                                            <div className={styles.choosed_token_name}>
+                                                Select a token
+                                            </div>
+                                            }
+                                        </div>
+                                        <div>
+                                            <svg className={styles.input_arrow} xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                            </svg>
+                                        </div>
+                                    </span>
+                                </button>
+                            </div>
+                            <div className={styles.balance_div_main}>
+                                {balances && token1 && ethBalance &&
+                                <div id="balance_div1" className={styles.balance_div} onClick={()=> setMaxAmount(1, token1)}>
+                                    Balance: {formatBalance(getBalance(token1))}
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div className={styles.swap_info_div}>
+                        </div>
+                        <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
+                            {!address &&
+                            <button className={` ${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`}>
+                                Connect wallet
+                            </button>
+                            }
+                            {address && !(token0 && token1) &&
+                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                                Select a token
+                            </div>
+                            }
+                            {address && token0 && token1 &&
+                            !isAmount(token0Amount) &&
+                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                                Enter an amount
+                            </div>
+                            }
+                            {address && token0 && token1 &&
+                            isAmount(token0Amount) &&
                             !isEnough(token0, token0Amount) &&
-                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
-                          Insufficient {token0['symbol']} balance
-                      </div>
-                      }
-                      {address && token0 && token1 &&
-                        isAmount(token0Amount) &&
+                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                                Insufficient {token0['symbol']} balance
+                            </div>
+                            }
+                            {address && token0 && token1 &&
+                            isAmount(token0Amount) &&
                             isEnough(token0, token0Amount) &&
-                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token1)}>
-                          Swap
-                      </div>
-                      }
-                  </div>
-              </div>
-              <div id={styles.settings_div}>
-              </div>
-          </div>
-          <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>
-              <div id="exp_modal_inner" className={styles.modal_inner}>
-              </div>
-          </div>
-          <div id="choose_modal_outer" className={styles.modal_outer} onClick={handleChooseModalClick}>
-              <div id={styles.choose_modal_inner} className={styles.modal_inner}>
-              </div>
-          </div>
-      </main>
-    </div>
-  )
+                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token1)}>
+                                Swap
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    <div id={styles.settings_div}>
+                    </div>
+                </div>
+                <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>
+                    <div id="exp_modal_inner" className={styles.modal_inner}>
+                    </div>
+                </div>
+                <div id="choose_modal_outer" className={styles.modal_outer} onClick={handleChooseModalClick}>
+                    <div id={styles.choose_modal_inner} className={styles.modal_inner}>
+                    </div>
+                </div>
+            </main>
+        </div>
+    )
 }

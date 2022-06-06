@@ -1270,7 +1270,7 @@ $toogle-init: 100%;
 
 .modal_inner {
     padding: 0 1rem;
-    max-width: 420px;
+    max-width: calc(420px + 2rem);
     max-height: 100vh;
     min-height: 200px;
     min-width: 300px;
@@ -1546,6 +1546,7 @@ $toogle-init: 100%;
 
 .list_token_balance {
     margin-left: auto;
+    font-weight: 500;
 }
 
 .list_token_no_result {

@@ -184,24 +184,12 @@ export default function Swap() {
 
   const [token0InputMask, setToken0InputMask] = useState();
 
-  useEffect(() => {
-    if (token0InputMask) {
-        token0InputInitHandler();
-    }
-  }, [token0InputMask]);
-
   const [token1InputMask, setToken1InputMask] = useState();
-
-  useEffect(() => {
-    if (token1InputMask) {
-        token1InputInitHandler();
-    }
-  }, [token1InputMask]);
 
   const [chooseTokenNum, setChooseTokenNum] = useState();
 
   useEffect(() => {
-      if (popularTokensCur && tokenListCur && balances && ethBalance) {
+      if (popularTokensCur && tokenListCur) {
         if ([0, 1].includes(chooseTokenNum)) {
             openChooseModal();
         } else {
@@ -210,7 +198,7 @@ export default function Swap() {
       } else {
         setChooseTokenNum();
       }
-  }, [popularTokensCur, tokenListCur, balances, ethBalance, chooseTokenNum]);
+  }, [popularTokensCur, tokenListCur, chooseTokenNum]);
 
   const [chooseModalInput, setChooseModalInput] = useState();
 
@@ -227,25 +215,13 @@ export default function Swap() {
   const [token0, setToken0] = useState(ETH_TOKEN);
 
   useEffect(() => {
-    if (token0Flag.current) {
-        token0Flag.current = false;
-        return;
-    }
-
-    checkTokens(token0, token0Amount, token1, token1Amount);
-
+    checkTokens(token0, token0Amount, token1, token1Amount, tokenInputFocus);
   }, [token0]);
 
   const [token1, setToken1] = useState();
 
   useEffect(() => {
-    if (token1Flag.current) {
-        token1Flag.current = false;
-        return;
-    }
-
-    checkTokens(token0, token0Amount, token1, token1Amount);
-    
+    checkTokens(token0, token0Amount, token1, token1Amount, tokenInputFocus);
   }, [token1]);
 
   const [settingsOn, setSettingsOn] = useState(false);
@@ -367,95 +343,84 @@ export default function Swap() {
         }
     }, [expIconOn]);
 
+    const [tokenInputFocus, setTokenInputFocus] = useState();
+
     const [token0Amount, setToken0Amount] = useState();
 
     useEffect(() => {
-        if (token0AmountFlag.current) {
-            token0AmountFlag.current = false;
-            return;
-        }
-        
-        if (token0Amount == undefined && token1Amount != undefined) {
-            token0InputMask.value = '';
-        } else {
+        if ((token0Amount == undefined || token0Amount == 0) && tokenInputFocus == 0) {
+            setTokenInputFocus();
             setToken1Amount();
-            const timeOutId = setTimeout(() => handleToken0Input(token0Amount), 275);
-            return () => clearTimeout(timeOutId);
+            document.getElementById('input1').value = '';
+            clearDiv(document.getElementsByClassName(styles.swap_info_div)[0]);
+        } else {
+            if (token0 && token1 && tokenInputFocus == 0) {
+                document.getElementById('input1').value = '';
+                const timeOutId = setTimeout(() => handleToken0Input(token0Amount, token0, token1), 275);
+                return () => clearTimeout(timeOutId);
+            }
         }
-    }, [token0Amount]);
+    }, [token0Amount, tokenInputFocus]);
+
+    const handleToken0Input = (token0Amount_, token0_, token1_) => {
+        const token1Amount_ = calculateToken1Amount(token0Amount_, token0_, token1_);
+        document.getElementById('input1').value = floatToString(token1Amount_);
+        setToken1Amount(token1Amount_);
+        const swap_info_div = document.getElementsByClassName(styles.swap_info_div)[0];
+        clearDiv(swap_info_div);
+        swap_info_div.appendChild(
+            getTokenPriceInfoDiv(
+                formatTokenPrice(
+                    token0Amount_ / token1Amount_
+                )
+            )
+        );    
+    }
 
     const [token1Amount, setToken1Amount] = useState();
 
     useEffect(() => {
-        if (token1AmountFlag.current) {
-            token1AmountFlag.current = false;
-            return;
-        }
-        
-        if (token0Amount != undefined && token1Amount == undefined) {
-            token1InputMask.value = '';
-        } else {
+        if ((token1Amount == undefined || token1Amount == 0) && tokenInputFocus == 1) {
+            setTokenInputFocus();
             setToken0Amount();
-            const timeOutId = setTimeout(() => handleToken1Input(token1Amount), 275);
-            return () => clearTimeout(timeOutId);
-        }
-    }, [token1Amount]);
-
-    const handleToken0Input = (token0_amount) => {
-        const swap_info_div = document.getElementsByClassName(styles.swap_info_div)[0];
-        
-        if (token0_amount) {
-            if (token0 && token1) {
-                const token1_amount = calculateToken1Amount(token0_amount, token0, token1);
-                document.getElementById("input1").value = token1_amount;
-                clearDiv(swap_info_div);
-                swap_info_div.appendChild(
-                    getTokenPriceInfoDiv(
-                        formatTokenPrice(
-                            token0_amount / token1_amount
-                        )
-                    )
-                );
-            }
+            document.getElementById('input0').value = '';
+            clearDiv(document.getElementsByClassName(styles.swap_info_div)[0]);
         } else {
-            token1InputMask.value = '';
-            clearDiv(swap_info_div);
+            if (token0 && token1 && tokenInputFocus == 1) {
+                document.getElementById('input0').value = '';
+                const timeOutId = setTimeout(() => handleToken1Input(token1Amount, token0, token1), 275);
+                return () => clearTimeout(timeOutId);
+            }
         }
+    }, [token1Amount, tokenInputFocus]);
+
+    const handleToken1Input = (token1Amount_, token0_, token1_) => {
+        const token0Amount_ = calculateToken0Amount(token1Amount_, token0_, token1_);
+        document.getElementById('input0').value = floatToString(token0Amount_);
+        setToken0Amount(token0Amount_);
+        const swap_info_div = document.getElementsByClassName(styles.swap_info_div)[0];
+        clearDiv(swap_info_div);
+        swap_info_div.appendChild(
+            getTokenPriceInfoDiv(
+                formatTokenPrice(
+                    token0Amount_ / token1Amount_
+                )
+            )
+        );    
     }
 
     const calculateToken1Amount = (token0_amount, token0, token1) => {
-        return 500;
+        return (token0_amount / 34).toFixed(8);
     }
 
-    const handleToken1Input = (token1_amount) => {
-        const swap_info_div = document.getElementsByClassName(styles.swap_info_div)[0];
-        if (token1_amount) {
-            if (token0 && token1) {
-                const token0_amount = calculateToken0Amount(token1_amount, token0, token1);
-                document.getElementById("input0").value = token0_amount;
-                clearDiv(swap_info_div);
-                swap_info_div.appendChild(
-                    getTokenPriceInfoDiv(
-                        formatTokenPrice(
-                            token0_amount / token1_amount
-                        )
-                    )
-                );
-            }
-        } else {
-            token0InputMask.value = '';
-            clearDiv(swap_info_div);
-        }
+    const calculateToken0Amount = (token1_amount, token0, token1) => {
+        return (token1_amount / 34).toFixed(8);
     }
-
+    
     const clearDiv = (div) => {
         div.innerHTML = '';
     }
 
-    const calculateToken0Amount = (token1_amount, token0, token1) => {
-        return 400;
-    }
-    
     const formatTokenPrice = (token_price) => {
         var d = ",";
         var g = 3;
@@ -506,12 +471,12 @@ export default function Swap() {
         `);
     }
 
-  const checkTokens = (token0, token0Amount, token1, token1Amount) => {
-    if (token0 && token1 && (token0Amount || token1Amount)) {
-        if (token0Amount != undefined) {
-            handleToken0Input(token0Amount);
+  const checkTokens = (token0_, token0Amount_, token1_, token1Amount_, tokenInputFocus_) => {
+    if (token0_ && token1_ && (Boolean(token0Amount_) || Boolean(token1Amount_)) & [0, 1].includes(tokenInputFocus_)) {
+        if (tokenInputFocus_ == 0) {
+            handleToken0Input(token0Amount_, token0_, token1_);
         } else {
-            handleToken1Input(token1Amount);
+            handleToken1Input(token1Amount_, token0_, token1_);
         }
     }
   }
@@ -530,7 +495,7 @@ export default function Swap() {
   }
 
   const stringToFloat = (number_str) => {
-    if (number_str == '') {
+    if (number_str == '' || number_str == undefined|| number_str == null) {
         return undefined;
     }
     
@@ -601,14 +566,6 @@ export default function Swap() {
       }
       setSlipMask(IMask(settings_div.getElementsByClassName(styles.slip_input_field)[0], params_slip_input));
       setDlMask(IMask(settings_div.getElementsByClassName(styles.dl_input_field)[0], params_dl_input));
-  }
-
-  const token0InputInitHandler = () => {
-    token0InputMask.on('accept', () => setToken0Amount(stringToFloat(token0InputMask.value)));
-  }
-
-  const token1InputInitHandler = () => {
-    token1InputMask.on('accept', () => setToken1Amount(stringToFloat(token1InputMask.value)));
   }
 
   const slipMaskInitHandler = () => {
@@ -836,10 +793,13 @@ export default function Swap() {
         cur_balance = undefined;
       }
 
+      setTokenInputFocus(token_num);
       if (token_num == 0) {
-        token0InputMask.value = floatToString(cur_balance);
+        document.getElementById('input0').value = cur_balance;
+        setToken0Amount(cur_balance);
       } else {
-        token1InputMask.value = floatToString(cur_balance);
+        document.getElementById('input1').value = cur_balance;
+        setToken1Amount(cur_balance);
       } 
   }
 
@@ -868,9 +828,16 @@ export default function Swap() {
   const changeTokens = () => {
     setToken0(token1);
     setToken1(token0);
-    const tmp = token0InputMask.value;
-    token0InputMask.value = token1InputMask.value;
-    token1InputMask.value = tmp;
+    if ([0, 1].includes(tokenInputFocus)) {
+        setTokenInputFocus(1 - tokenInputFocus);
+        setToken0Amount(token1Amount);
+        setToken1Amount(token0Amount);
+        const input0 = document.getElementById('input0');
+        const input1 = document.getElementById('input1');
+        const tmp = input0.value;
+        input0.value = input1.value;
+        input1.value = tmp;
+    }
   }
 
   const closeExpModal = () => {
@@ -958,13 +925,13 @@ export default function Swap() {
         <div class="${styles.popular_token}
                     ${popular_token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${popular_token == choosed_tokens[1] ? styles.disabled_partially : ''}">
-            <img class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false">
-            </img>
+            <img class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false" />
             <div class=${styles.choosed_token_name}>
                 ${popular_token['symbol']}
             </div>
         </div>
     `);
+    popular_token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
     popular_token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
         [setToken0, setToken1][chooseTokenNum](popular_token);
         return;
@@ -975,21 +942,23 @@ export default function Swap() {
 
   const getTokenDiv = (token, choosed_tokens) => {
     const disabled_partially = token == choosed_tokens[1];
+    const cur_balance = getBalance(token);
     const token_div = createElementFromHTML(
     `
         <div class="${styles.list_token}
                     ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${disabled_partially ? styles.disabled_partially : ''}">
-            <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false"></img>
+            <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false" />
             <div class=${styles.list_token_title}>
                 <span class=${styles.list_token_symbol}>${token['symbol']}</span>
                 <span class=${styles.list_token_name}>${token['name']}</span>
             </div>
             <div class=${styles.list_token_balance}>
-                ${formatBalance(getBalance(token))}
+                ${cur_balance != undefined ? formatBalance(cur_balance) : ''}
             </div>
         </div>
     `);
+    token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
     if (disabled_partially) {
         token_div.addEventListener('click', () => setChooseTokenNum(() => {
             changeTokens();
@@ -1117,14 +1086,17 @@ export default function Swap() {
   }
 
   const getBalance = (token) => {
-    if (token['address']) {
-        return balances[token['address']];
+    if (ethBalance || balances) {
+        if (token['address']) {
+            return balances[token['address']];
+        }
+        return ethBalance;
     }
-    return ethBalance;
+    return undefined;
   }
 
   const isAmount = (token0Amount_) => {
-    return Boolean(token0Amount_) || Boolean(Number.parseFloat(document.getElementById("input0").value));
+    return Boolean(token0Amount_);
   }
 
   const isEnough = (token0_, token0Amount_) => {
@@ -1139,10 +1111,10 @@ export default function Swap() {
     if (token['symbol'] == 'ETH') {
         balance -= 0.01;
     }
-    return balance > tokenAmount;
+    return balance >= tokenAmount;
   }
 
-  const swapTokens = (token0_, token0Amount_, token0InputMask_, token1_) => {
+  const swapTokens = (token0_, token0Amount_, token1_) => {
 
   }
 
@@ -1233,15 +1205,17 @@ export default function Swap() {
                                   From
                               </div>
                               <div className={styles.input_div}>
-                                  <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
+                                  <input id="input0" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false" onInput={(event) => {
+                                      setTokenInputFocus(0);
+                                      setToken0Amount(stringToFloat(event.target.value));
+                                  }}/>
                               </div>
                           </div>
                           <button className={styles.choice_btn} onClick={() => setChooseTokenNum(0)}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
                                       {token0 &&
-                                        <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false">
-                                        </img>
+                                        <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false" onError={replaceBrokenImg} />
                                       }
                                       {token0 &&
                                         <div className={styles.choosed_token_name}>
@@ -1282,15 +1256,17 @@ export default function Swap() {
                                   To
                               </div>
                               <div className={styles.input_div}>
-                                  <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false"></input>
+                                  <input id="input1" className={`${styles.input_field} ${styles.no_outline}`} inputMode="decimal" autoComplete="off" autoCorrect="off" autofill="off" type="text" pattern="^[0-9]*[.,]?[0-9]*$" placeholder="0.0" minLength="1" maxLength="79" spellCheck="false" onInput={(event) => {
+                                      setTokenInputFocus(1);
+                                      setToken1Amount(stringToFloat(event.target.value));
+                                  }}/>
                               </div>
                           </div>
                           <button className={styles.choice_btn} onClick={() => setChooseTokenNum(1)}>
                               <span className={styles.choice_span}>
                                   <div className={styles.choosed_token_div}>
                                       {token1 &&
-                                        <img className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false">
-                                        </img>
+                                        <img className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false" onError={replaceBrokenImg} />
                                       }
                                       {token1 &&
                                         <div className={styles.choosed_token_name}>
@@ -1348,7 +1324,7 @@ export default function Swap() {
                       {address && token0 && token1 &&
                         isAmount(token0Amount) &&
                             isEnough(token0, token0Amount) &&
-                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token0InputMask, token1)}>
+                      <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token1)}>
                           Swap
                       </div>
                       }

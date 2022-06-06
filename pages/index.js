@@ -201,12 +201,16 @@ export default function Swap() {
   const [chooseTokenNum, setChooseTokenNum] = useState();
 
   useEffect(() => {
-    if ([0, 1].includes(chooseTokenNum)) {
-        openChooseModal();
-    } else {
-        closeChooseModal();
-    }
-  }, [chooseTokenNum]);
+      if (popularTokensCur && tokenListCur && balances && ethBalance) {
+        if ([0, 1].includes(chooseTokenNum)) {
+            openChooseModal();
+        } else {
+            closeChooseModal();
+        }
+      } else {
+        setChooseTokenNum();
+      }
+  }, [popularTokensCur, tokenListCur, balances, ethBalance, chooseTokenNum]);
 
   const [chooseModalInput, setChooseModalInput] = useState();
 
@@ -816,7 +820,7 @@ export default function Swap() {
     return number_str;
   }
 
-  const setMaxAmount = (event, token_num, token) => {
+  const setMaxAmount = (token_num, token) => {
       // document.getElementById("input0").value = (getBalance(address0) - 0.01).toString();
       const cur_balance = getBalance(token);
 
@@ -824,7 +828,7 @@ export default function Swap() {
         cur_balance = 0;
       }
 
-      if (token_address === 'ETH') {
+      if (!token['address']) {
         cur_balance = Math.max(subtract(bignumber(cur_balance), 0.01), 0);
       }
 
@@ -859,32 +863,6 @@ export default function Swap() {
             setSettingsOn(false);
           }
       }
-  }
-
-  const setToken = (chooseTokenNum, token) => {
-      const token_div = document.getElementById(`token_div${chooseTokenNum}`);
-      
-      chooseTokenNum == 0 ? setToken0(token) : setToken1(token);
-      
-      token_div.getElementsByTagName("input")[0].value = "";
-      const choosed_token_div = token_div.getElementsByClassName(styles.choosed_token_div)[0];
-      choosed_token_div.innerHTML = "";
-      const balance = token_div.getElementsByClassName(styles.balance_div)[0];
-      var div = document.createElement('div');
-      div.classList.add(styles.choosed_token_name);
-      if (!token) {
-          div.innerHTML = "Select a token";
-      } else {
-          var img = document.createElement('img');
-          img.src = token['logoURI'];
-          img.classList.add(styles.token_icon);
-          img.draggable = false;
-          img.addEventListener("error", replaceBrokenImg);
-          choosed_token_div.appendChild(img);
-          div.innerHTML = token['symbol'];
-          balance.innerHTML = 'Balance: ' + formatBalance(getBalance(token));
-      }
-      choosed_token_div.appendChild(div);
   }
 
   const changeTokens = () => {
@@ -1145,15 +1123,15 @@ export default function Swap() {
     return ethBalance;
   }
 
-  const isAmount = (token0Amount_, token0InputMask_) => {
-    return Boolean(token0Amount_) || Boolean(Number.parseFloat(token0InputMask_));
+  const isAmount = (token0Amount_) => {
+    return Boolean(token0Amount_) || Boolean(Number.parseFloat(document.getElementById("input0").value));
   }
 
-  const isEnough = (token0_, token0Amount_, token0InputMask_) => {
+  const isEnough = (token0_, token0Amount_) => {
     if (token0Amount_) {
         return isEnoughBalance(token0_, token0Amount_);
     }
-    return isEnoughBalance(token0_, Number.parseFloat(token0InputMask_.value));
+    return isEnoughBalance(token0_, Number.parseFloat(document.getElementById("input0").value));
   }
 
   const isEnoughBalance = (token, tokenAmount) => {
@@ -1286,7 +1264,7 @@ export default function Swap() {
                       </div>
                       <div className={styles.balance_div_main}>
                             {token0 && ethBalance && balances &&
-                              <div id="balance_div0" className={styles.balance_div} onClick={(event) => setMaxAmount(event, 0, token0)}>
+                              <div id="balance_div0" className={styles.balance_div} onClick={() => setMaxAmount(0, token0)}>
                                 Balance: {formatBalance(getBalance(token0))}
                               </div>
                             }
@@ -1335,7 +1313,7 @@ export default function Swap() {
                       </div>
                       <div className={styles.balance_div_main}>
                             {balances && token1 && ethBalance &&
-                              <div id="balance_div1" className={styles.balance_div} onClick={(event) => setMaxAmount(event, 1, token1)}>
+                              <div id="balance_div1" className={styles.balance_div} onClick={() => setMaxAmount(1, token1)}>
                                 Balance: {formatBalance(getBalance(token1))}
                               </div>
                             }
@@ -1355,21 +1333,21 @@ export default function Swap() {
                       </div>
                       }
                       {address && token0 && token1 &&
-                        !isAmount(token0Amount, token0InputMask) &&
+                        !isAmount(token0Amount) &&
                       <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
                           Enter an amount
                       </div>
                       }
                       {address && token0 && token1 &&
-                        isAmount(token0Amount, token0InputMask) &&
-                            !isEnough(token0, token0Amount, token0InputMask) &&
+                        isAmount(token0Amount) &&
+                            !isEnough(token0, token0Amount) &&
                       <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
                           Insufficient {token0['symbol']} balance
                       </div>
                       }
                       {address && token0 && token1 &&
-                        isAmount(token0Amount, token0InputMask) &&
-                            isEnough(token0, token0Amount, token0InputMask) &&
+                        isAmount(token0Amount) &&
+                            isEnough(token0, token0Amount) &&
                       <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token0InputMask, token1)}>
                           Swap
                       </div>

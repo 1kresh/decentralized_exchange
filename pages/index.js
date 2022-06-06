@@ -15,17 +15,6 @@ import genericErc20Abi from '../public/Erc20.json';
 
 
 export default function Swap() {
-  const settingsOnFlag = useRef(true);
-  const expertFlag = useRef(true);
-  const cacheFlag = useRef(true);
-  const expCheckboxOnFlag = useRef(true);
-  const openedExpModalFlag = useRef(true);
-  const expIconOnFlag = useRef(true);
-  const token0Flag = useRef(true);
-  const token1Flag = useRef(true);
-  const token0AmountFlag = useRef(true);
-  const token1AmountFlag = useRef(true);
-
   const avatarRef = useRef()
 
   const [provider, setProvider] = useState();
@@ -182,10 +171,6 @@ export default function Swap() {
     }
 }, [address, tokenListCur, chainId]);
 
-  const [token0InputMask, setToken0InputMask] = useState();
-
-  const [token1InputMask, setToken1InputMask] = useState();
-
   const [chooseTokenNum, setChooseTokenNum] = useState();
 
   useEffect(() => {
@@ -224,22 +209,18 @@ export default function Swap() {
     checkTokens(token0, token0Amount, token1, token1Amount, tokenInputFocus);
   }, [token1]);
 
-  const [settingsOn, setSettingsOn] = useState(false);
+  const [settingsOn, setSettingsOn] = useState();
 
   useEffect(() => {
-    if (settingsOnFlag.current) {
-        settingsOnFlag.current = false;
-        return;
+    if (settingsOn != undefined) {
+        toggleSettings();
+        const timeOutId = setTimeout(() => {
+            if (!settingsOn) {
+                clearDiv(document.getElementById(styles.settings_div));
+            }
+        }, 275);
+        return () => clearTimeout(timeOutId);
     }
-
-    toggleSettings();
-    const timeOutId = setTimeout(() => {
-        if (!settingsOn) {
-            clearDiv(document.getElementById(styles.settings_div));
-        }
-    }, 275);
-    return () => clearTimeout(timeOutId);
-    
   }, [settingsOn]);
 
   const [slipMask, setSlipMask] = useState();
@@ -259,30 +240,22 @@ export default function Swap() {
     }
   }, [dlMask]);
 
-  const [expert, setExpert] = useState(false);
+  const [expert, setExpert] = useState();
 
   useEffect(() => {
-      if (expertFlag.current) {
-        expertFlag.current = false;
-        setExpert(Boolean(localStorage.getItem('expert')));
-        return;
-      }
-
-      setExpIconOn(expert);
-      setOpenedExpModal();
-      if (expert) {
-        setExpCheckboxOn(true);
-        localStorage.setItem('expert', '1');
-      } else {
-        localStorage.removeItem('expert');
+      if (expert != undefined) {
+        setExpIconOn(expert);
+        setOpenedExpModal();
+        if (expert) {
+          setExpCheckboxOn(true);
+          localStorage.setItem('expert', '1');
+        } else {
+          localStorage.removeItem('expert');
+        }
       }
   }, [expert]);
 
   useEffect(() => {
-    if (cacheFlag.current) {
-        cacheFlag.current = false;
-        return;
-    }
     if (slipMask && dlMask) {
         const slip_value = localStorage.getItem('slip_value');
         const dl_value = localStorage.getItem('dl_value');
@@ -291,55 +264,42 @@ export default function Swap() {
     }
   }, [slipMask, dlMask, expert]);
 
-  const [openedExpModal, setOpenedExpModal] = useState(false);
+  const [openedExpModal, setOpenedExpModal] = useState();
   
   useEffect(() => {
-        if (openedExpModalFlag.current) {
-            openedExpModalFlag.current = false;
-            return;
+    if (!expert && openedExpModal) {
+        openExpModal();
+    } else {
+        closeExpModal();
+        if (!expert) {
+            setExpCheckboxOn(false);
         }
-
-        if (!expert && openedExpModal) {
-            openExpModal();
-        } else {
-            closeExpModal();
-            if (!expert) {
-                setExpCheckboxOn(false);
-            }
-        }
-
+    }
   }, [openedExpModal]);
 
   const [expCheckboxOn, setExpCheckboxOn] = useState(false);
 
   useEffect(() => {
-    if (expCheckboxOnFlag.current) {
-        expCheckboxOnFlag.current = false;
-        return;
-    }
-
-    if (expCheckboxOn) {
-        if (!expert) {
-            setOpenedExpModal(true);
+    if (expCheckboxOn != undefined) {
+        if (expCheckboxOn) {
+            if (!expert) {
+                setOpenedExpModal(true);
+            }
+        } else {
+            setExpert(false);
         }
-    } else {
-        setExpert(false);
     }
-
   }, [expCheckboxOn]);
 
-    const [expIconOn, setExpIconOn] = useState(false);
+    const [expIconOn, setExpIconOn] = useState();
 
     useEffect(() => {
-        if (expIconOnFlag.current) {
-            expIconOnFlag.current = false;
-            return;
-        }
-
-        const expert_mode_div = document.getElementById("expert_mode_div");
-        clearDiv(expert_mode_div);
-        if (expIconOn) {
-            expert_mode_div.appendChild(getExpIcon());
+        if (expIconOn != undefined) {
+            const expert_mode_div = document.getElementById("expert_mode_div");
+            clearDiv(expert_mode_div);
+            if (expIconOn) {
+                expert_mode_div.appendChild(getExpIcon());
+            }
         }
     }, [expIconOn]);
 
@@ -542,8 +502,8 @@ export default function Swap() {
         normalizeZeros: true,
         radix: '.',
     }
-    setToken0InputMask(IMask(token_inputs[0], params_token_input));
-    setToken1InputMask(IMask(token_inputs[1], params_token_input));
+    IMask(token_inputs[0], params_token_input)
+    IMask(token_inputs[1], params_token_input)
   }
   
   const settingsInputsInitMask = (settings_div) => {
@@ -1121,6 +1081,7 @@ export default function Swap() {
   useEffect(() => {
     tokenInputsInitMask();
     checkConnection();
+    setExpert(Boolean(localStorage.getItem('expert')));
   }, []);
 
   return (
@@ -1190,7 +1151,7 @@ export default function Swap() {
               <div className={styles.swap_div}>
                   <div className={styles.swap_header}>
                       <div className={styles.settings_icon_div}>
-                          <button id="settings_toggle_btn" className={styles.settings_toggle} onClick={() => setSettingsOn(!settingsOn)}>
+                          <button id="settings_toggle_btn" className={styles.settings_toggle} onClick={() => setSettingsOn(!Boolean(settingsOn))}>
                               <svg id="settings_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                   <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
                               </svg>

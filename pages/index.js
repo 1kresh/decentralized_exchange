@@ -1154,7 +1154,7 @@ export default function Swap() {
                     {formatBalance(ethBalance)} ETH
                 </div>
                 <div className={styles.account_div} onClick={() => {navigator.clipboard.writeText(address); }}>
-                    <div>
+                    <div className={styles.address_div}>
                         {formatAddress(address)}
                     </div>
                     <div ref={avatarRef} className={styles.avatar_div}>

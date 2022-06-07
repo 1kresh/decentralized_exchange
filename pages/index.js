@@ -1013,6 +1013,10 @@ export default function Swap() {
             tokens_div.appendChild(getNoResultDiv());
         }
 
+        if (isOverflown(tokenListCur.length)) {
+            tokens_div.classList.add(styles.margined);
+        }
+
         const choose_modal_inner = document.getElementById(styles.choose_modal_inner);
         clearDiv(choose_modal_inner);
         choose_modal_inner.appendChild(choose_section);
@@ -1022,6 +1026,13 @@ export default function Swap() {
         setTimeout(() => choose_modal_outer.classList.add(styles.open_fully), 275);
 
         makeBodyUnscrollable();
+    }
+
+    const isOverflown = (tokenListCur_length) => {
+        // 0.8 - 80% of window height = modal height 
+        // 240 - min height of upper choose modal part
+        // 56 - height of list token
+        return window.innerHeight * 0.8 - 240 < tokenListCur_length * 56;
     }
 
     const makeBodyUnscrollable = () => {

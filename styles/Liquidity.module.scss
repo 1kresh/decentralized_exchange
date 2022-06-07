@@ -267,7 +267,7 @@ $toogle-init: 0;
     border: solid;
     border-color: $black;
     border-radius: $border-radius-main;
-    max-width: 16rem;
+    max-width: 17rem;
     width: 100%;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -340,6 +340,8 @@ $toogle-init: 0;
     white-space: nowrap;
     margin-left: auto;
     padding-right: 0.375rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     &:hover {
         color: $dark-grey;

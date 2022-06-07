@@ -157,8 +157,10 @@ export default function Liquidity() {
         window.location.href = "#";
     }
 
-    const formatBalance = (balance) => {
+    const formatEthBalance = (balance, prefix) => {
         if (!Number.isInteger(balance)) {
+            const k = 6 - prefix.length;
+            
             if (balance == undefined) {
                 return 0;
             }
@@ -171,10 +173,12 @@ export default function Liquidity() {
             }).split(",");
             var balance = parts[0].replace(regex, d);
             if (parts[1]) {
-                balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
+                balance += "." + parts[1].slice(0, Math.max(k - parts[0].length, 0))
                 balance = removeSufficientsZeros(balance);
             }
         }
+
+        balance += ` ${prefix}ETH`;
         return balance;
     }
 
@@ -251,7 +255,7 @@ export default function Liquidity() {
                     {address && ethBalance && chainId &&
                     <div className={`${styles.account_div_main}`}>
                         <div className={styles.eth_balance_div} onClick={()=> {navigator.clipboard.writeText(ethBalance); }}>
-                            {formatBalance(ethBalance)} {ETH_PREFIXES[chainId.toString()]}ETH
+                            {formatEthBalance(ethBalance, ETH_PREFIXES[chainId.toString()])}
                         </div>
                         <div className={styles.account_div} onClick={()=> {navigator.clipboard.writeText(address); }}>
                             <div className={styles.address_div}>

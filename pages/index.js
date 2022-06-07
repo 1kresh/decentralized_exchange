@@ -760,7 +760,7 @@ export default function Swap() {
     const formatEthBalance = (balance, prefix) => {
         if (!Number.isInteger(balance)) {
             const k = 6 - prefix.length;
-            
+
             if (balance == undefined) {
                 return 0;
             }
@@ -818,10 +818,10 @@ export default function Swap() {
 
         setTokenInputFocus(token_num);
         if (token_num == 0) {
-            document.getElementById('input0').value = cur_balance;
+            document.getElementById('input0').value = cur_balance != undefined ? cur_balance : '';
             setToken0Amount(cur_balance);
         } else {
-            document.getElementById('input1').value = cur_balance;
+            document.getElementById('input1').value = cur_balance != undefined ? cur_balance : '';
             setToken1Amount(cur_balance);
         }
     }

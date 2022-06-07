@@ -130,8 +130,12 @@ export default function Swap() {
     const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
 
     useEffect(() => {
-        if (tokenListAll && chainId) {
-            getTokensCurChainId(tokenListAll, chainId);
+        if (tokenListAll) {
+            if (chainId != undefined) {
+                getTokensCurChainId(tokenListAll, chainId);
+            } else {
+                getTokensCurChainId(tokenListAll, 1);
+            }
         }
     }, [tokenListAll, chainId]);
 
@@ -139,8 +143,12 @@ export default function Swap() {
     const [tokenListCur, setTokenListCur] = useState();
 
     useEffect(() => {
-        if (tokenListCur && popularTokensAll && chainId) {
-            getPopularTokensCurChainId(tokenListCur, popularTokensAll, chainId);
+        if (tokenListCur && popularTokensAll) {
+            if (chainId) {
+                getPopularTokensCurChainId(tokenListCur, popularTokensAll, chainId);
+            } else {
+                getPopularTokensCurChainId(tokenListCur, popularTokensAll, 1);
+            }
         }
     }, [tokenListCur, popularTokensAll, chainId])
 

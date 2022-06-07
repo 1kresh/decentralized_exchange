@@ -26,6 +26,7 @@ $toogle-init: 100%;
     & nav {
         -ms-flex-wrap: nowrap;
         flex-wrap: nowrap;
+        background-color: $white;
     }
 }
 
@@ -1562,7 +1563,7 @@ $toogle-init: 100%;
 }
 
 .list_token {
-    background-color: white;
+    background-color: $white;
     -webkit-transition: background-color $transition-delay ease;
     -o-transition: background-color $transition-delay ease;
     transition: background-color $transition-delay ease;

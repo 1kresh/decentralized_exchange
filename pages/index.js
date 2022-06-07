@@ -195,8 +195,8 @@ export default function Swap() {
 
     const [chooseTokenNum, setChooseTokenNum] = useState();
 
+    var clearDivTimeout;
     useEffect(() => {
-        var clearDivTimeout;
         if (popularTokensCur && tokenListCur) {
             if ([0, 1].includes(chooseTokenNum)) {
                 clearTimeout(clearDivTimeout);

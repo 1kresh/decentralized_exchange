@@ -942,22 +942,30 @@ export default function Swap() {
     }
 
     const getPopularTokenDiv = (popular_token, choosed_tokens) => {
+        const disabled_partially = popular_token == choosed_tokens[1];
         const popular_token_div = createElementFromHTML(
-            `
+        `
         <div class="${styles.popular_token}
                     ${popular_token == choosed_tokens[0] ? styles.disabled_fully : ''}
-                    ${popular_token == choosed_tokens[1] ? styles.disabled_partially : ''}">
+                    ${disabled_partially ? styles.disabled_partially : ''}">
             <img class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false" />
             <div class=${styles.choosed_token_name}>
                 ${popular_token['symbol']}
             </div>
         </div>
-    `);
+        `);
         popular_token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
-        popular_token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
-            [setToken0, setToken1][chooseTokenNum](popular_token);
-            return;
-        }));
+        if (disabled_partially) {
+            popular_token_div.addEventListener('click', () => setChooseTokenNum(() => {
+                changeTokens();
+                return;
+            }));
+        } else {
+            popular_token_div.addEventListener('click', () => setChooseTokenNum((chooseTokenNum) => {
+                [setToken0, setToken1][chooseTokenNum](popular_token);
+                return;
+            }));
+        }
 
         return popular_token_div;
     }
@@ -966,7 +974,7 @@ export default function Swap() {
         const disabled_partially = token == choosed_tokens[1];
         const cur_balance = getBalance(token);
         const token_div = createElementFromHTML(
-            `
+        `
         <div class="${styles.list_token}
                     ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${disabled_partially ? styles.disabled_partially : ''}">
@@ -979,7 +987,7 @@ export default function Swap() {
                 ${cur_balance != undefined ? formatBalance(cur_balance) : ''}
             </div>
         </div>
-    `);
+        `);
         token_div.getElementsByTagName('img')[0].addEventListener('error', replaceBrokenImg);
         if (disabled_partially) {
             token_div.addEventListener('click', () => setChooseTokenNum(() => {

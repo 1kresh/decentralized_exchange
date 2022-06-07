@@ -1308,7 +1308,7 @@ export default function Swap() {
                         </div>
                         <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
                             {!address &&
-                            <button className={` ${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`}>
+                            <button className={` ${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={connectWalletHandler}>
                                 Connect wallet
                             </button>
                             }

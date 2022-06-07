@@ -1085,21 +1085,30 @@ export default function Swap() {
     const handleSearchTokenInput = (chooseModalInput) => {
         const tokens_div = document.getElementsByClassName(styles.choose_modal_div_lower)[0];
         clearDiv(tokens_div);
-        const chooseModalInputToLower = chooseModalInput.toLowerCase()
-
         const choosed_tokens = chooseTokenNum == 0 ? [token0, token1] : [token1, token0]; // [currently choosing token, another one]
-        if (chooseModalInput == '') {
+        const regex = /^0x[a-fA-F0-9]{40}$/;
+        if (chooseModalInput.match(regex)) {
             for (let token of tokenListCur) {
-                tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
-            }
-        } else {
-            for (let token of tokenListCur) {
-                if (token['symbol'].toLowerCase().includes(chooseModalInputToLower) ||
-                    token['name'].toLowerCase().includes(chooseModalInputToLower)) {
+                if (token['address'] === chooseModalInput) {
                     tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
                 }
             }
+        } else {
+            const chooseModalInputToLower = chooseModalInput.toLowerCase()
+            if (chooseModalInput == '') {
+                for (let token of tokenListCur) {
+                    tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+                }
+            } else {
+                for (let token of tokenListCur) {
+                    if (token['symbol'].toLowerCase().includes(chooseModalInputToLower) ||
+                        token['name'].toLowerCase().includes(chooseModalInputToLower)) {
+                        tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+                    }
+                }
+            }
         }
+        
         if (tokens_div.innerHTML == '') {
             tokens_div.appendChild(getNoResultDiv());
         }

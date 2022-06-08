@@ -446,7 +446,7 @@ export default function Swap() {
             }
         };
 
-        token_price_formated = removeSufficientsZeros(token_price_formated);
+        token_price_formated = removeNeadlessZeros(token_price_formated);
         return token_price_formated;
     }
 
@@ -478,7 +478,7 @@ export default function Swap() {
             return '';
         }
 
-        return removeSufficientsZeros(
+        return removeNeadlessZeros(
             number.toLocaleString('fullwide', {
                 minimumFractionDigits: 18,
                 useGrouping: false
@@ -751,7 +751,7 @@ export default function Swap() {
             var balance = parts[0].replace(regex, d);
             if (parts[1]) {
                 balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
-                balance = removeSufficientsZeros(balance);
+                balance = removeNeadlessZeros(balance);
             }
         }
         return balance;
@@ -774,7 +774,7 @@ export default function Swap() {
             var balance = parts[0].replace(regex, d);
             if (parts[1]) {
                 balance += "." + parts[1].slice(0, Math.max(k - parts[0].length, 0))
-                balance = removeSufficientsZeros(balance);
+                balance = removeNeadlessZeros(balance);
             }
         }
 
@@ -782,7 +782,7 @@ export default function Swap() {
         return balance;
     }
 
-    const removeSufficientsZeros = (number_str) => {
+    const removeNeadlessZeros = (number_str) => {
         if (number_str.includes('.')) {
             let i;
             for (i = number_str.length - 1; i > -1; i--) {

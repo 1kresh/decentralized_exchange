@@ -1289,7 +1289,7 @@ export default function Swap() {
                             </div>
                             <div className={styles.balance_div_main}>
                                 {token0 && ethBalance && balances &&
-                                <div id="balance_div0" className={styles.balance_div} onClick={()=> setMaxAmount(0, token0)}>
+                                <div id="balance_div0" className={styles.balance_div0} onClick={()=> setMaxAmount(0, token0)}>
                                     Balance: {formatBalance(getBalance(token0))}
                                 </div>
                                 }
@@ -1340,7 +1340,7 @@ export default function Swap() {
                             </div>
                             <div className={styles.balance_div_main}>
                                 {balances && token1 && ethBalance &&
-                                <div id="balance_div1" className={styles.balance_div} onClick={()=> setMaxAmount(1, token1)}>
+                                <div id="balance_div1" className={styles.balance_div1}>
                                     Balance: {formatBalance(getBalance(token1))}
                                 </div>
                                 }

@@ -272,7 +272,7 @@ $toogle-init: 100%;
     border: solid;
     border-color: $black;
     border-radius: $border-radius-main;
-    max-width: 17rem;
+    max-width: 17.5rem;
     width: 100%;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -765,7 +765,7 @@ $toogle-init: 100%;
     padding: 0px 1rem 0.55rem;
 }
 
-.balance_div {
+.balance_div0 {
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
@@ -777,6 +777,12 @@ $toogle-init: 100%;
     &:hover {
         color: $black;
     }
+}
+
+.balance_div1 {
+    font-size: 14px;
+    font-weight: 500;
+    color: $dark-grey;
 }
 
 .choosed_token_name {

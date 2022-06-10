@@ -13,6 +13,9 @@ $transition-delay: 275ms;
 
 $toogle-init: 100%;
 
+$exp-icon-width: 26px;
+$exp-icon-height: 8px;
+
 .unscrollable {
     overflow: hidden;
 }
@@ -541,7 +544,7 @@ $toogle-init: 100%;
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 
     & svg {
         display: block;
@@ -559,7 +562,12 @@ $toogle-init: 100%;
         -ms-transition-duration: $transition-delay !important;
         fill: $black;
         height: 19px;
+        width: $exp-icon-width;
     }
+}
+
+.expert_mode_div {
+    height: $exp-icon-height;
 }
 
 .token_div {
@@ -849,8 +857,8 @@ $toogle-init: 100%;
 }
 
 .expert_mode_svg {
-    width: 26px;
-    height: fit-content !important;
+    width: $exp-icon-width;
+    height: $exp-icon-height !important;
 }
 
 .cls_1 {

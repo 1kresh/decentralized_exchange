@@ -530,7 +530,7 @@ $exp-icon-height: 8px;
     display: flex;
     -webkit-box-pack: right;
     -ms-flex-pack: right;
-    justify-content: end;
+    justify-content: flex-end;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
@@ -751,7 +751,6 @@ $exp-icon-height: 8px;
 .token_icon {
     width: 24px;
     height: 24px;
-    margin-right: 0.5rem;
     border-radius: 50%;
 }
 
@@ -804,6 +803,11 @@ $exp-icon-height: 8px;
 .choosed_token_name {
     overflow: hidden;
     white-space: nowrap;
+    margin-left: 0.5rem;
+}
+
+.choosed_token_name_select {
+    margin-left: 0 !important;
 }
 
 #settings_div {

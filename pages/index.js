@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Image from 'next/image'
 import styles from '../styles/Swap.module.scss'
 import IMask from 'imask'
 import {
@@ -23,7 +24,8 @@ import genericErc20Abi from '../public/Erc20.json';
 
 
 export default function Swap() {
-    const avatarRef = useRef()
+    const avatarRef = useRef();
+    const clearDivTimeout = useRef();
 
     const [provider, setProvider] = useState();
     const [web3, setWeb3] = useState();
@@ -195,14 +197,13 @@ export default function Swap() {
 
     const [chooseTokenNum, setChooseTokenNum] = useState();
 
-    var clearDivTimeout;
     useEffect(() => {
         if (popularTokensCur && tokenListCur) {
             if ([0, 1].includes(chooseTokenNum)) {
-                clearTimeout(clearDivTimeout);
+                clearTimeout(clearDivTimeout.current);
                 openChooseModal();
             } else {
-                clearDivTimeout = setTimeout(() => {
+                clearDivTimeout.current = setTimeout(() => {
                     clearDiv(document.getElementById(styles.choose_modal_inner));
                 }, 275);
                 closeChooseModal();
@@ -950,7 +951,7 @@ export default function Swap() {
         <div class="${styles.popular_token}
                     ${popular_token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${disabled_partially ? styles.disabled_partially : ''}">
-            <img class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false" />
+            <Image class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
             <div class=${styles.choosed_token_name}>
                 ${popular_token['symbol']}
             </div>
@@ -980,7 +981,7 @@ export default function Swap() {
         <div class="${styles.list_token}
                     ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${disabled_partially ? styles.disabled_partially : ''}">
-            <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false" />
+            <Image class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
             <div class=${styles.list_token_title}>
                 <span class=${styles.list_token_symbol}>${token['symbol']}</span>
                 <span class=${styles.list_token_name}>${token['name']}</span>
@@ -1268,7 +1269,7 @@ export default function Swap() {
                                     <span className={styles.choice_span}>
                                         <div className={styles.choosed_token_div}>
                                             {token0 &&
-                                            <img className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false" onError={replaceBrokenImg} />
+                                            <Image className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false" onError={replaceBrokenImg} alt="" width="24px" height="24px" layout="fixed" />
                                             }
                                             {token0 &&
                                             <div className={styles.choosed_token_name}>
@@ -1276,7 +1277,7 @@ export default function Swap() {
                                             </div>
                                             }
                                             {!token0 &&
-                                            <div className={styles.choosed_token_name}>
+                                            <div className={`${styles.choosed_token_name} ${styles.choosed_token_name_select}`}>
                                                 Select a token
                                             </div>
                                             }
@@ -1319,7 +1320,7 @@ export default function Swap() {
                                     <span className={styles.choice_span}>
                                         <div className={styles.choosed_token_div}>
                                             {token1 &&
-                                            <img className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false" onError={replaceBrokenImg} />
+                                            <Image className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false" onError={replaceBrokenImg} alt="" width="24px" height="24px" layout="fixed" />
                                             }
                                             {token1 &&
                                             <div className={styles.choosed_token_name}>
@@ -1327,7 +1328,7 @@ export default function Swap() {
                                             </div>
                                             }
                                             {!token1 &&
-                                            <div className={styles.choosed_token_name}>
+                                            <div className={`${styles.choosed_token_name} ${styles.choosed_token_name_select}`}>
                                                 Select a token
                                             </div>
                                             }

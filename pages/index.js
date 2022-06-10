@@ -517,7 +517,9 @@ export default function Swap() {
                 window.location.href = "/liquidity";
             }, 275);
             document.getElementById('menuDiv').classList.toggle(styles.toggle_menu);
-            document.getElementById('liqBtn').classList.remove(styles.hover_effect);
+            const liqBtn = document.getElementById('liqBtn');
+            liqBtn.classList.add(styles.uneventable);
+            liqBtn.classList.remove(styles.hover_effect);
         }
     }
 
@@ -927,7 +929,7 @@ export default function Swap() {
         return createElementFromHTML(
             `
         <svg class="${styles.expert_mode_svg}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250">
-            <text class="${styles.cls_1}" transform="matrix(1.277 0 0 1.472 -11 231.004)">EXPERT</text>
+            <text class="${styles.cls_1}" x="50%" y="50%" dominant-baseline="middle">EXPERT</text>
         </svg>
     `);
     }
@@ -1245,7 +1247,7 @@ export default function Swap() {
                                     <svg id="settings_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                         <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
                                     </svg>
-                                    <div id="expert_mode_div" className={styles.expert_mode}></div>
+                                    <div id="expert_mode_div"></div>
                                 </button>
                             </div>
                         </div>
@@ -1384,11 +1386,11 @@ export default function Swap() {
                     <div id={styles.settings_div}>
                     </div>
                 </div>
-                <div id="exp_modal_outer" className={styles.modal_outer} onClick={handleExpModalClick}>
+                <div id="exp_modal_outer" className={`${styles.modal_outer} ${styles.uneventable}`} onClick={handleExpModalClick}>
                     <div id="exp_modal_inner" className={styles.modal_inner}>
                     </div>
                 </div>
-                <div id="choose_modal_outer" className={styles.modal_outer} onClick={handleChooseModalClick}>
+                <div id="choose_modal_outer" className={`${styles.modal_outer} ${styles.uneventable}`} onClick={handleChooseModalClick}>
                     <div id={styles.choose_modal_inner} className={styles.modal_inner}>
                     </div>
                 </div>

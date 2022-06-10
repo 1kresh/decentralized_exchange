@@ -149,7 +149,9 @@ export default function Liquidity() {
                 window.location.href = "/";
             }, 275);
             document.getElementById('menuDiv').classList.toggle(styles.toggle_menu);
-            document.getElementById('swpBtn').classList.remove(styles.hover_effect);
+            const swpBtn = document.getElementById('swpBtn');
+            swpBtn.classList.add(styles.uneventable);
+            swpBtn.classList.remove(styles.hover_effect);
         }
     }
 

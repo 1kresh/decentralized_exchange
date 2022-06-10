@@ -122,6 +122,10 @@ $toogle-init: 0;
     color: transparent;
 }
 
+.uneventable {
+    pointer-events: none;
+}
+
 .no_outline {
     outline: none !important;
     -webkit-box-shadow: none !important;

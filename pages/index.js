@@ -951,7 +951,7 @@ export default function Swap() {
         <div class="${styles.popular_token}
                     ${popular_token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${disabled_partially ? styles.disabled_partially : ''}">
-            <Image class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
+            <img class="${styles.token_icon}" src=${popular_token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
             <div class=${styles.choosed_token_name}>
                 ${popular_token['symbol']}
             </div>
@@ -981,7 +981,7 @@ export default function Swap() {
         <div class="${styles.list_token}
                     ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
                     ${disabled_partially ? styles.disabled_partially : ''}">
-            <Image class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
+            <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
             <div class=${styles.list_token_title}>
                 <span class=${styles.list_token_symbol}>${token['symbol']}</span>
                 <span class=${styles.list_token_name}>${token['name']}</span>
@@ -1200,40 +1200,52 @@ export default function Swap() {
                     </div>
                 </div>
                 <div className={`${styles.connect_button_div}`}>
-                    {!address &&
-                    <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWalletHandler}>
-                        Connect wallet
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z" />
-                            </svg>
-                        </div>
-                    </button>
-                    }
-                    {address && !chainId &&
-                    <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover_new} ${styles.bg_change_on_hover}`} onClick={switchNetworkHandler}>
-                        Switch network
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
-                                <path fillRule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
-                            </svg>
-                        </div>
-                    </button>
-                    }
-                    {address && ethBalance && chainId &&
-                    <div className={`${styles.account_div_main}`}>
-                        <div className={styles.eth_balance_div} onClick={()=> {navigator.clipboard.writeText(ethBalance); }}>
-                            {formatEthBalance(ethBalance, ETH_PREFIXES[chainId.toString()])}
-                        </div>
-                        <div className={styles.account_div} onClick={()=> {navigator.clipboard.writeText(address); }}>
-                            <div className={styles.address_div}>
-                                {formatAddress(address)}
-                            </div>
-                            <div ref={avatarRef} className={styles.avatar_div}>
-                            </div>
-                        </div>
-                    </div>
+                    {!address
+                        ? (
+                            <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover} ${styles.bg_change_on_hover}`} onClick={connectWalletHandler}>
+                                Connect wallet
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z" />
+                                    </svg>
+                                </div>
+                            </button>
+                        )
+                        : (!chainId
+                            ? (
+                                <button id="connectBtn" className={`${styles.connect_button} ${styles.rotate_on_hover_new} ${styles.bg_change_on_hover}`} onClick={switchNetworkHandler}>
+                                    Switch network
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+                                            <path fillRule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
+                                        </svg>
+                                    </div>
+                                </button>
+                            )
+                            : (!!ethBalance
+                                ? (
+                                    <div className={`${styles.account_div_main}`}>
+                                        <div className={styles.eth_balance_div} onClick={()=> {navigator.clipboard.writeText(ethBalance); }}>
+                                            {formatEthBalance(ethBalance, ETH_PREFIXES[chainId.toString()])}
+                                        </div>
+                                        <div className={styles.account_div} onClick={()=> {navigator.clipboard.writeText(address); }}>
+                                            <div className={styles.address_div}>
+                                                {formatAddress(address)}
+                                            </div>
+                                            <div ref={avatarRef} className={styles.avatar_div}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                                : (
+                                    <div className={`${styles.account_div_main} ${styles.please_wait_div}`}>
+                                        Please wait 
+                                        <div className={styles.lds_dual_ring}></div>
+                                    </div>
+                                )
+                            )
+                        )
                     }
                 </div>
             </nav>
@@ -1268,18 +1280,22 @@ export default function Swap() {
                                 <button className={styles.choice_btn} onClick={()=> setChooseTokenNum(0)}>
                                     <span className={styles.choice_span}>
                                         <div className={styles.choosed_token_div}>
-                                            {token0 &&
-                                            <Image className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false" onError={replaceBrokenImg} alt="" width="24px" height="24px" layout="fixed" />
+                                            {!!token0
+                                                && (
+                                                    <Image className={`${styles.token_icon}`} src={token0['logoURI']} draggable="false" onError={replaceBrokenImg} alt="" width="24px" height="24px" layout="fixed" />
+                                                )                                            
                                             }
-                                            {token0 &&
-                                            <div className={styles.choosed_token_name}>
-                                                {token0['symbol']}
-                                            </div>
-                                            }
-                                            {!token0 &&
-                                            <div className={`${styles.choosed_token_name} ${styles.choosed_token_name_select}`}>
-                                                Select a token
-                                            </div>
+                                            {!!token0
+                                                ? (
+                                                    <div className={styles.choosed_token_name}>
+                                                        {token0['symbol']}
+                                                    </div>
+                                                )
+                                                : (
+                                                    <div className={`${styles.choosed_token_name} ${styles.choosed_token_name_select}`}>
+                                                        Select a token
+                                                    </div>
+                                                )
                                             }
                                         </div>
                                         <div>
@@ -1291,10 +1307,56 @@ export default function Swap() {
                                 </button>
                             </div>
                             <div className={styles.balance_div_main}>
-                                {token0 && ethBalance && balances &&
-                                <div id="balance_div0" className={styles.balance_div0} onClick={()=> setMaxAmount(0, token0)}>
-                                    Balance: {formatBalance(getBalance(token0))}
-                                </div>
+                                {(!!token0 && !!address && !ethBalance && !balances)
+                                    ? (
+                                        <div className={styles.balance_div1}>
+                                            <div>
+                                                Balance: 
+                                            </div>
+                                            <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
+                                            </div>
+                                        </div>
+                                    )
+                                    : (!!token0
+                                        && (!token0['address']
+                                            ? (
+                                                (!ethBalance
+                                                    ? (
+                                                        <div className={styles.balance_div1}>
+                                                            <div>
+                                                                Balance: 
+                                                            </div>
+                                                            <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>  
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                    : (
+                                                        <div id="balance_div0" className={styles.balance_div0} onClick={()=> setMaxAmount(0, token0)}>
+                                                            Balance: {formatBalance(getBalance(token0))}
+                                                        </div>
+                                                    )
+                                                )
+                                            )
+                                            : (
+                                                (!balances
+                                                    ? (
+                                                        <div className={styles.balance_div1}>
+                                                            <div>
+                                                                Balance: 
+                                                            </div>
+                                                            <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                    : (
+                                                        <div id="balance_div0" className={styles.balance_div0} onClick={()=> setMaxAmount(0, token0)}>
+                                                            Balance: {formatBalance(getBalance(token0))}
+                                                        </div>
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
                                 }
                             </div>
                         </div>
@@ -1319,18 +1381,22 @@ export default function Swap() {
                                 <button className={styles.choice_btn} onClick={()=> setChooseTokenNum(1)}>
                                     <span className={styles.choice_span}>
                                         <div className={styles.choosed_token_div}>
-                                            {token1 &&
-                                            <Image className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false" onError={replaceBrokenImg} alt="" width="24px" height="24px" layout="fixed" />
+                                            {!!token1
+                                                && (
+                                                    <Image className={`${styles.token_icon}`} src={token1['logoURI']} draggable="false" onError={replaceBrokenImg} alt="" width="24px" height="24px" layout="fixed" />
+                                                )    
                                             }
-                                            {token1 &&
-                                            <div className={styles.choosed_token_name}>
-                                                {token1['symbol']}
-                                            </div>
-                                            }
-                                            {!token1 &&
-                                            <div className={`${styles.choosed_token_name} ${styles.choosed_token_name_select}`}>
-                                                Select a token
-                                            </div>
+                                            {!!token1
+                                                ? (
+                                                    <div className={styles.choosed_token_name}>
+                                                        {token1['symbol']}
+                                                    </div>
+                                                )
+                                                : (
+                                                    <div className={`${styles.choosed_token_name} ${styles.choosed_token_name_select}`}>
+                                                        Select a token
+                                                    </div>
+                                                )
                                             }
                                         </div>
                                         <div>
@@ -1342,45 +1408,98 @@ export default function Swap() {
                                 </button>
                             </div>
                             <div className={styles.balance_div_main}>
-                                {balances && token1 && ethBalance &&
-                                <div id="balance_div1" className={styles.balance_div1}>
-                                    Balance: {formatBalance(getBalance(token1))}
-                                </div>
+                            {(!!token1 && !!address && !ethBalance && !balances)
+                                    ? (
+                                        <div className={styles.balance_div1}>
+                                            <div>
+                                                Balance: 
+                                            </div>
+                                            <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
+                                            </div>
+                                        </div>
+                                    )
+                                    : (!!token1
+                                        && (!token1['address']
+                                            ? (
+                                                (!ethBalance
+                                                    ? (
+                                                        <div className={styles.balance_div1}>
+                                                            <div>
+                                                                Balance: 
+                                                            </div>
+                                                            <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                    : (
+                                                        <div id="balance_div1" className={styles.balance_div1}>
+                                                            Balance: {formatBalance(getBalance(token1))}
+                                                        </div>
+                                                    )
+                                                )
+                                            )
+                                            : (
+                                                (!balances
+                                                    ? (
+                                                        <div className={styles.balance_div1}>
+                                                            <div>
+                                                                Balance: 
+                                                            </div>
+                                                            <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                    : (
+                                                        <div id="balance_div1" className={styles.balance_div1}>
+                                                            Balance: {formatBalance(getBalance(token1))}
+                                                        </div>
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
                                 }
                             </div>
                         </div>
                         <div className={styles.swap_info_div}>
                         </div>
                         <div id="swap_tokens_div" className={`${styles.swap_tokens_div}`}>
-                            {!address &&
-                            <button className={` ${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={connectWalletHandler}>
-                                Connect wallet
-                            </button>
-                            }
-                            {address && !(token0 && token1) &&
-                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
-                                Select a token
-                            </div>
-                            }
-                            {address && token0 && token1 &&
-                            !isAmount(token0Amount) &&
-                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
-                                Enter an amount
-                            </div>
-                            }
-                            {address && token0 && token1 &&
-                            isAmount(token0Amount) &&
-                            !isEnough(token0, token0Amount) &&
-                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
-                                Insufficient {token0['symbol']} balance
-                            </div>
-                            }
-                            {address && token0 && token1 &&
-                            isAmount(token0Amount) &&
-                            isEnough(token0, token0Amount) &&
-                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token1)}>
-                                Swap
-                            </div>
+                            {!address
+                                ? (
+                                    <button className={` ${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={connectWalletHandler}>
+                                        Connect wallet
+                                    </button>
+                                )
+                                : ((!token0 || !token1)
+                                    ? (
+                                        <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                                            Select a token
+                                        </div>
+                                    )
+                                    : (!isAmount(token0Amount)
+                                        ? (
+                                            <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                                                Enter an amount
+                                            </div>
+                                        )
+                                        : (!isEnough(token0, token0Amount)
+                                            ? (
+                                                <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
+                                                    Insufficient {token0['symbol']} balance
+                                                </div>
+                                            )
+                                            : (
+                                                <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`} onClick={swapTokens(token0, token0Amount, token1)}>
+                                                    Swap
+                                                </div>
+                                            )
+
+                                        )
+
+                                    )
+
+                                )
+                            
                             }
                         </div>
                     </div>

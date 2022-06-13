@@ -1612,7 +1612,8 @@ $exp-icon-height: 8px;
 }
 
 .choose_modal_div_lower {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     -webkit-box-flex: 1;
     -ms-flex: 1 1 0%;
     flex: 1 1 0%;
@@ -1641,6 +1642,10 @@ $exp-icon-height: 8px;
     &.margined {
         margin-right: 2px;
     }
+}
+
+.list_token_margined {
+    margin-right: 1px;
 }
 
 .list_token {

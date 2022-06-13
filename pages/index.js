@@ -37,14 +37,15 @@ export default function Swap() {
     const [swapContract, setSwapContract] = useState();
 
     const checkConnection = () => {
-        if (window.ethereum) {
-            setProvider(window.ethereum);
-            setWeb3(new Web3(window.ethereum));
+        const rpc = window.ethereum;
+        if (!!rpc) {
+            setProvider(rpc);
+            setWeb3(new Web3(rpc));
         };
     };
 
     useEffect(() => {
-        if (provider) {
+        if (!!provider) {
             provider.on('chainChanged', (chainId) => {
                 clearAccountStates();
                 filterChainId(chainId)
@@ -62,20 +63,20 @@ export default function Swap() {
     }
 
     useEffect(() => {
-        if (web3) {
+        if (!!web3) {
             web3.eth.net.getId()
                 .then(filterChainId);
             web3.eth.getAccounts()
-                .then((addrs) => {
-                    if (addrs) {
-                        setAddress(addrs[0]);
+                .then((addresses) => {
+                    if (!!addresses) {
+                        setAddress(addresses[0]);
                     }
                 });
         }
     }, [web3]);
 
     useEffect(() => {
-        if (web3 && address && chainId) {
+        if (!!web3 && !!address && !!chainId) {
             web3.eth.getBalance(address)
                 .then((balance) => setEthBalance(web3.utils.fromWei(balance, 'ether')));
         }
@@ -83,11 +84,11 @@ export default function Swap() {
 
     useEffect(() => {
         const element = avatarRef.current;
-        if (element && address) {
+        if (!!element && !!address) {
             const addr = address.slice(2, 10);
             const seed = parseInt(addr, 16);
             const icon = jazzicon(16, seed);
-            if (element.firstChild) {
+            if (!!element.firstChild) {
                 element.removeChild(element.firstChild);
             }
             element.appendChild(icon);
@@ -95,7 +96,7 @@ export default function Swap() {
     }, [address, avatarRef, ethBalance]);
 
     const connectWalletHandler = async () => {
-        if (provider) {
+        if (!!provider) {
             provider.request({
                     method: "eth_requestAccounts"
                 })
@@ -104,7 +105,7 @@ export default function Swap() {
     }
 
     const switchNetworkHandler = async () => {
-        if (provider) {
+        if (!!provider) {
             provider.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{
@@ -133,7 +134,7 @@ export default function Swap() {
     const [tokenListAll, setTokenListAll] = useState(token_list_all['tokens']);
 
     useEffect(() => {
-        if (tokenListAll) {
+        if (!!tokenListAll) {
             if (chainId != undefined) {
                 getTokensCurChainId(tokenListAll, chainId);
             } else {
@@ -146,8 +147,8 @@ export default function Swap() {
     const [tokenListCur, setTokenListCur] = useState();
 
     useEffect(() => {
-        if (tokenListCur && popularTokensAll) {
-            if (chainId) {
+        if (!!tokenListCur && !!popularTokensAll) {
+            if (!!chainId) {
                 getPopularTokensCurChainId(tokenListCur, popularTokensAll, chainId);
             } else {
                 getPopularTokensCurChainId(tokenListCur, popularTokensAll, 1);
@@ -176,11 +177,11 @@ export default function Swap() {
     }
 
     useEffect(() => {
-        if (address && tokenListCur && chainId) {
+        if (!!address && !!tokenListCur && !!chainId) {
             const web3_tmp = new Web3(window.ethereum);
             var balances_tmp = {};
             for (let token of tokenListCur) {
-                if (token['address']) {
+                if (!!token['address']) {
                     const contract = new web3_tmp.eth.Contract(genericErc20Abi, token['address']);
                     contract.methods.balanceOf(address).call()
                         .then((balance) => {
@@ -190,7 +191,6 @@ export default function Swap() {
                             balances_tmp[token['address']] = 0;
                         })
                 }
-
             }
             setBalances(balances_tmp);
         }
@@ -199,7 +199,7 @@ export default function Swap() {
     const [chooseTokenNum, setChooseTokenNum] = useState();
 
     useEffect(() => {
-        if (popularTokensCur && tokenListCur) {
+        if (!!popularTokensCur && !!tokenListCur) {
             if ([0, 1].includes(chooseTokenNum)) {
                 clearTimeout(clearDivTimeout.current);
                 openChooseModal();
@@ -255,7 +255,7 @@ export default function Swap() {
     const [slipMask, setSlipMask] = useState();
 
     useEffect(() => {
-        if (slipMask) {
+        if (!!slipMask) {
             slipMaskInitHandler();
             document.getElementsByClassName(styles.activated_auto_btn)[0].addEventListener('click', () => {
                 slipMask.value = '';
@@ -266,43 +266,43 @@ export default function Swap() {
     const [dlMask, setDlMask] = useState();
 
     useEffect(() => {
-        if (dlMask) {
+        if (!!dlMask) {
             dlMaskInitHandler();
         }
     }, [dlMask]);
 
-    const [expert, setExpert] = useState();
+    const [isExpert, setIsExpert] = useState();
 
     useEffect(() => {
-        if (expert != undefined) {
-            setExpIconOn(expert);
+        if (isExpert != undefined) {
+            setExpIconOn(isExpert);
             setOpenedExpModal();
-            if (expert) {
+            if (isExpert) {
                 setExpCheckboxOn(true);
-                localStorage.setItem('expert', '1');
+                localStorage.setItem('isExpert', '1');
             } else {
-                localStorage.removeItem('expert');
+                localStorage.removeItem('isExpert');
             }
         }
-    }, [expert]);
+    }, [isExpert]);
 
     useEffect(() => {
-        if (slipMask && dlMask) {
+        if (!!slipMask && !!dlMask) {
             const slip_value = localStorage.getItem('slip_value');
             const dl_value = localStorage.getItem('dl_value');
             slipMask.value = slip_value ? slip_value : '';
             dlMask.value = dl_value ? dl_value : '';
         }
-    }, [slipMask, dlMask, expert]);
+    }, [slipMask, dlMask, isExpert]);
 
     const [openedExpModal, setOpenedExpModal] = useState();
 
     useEffect(() => {
-        if (!expert && openedExpModal) {
+        if (!isExpert && openedExpModal) {
             openExpModal();
         } else {
             closeExpModal();
-            if (!expert) {
+            if (!isExpert) {
                 setExpCheckboxOn(false);
             }
         }
@@ -313,11 +313,11 @@ export default function Swap() {
     useEffect(() => {
         if (expCheckboxOn != undefined) {
             if (expCheckboxOn) {
-                if (!expert) {
+                if (!isExpert) {
                     setOpenedExpModal(true);
                 }
             } else {
-                setExpert(false);
+                setIsExpert(false);
             }
         }
     }, [expCheckboxOn]);
@@ -345,7 +345,7 @@ export default function Swap() {
             document.getElementById('input1').value = '';
             clearDiv(document.getElementsByClassName(styles.swap_info_div)[0]);
         } else {
-            if (token0 && token1 && tokenInputFocus == 0) {
+            if (!!token0 && !!token1 && tokenInputFocus == 0) {
                 document.getElementById('input1').value = '';
                 const timeOutId = setTimeout(() => handleToken0Input(token0Amount, token0, token1), 275);
                 return () => clearTimeout(timeOutId);
@@ -377,7 +377,7 @@ export default function Swap() {
             document.getElementById('input0').value = '';
             clearDiv(document.getElementsByClassName(styles.swap_info_div)[0]);
         } else {
-            if (token0 && token1 && tokenInputFocus == 1) {
+            if (!!token0 && !!token1 && tokenInputFocus == 1) {
                 document.getElementById('input0').value = '';
                 const timeOutId = setTimeout(() => handleToken1Input(token1Amount, token0, token1), 275);
                 return () => clearTimeout(timeOutId);
@@ -432,7 +432,7 @@ export default function Swap() {
                     nums = true;
                     n += 1
                 } else {
-                    if (nums) {
+                    if (!!nums) {
                         n += 1
                     }
                 }
@@ -443,7 +443,7 @@ export default function Swap() {
             }
         } else {
             token_price_formated = parts[0].replace(regex, d);
-            if (parts[1]) {
+            if (!!parts[1]) {
                 token_price_formated += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
             }
         };
@@ -466,7 +466,7 @@ export default function Swap() {
     }
 
     const checkTokens = (token0_, token0Amount_, token1_, token1Amount_, tokenInputFocus_) => {
-        if (token0_ && token1_ && (Boolean(token0Amount_) || Boolean(token1Amount_)) & [0, 1].includes(tokenInputFocus_)) {
+        if (!!token0_ && !!token1_ && (!!token0Amount_ || !!token1Amount_) && [0, 1].includes(tokenInputFocus_)) {
             if (tokenInputFocus_ == 0) {
                 handleToken0Input(token0Amount_, token0_, token1_);
             } else {
@@ -504,11 +504,11 @@ export default function Swap() {
     const togglePage = (event) => {
         event.preventDefault();
 
-        if (event.which) { // if event.which, use 2 for middle button
+        if (!!event.which) { // if event.which, use 2 for middle button
             if (event.which === 2) {
                 openTab("/liquidity");
             }
-        } else if (event.button) { // and if event.button, use 1 or 4 for middle button
+        } else if (!!event.button) { // and if event.button, use 1 or 4 for middle button
             if (navigator.userAgent.indexOf("Chrome") != -1 && event.button === 1) {
                 openTab("/liquidity");
             } else if (event.button === 4) {
@@ -753,7 +753,7 @@ export default function Swap() {
                 useGrouping: false
             }).split(",");
             var balance = parts[0].replace(regex, d);
-            if (parts[1]) {
+            if (!!parts[1]) {
                 balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0))
                 balance = removeNeadlessZeros(balance);
             }
@@ -776,7 +776,7 @@ export default function Swap() {
                 useGrouping: false
             }).split(",");
             var balance = parts[0].replace(regex, d);
-            if (parts[1]) {
+            if (!!parts[1]) {
                 balance += "." + parts[1].slice(0, Math.max(k - parts[0].length, 0))
                 balance = removeNeadlessZeros(balance);
             }
@@ -892,14 +892,14 @@ export default function Swap() {
                 <div class="${styles.modal_secondary_text}">Expert mode turns off the confirm transaction prompt and allows high slippage trades that often result in bad rates and lost funds.</div>
                 <div class="${styles.modal_main_text}">ONLY USE THIS MODE IF YOU KNOW WHAT YOU ARE DOING.</div>
                 <button class="${styles.exp_modal_btn}">
-                    <div class="${styles.exp_modal_btn_text}" id="confirm-expert-mode">Turn On Expert Mode</div>
+                    <div class="${styles.exp_modal_btn_text}">Turn On Expert Mode</div>
                 </button>
             </div>
         </div>
     `);
 
         html.getElementsByTagName('svg')[0].addEventListener('click', () => setOpenedExpModal());
-        html.getElementsByTagName('button')[0].addEventListener('click', () => setExpert(true));
+        html.getElementsByTagName('button')[0].addEventListener('click', () => setIsExpert(true));
 
         const exp_modal_inner = document.getElementById('exp_modal_inner');
         clearDiv(exp_modal_inner);
@@ -974,21 +974,23 @@ export default function Swap() {
         return popular_token_div;
     }
 
-    const getTokenDiv = (token, choosed_tokens) => {
+    const getTokenDiv = (token, choosed_tokens, is_overflown) => {
         const disabled_partially = token == choosed_tokens[1];
         const cur_balance = getBalance(token);
         const token_div = createElementFromHTML(
         `
-        <div class="${styles.list_token}
-                    ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
-                    ${disabled_partially ? styles.disabled_partially : ''}">
-            <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
-            <div class=${styles.list_token_title}>
-                <span class=${styles.list_token_symbol}>${token['symbol']}</span>
-                <span class=${styles.list_token_name}>${token['name']}</span>
-            </div>
-            <div class=${styles.list_token_balance}>
-                ${cur_balance != undefined ? formatBalance(cur_balance) : ''}
+        <div class="${is_overflown ? styles.list_token_margined : ''}">
+            <div class="${styles.list_token}
+                        ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
+                        ${disabled_partially ? styles.disabled_partially : ''}">
+                <img class="${styles.token_icon} ${styles.list_token_icon}" src=${token['logoURI']} draggable="false" alt="" width="24px" height="24px" layout="fixed" />
+                <div class=${styles.list_token_title}>
+                    <span class=${styles.list_token_symbol}>${token['symbol']}</span>
+                    <span class=${styles.list_token_name}>${token['name']}</span>
+                </div>
+                <div class=${styles.list_token_balance}>
+                    ${cur_balance != undefined ? formatBalance(cur_balance) : ''}
+                </div>
             </div>
         </div>
         `);
@@ -1042,16 +1044,17 @@ export default function Swap() {
             popular_tokens_div.appendChild(getPopularTokenDiv(popular_token, choosed_tokens));
         }
 
-        if (tokenListCur.length) {
+        const is_overflown = isOverflown(tokenListCur.length);
+        if (is_overflown) {
+            tokens_div.classList.add(styles.margined);
+        }
+
+        if (!!tokenListCur.length) {
             for (let token of tokenListCur) {
-                tokens_div.appendChild(getTokenDiv(token, choosed_tokens));
+                tokens_div.appendChild(getTokenDiv(token, choosed_tokens, is_overflown));
             }
         } else {
             tokens_div.appendChild(getNoResultDiv());
-        }
-
-        if (isOverflown(tokenListCur.length)) {
-            tokens_div.classList.add(styles.margined);
         }
 
         const choose_modal_inner = document.getElementById(styles.choose_modal_inner);
@@ -1140,8 +1143,8 @@ export default function Swap() {
     }
 
     const getBalance = (token) => {
-        if (ethBalance || balances) {
-            if (token['address']) {
+        if (!!ethBalance || !!balances) {
+            if (!!token['address']) {
                 return balances[token['address']];
             }
             return ethBalance;
@@ -1149,12 +1152,8 @@ export default function Swap() {
         return undefined;
     }
 
-    const isAmount = (token0Amount_) => {
-        return Boolean(token0Amount_);
-    }
-
     const isEnough = (token0_, token0Amount_) => {
-        if (token0Amount_) {
+        if (!!token0Amount_) {
             return isEnoughBalance(token0_, token0Amount_);
         }
         return isEnoughBalance(token0_, Number.parseFloat(document.getElementById("input0").value));
@@ -1169,13 +1168,13 @@ export default function Swap() {
     }
 
     const swapTokens = (token0_, token0Amount_, token1_) => {
-
+        
     }
 
     useEffect(() => {
         tokenInputsInitMask();
         checkConnection();
-        setExpert(Boolean(localStorage.getItem('expert')));
+        setIsExpert(localStorage.getItem('isExpert'));
     }, []);
 
     return (
@@ -1224,8 +1223,14 @@ export default function Swap() {
                                     </div>
                                 </button>
                             )
-                            : (!!ethBalance
+                            : (!ethBalance
                                 ? (
+                                    <div className={`${styles.account_div_main} ${styles.please_wait_div}`}>
+                                        Please wait 
+                                        <div className={styles.lds_dual_ring}></div>
+                                    </div>
+                                )
+                                : (
                                     <div className={`${styles.account_div_main}`}>
                                         <div className={styles.eth_balance_div} onClick={()=> {navigator.clipboard.writeText(ethBalance); }}>
                                             {formatEthBalance(ethBalance, ETH_PREFIXES[chainId.toString()])}
@@ -1237,12 +1242,6 @@ export default function Swap() {
                                             <div ref={avatarRef} className={styles.avatar_div}>
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                                : (
-                                    <div className={`${styles.account_div_main} ${styles.please_wait_div}`}>
-                                        Please wait 
-                                        <div className={styles.lds_dual_ring}></div>
                                     </div>
                                 )
                             )
@@ -1257,7 +1256,7 @@ export default function Swap() {
                     <div className={styles.swap_div}>
                         <div className={styles.swap_header}>
                             <div className={styles.settings_icon_div}>
-                                <button id="settings_toggle_btn" className={styles.settings_toggle} onClick={()=> setSettingsOn(!Boolean(settingsOn))}>
+                                <button id="settings_toggle_btn" className={styles.settings_toggle} onClick={()=> setSettingsOn(settingsOn => !settingsOn)}>
                                     <svg id="settings_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                         <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
                                     </svg>
@@ -1411,7 +1410,7 @@ export default function Swap() {
                                             Select a token
                                         </div>
                                     )
-                                    : (!isAmount(token0Amount)
+                                    : (!!token0Amount
                                         ? (
                                             <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
                                                 Enter an amount

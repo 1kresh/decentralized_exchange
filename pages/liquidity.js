@@ -34,14 +34,14 @@ export default function Liquidity() {
     const [liquidityContract, setLiquidityContract] = useState();
 
     const checkConnection = () => {
-        if (window.ethereum) {
+        if (!!window.ethereum) {
             setProvider(window.ethereum);
             setWeb3(new Web3(window.ethereum));
         };
     };
 
     useEffect(() => {
-        if (provider) {
+        if (!!provider) {
             provider.on('chainChanged', (chainId) => {
                 clearAccountStates();
                 filterChainId(chainId)
@@ -59,20 +59,20 @@ export default function Liquidity() {
     }
 
     useEffect(() => {
-        if (web3) {
+        if (!!web3) {
             web3.eth.net.getId()
                 .then(filterChainId);
             web3.eth.getAccounts()
-                .then((addrs) => {
-                    if (addrs) {
-                        setAddress(addrs[0]);
+                .then((addresses) => {
+                    if (!!addresses) {
+                        setAddress(addresses[0]);
                     }
                 });
         }
     }, [web3]);
 
     useEffect(() => {
-        if (web3 && address && chainId) {
+        if (!!web3 && !!address && !!chainId) {
             web3.eth.getBalance(address)
                 .then((balance) => setEthBalance(web3.utils.fromWei(balance, 'ether')));
         }
@@ -80,11 +80,11 @@ export default function Liquidity() {
 
     useEffect(() => {
         const element = avatarRef.current;
-        if (element && address) {
+        if (!!element && !!address) {
             const addr = address.slice(2, 10);
             const seed = parseInt(addr, 16);
             const icon = jazzicon(16, seed);
-            if (element.firstChild) {
+            if (!!element.firstChild) {
                 element.removeChild(element.firstChild);
             }
             element.appendChild(icon);
@@ -92,7 +92,7 @@ export default function Liquidity() {
     }, [address, avatarRef, ethBalance]);
 
     const connectWalletHandler = async () => {
-        if (provider) {
+        if (!!provider) {
             provider.request({
                     method: "eth_requestAccounts"
                 })
@@ -101,7 +101,7 @@ export default function Liquidity() {
     }
 
     const switchNetworkHandler = async () => {
-        if (provider) {
+        if (!!provider) {
             provider.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{
@@ -134,11 +134,11 @@ export default function Liquidity() {
     const togglePage = (event) => {
         event.preventDefault();
 
-        if (event.which) { // if event.which, use 2 for middle button
+        if (!!event.which) { // if event.which, use 2 for middle button
             if (event.which === 2) {
                 openTab("/");
             }
-        } else if (event.button) { // and if event.button, use 1 or 4 for middle button
+        } else if (!!event.button) { // and if event.button, use 1 or 4 for middle button
             if (navigator.userAgent.indexOf("Chrome") != -1 && event.button === 1) {
                 openTab("/");
             } else if (event.button === 4) {
@@ -256,8 +256,14 @@ export default function Liquidity() {
                                     </div>
                                 </button>
                             )
-                            : (!!ethBalance
+                            : (!ethBalance
                                 ? (
+                                    <div className={`${styles.account_div_main} ${styles.please_wait_div}`}>
+                                        Please wait 
+                                        <div className={styles.lds_dual_ring}></div>
+                                    </div>
+                                )
+                                : (
                                     <div className={`${styles.account_div_main}`}>
                                         <div className={styles.eth_balance_div} onClick={()=> {navigator.clipboard.writeText(ethBalance); }}>
                                             {formatEthBalance(ethBalance, ETH_PREFIXES[chainId.toString()])}
@@ -269,12 +275,6 @@ export default function Liquidity() {
                                             <div ref={avatarRef} className={styles.avatar_div}>
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                                : (
-                                    <div className={`${styles.account_div_main} ${styles.please_wait_div}`}>
-                                        Please wait 
-                                        <div className={styles.lds_dual_ring}></div>
                                     </div>
                                 )
                             )

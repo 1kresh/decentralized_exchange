@@ -1308,40 +1308,20 @@ export default function Swap() {
                             </div>
                             <div className={styles.balance_div_main}>
                                 {!!address && !!token0
-                                    && (!token0['address']
-                                        ? (!ethBalance
-                                            ? (
-                                                <div className={styles.balance_div1}>
-                                                    <div>
-                                                        Balance: 
-                                                    </div>
-                                                    <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>  
-                                                    </div>
-                                                </div>
-                                            )
-                                            : (
-                                                <div id="balance_div0" className={styles.balance_div0} onClick={()=> setMaxAmount(0, token0)}>
-                                                    Balance: {formatBalance(getBalance(token0))}
-                                                </div>
-                                            )
+                                    && (((!token0['address'] && !!ethBalance) || (!!token0['address'] && !!balances))
+                                        ? (
+                                            <div id="balance_div0" className={styles.balance_div0} onClick={()=> setMaxAmount(0, token0)}>
+                                                Balance: {formatBalance(getBalance(token0))}
+                                            </div>
                                         )
                                         : (
-                                            (!balances
-                                                ? (
-                                                    <div className={styles.balance_div1}>
-                                                        <div>
-                                                            Balance: 
-                                                        </div>
-                                                        <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
-                                                        </div>
-                                                    </div>
-                                                )
-                                                : (
-                                                    <div id="balance_div0" className={styles.balance_div0} onClick={()=> setMaxAmount(0, token0)}>
-                                                        Balance: {formatBalance(getBalance(token0))}
-                                                    </div>
-                                                )
-                                            )
+                                            <div className={styles.balance_div1}>
+                                                <div>
+                                                    Balance: 
+                                                </div>
+                                                <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
+                                                </div>
+                                            </div>
                                         )
                                     )
                                 }
@@ -1396,40 +1376,20 @@ export default function Swap() {
                             </div>
                             <div className={styles.balance_div_main}>
                                 {!!address && !!token1
-                                    && (!token1['address']
-                                        ? (!ethBalance
-                                            ? (
-                                                <div className={styles.balance_div1}>
-                                                    <div>
-                                                        Balance: 
-                                                    </div>
-                                                    <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>  
-                                                    </div>
-                                                </div>
-                                            )
-                                            : (
-                                                <div id="balance_div1" className={styles.balance_div1}>
-                                                    Balance: {formatBalance(getBalance(token1))}
-                                                </div>
-                                            )
+                                    && (((!token1['address'] && !!ethBalance) || (!!token1['address'] && !!balances))
+                                        ? (
+                                            <div id="balance_div1" className={styles.balance_div1}>
+                                                Balance: {formatBalance(getBalance(token1))}
+                                            </div>
                                         )
                                         : (
-                                            (!balances
-                                                ? (
-                                                    <div className={styles.balance_div1}>
-                                                        <div>
-                                                            Balance: 
-                                                        </div>
-                                                        <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
-                                                        </div>
-                                                    </div>
-                                                )
-                                                : (
-                                                    <div id="balance_div1" className={styles.balance_div1}>
-                                                        Balance: {formatBalance(getBalance(token1))}
-                                                    </div>
-                                                )
-                                            )
+                                            <div className={styles.balance_div1}>
+                                                <div>
+                                                    Balance: 
+                                                </div>
+                                                <div className={`${styles.lds_dual_ring} ${styles.lds_dual_ring_balance}`}>
+                                                </div>
+                                            </div>
                                         )
                                     )
                                 }

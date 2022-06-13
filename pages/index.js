@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import styles from '../styles/Swap.module.scss'
 import IMask from 'imask'
 import {
     useEffect,
@@ -14,6 +13,8 @@ import {
 } from "mathjs";
 import Web3 from "web3";
 import jazzicon from "@metamask/jazzicon"
+
+import styles from '../styles/Swap.module.scss'
 
 import ETH_TOKEN from '../public/eth_token.json';
 import ETH_PREFIXES from '../public/eth_prefixes.json';

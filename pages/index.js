@@ -1133,7 +1133,7 @@ export default function Swap() {
             <circle cx="12" cy="12" r="10"/>
             <path d="m4.93 4.93 14.14 14.14"/>
         </svg>
-      `;
+        `;
         event.srcElement.parentNode.replaceChild(createElementFromHTML(svg), event.srcElement);
 
     }

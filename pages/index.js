@@ -979,7 +979,7 @@ export default function Swap() {
         const cur_balance = getBalance(token);
         const token_div = createElementFromHTML(
         `
-        <div class="${is_overflown ? styles.list_token_margined : ''}">
+        <div class="${is_overflown ? styles.margined : ''}">
             <div class="${styles.list_token}
                         ${token == choosed_tokens[0] ? styles.disabled_fully : ''}
                         ${disabled_partially ? styles.disabled_partially : ''}">
@@ -1153,18 +1153,11 @@ export default function Swap() {
     }
 
     const isEnough = (token0_, token0Amount_) => {
-        if (!!token0Amount_) {
-            return isEnoughBalance(token0_, token0Amount_);
-        }
-        return isEnoughBalance(token0_, Number.parseFloat(document.getElementById("input0").value));
-    }
-
-    const isEnoughBalance = (token, tokenAmount) => {
-        var balance = getBalance(token);
-        if (token['symbol'] == 'ETH') {
+        var balance = getBalance(token0_);
+        if (!token0_['address']) {
             balance -= 0.01;
         }
-        return balance >= tokenAmount;
+        return balance >= token0Amount_;
     }
 
     const swapTokens = (token0_, token0Amount_, token1_) => {
@@ -1410,7 +1403,7 @@ export default function Swap() {
                                             Select a token
                                         </div>
                                     )
-                                    : (!!token0Amount
+                                    : (!token0Amount
                                         ? (
                                             <div className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_select_div}`}>
                                                 Enter an amount

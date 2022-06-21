@@ -160,12 +160,9 @@ export default function Liquidity() {
     }
 
     const formatEthBalance = (balance, prefix) => {
+        balance ||= 0;
         if (!Number.isInteger(balance)) {
             const k = 6 - prefix.length;
-            
-            if (balance == undefined) {
-                return 0;
-            }
             var d = ",";
             var g = 3;
             var regex = new RegExp('\\B(?=(\\d{' + g + '})+(?!\\d))', 'g');

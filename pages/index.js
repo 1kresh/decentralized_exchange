@@ -15,7 +15,6 @@ import ETH_PREFIXES from "../public/eth_prefixes.json";
 import ETH_TOKEN from "../public/eth_token.json";
 import popular_tokens_all from "../public/popular_tokens_all.json";
 import token_list_all from "../public/token_list_all.json";
-import env from "../env.json";
 import contracts from "../public/contracts.json";
 
 import {
@@ -60,7 +59,7 @@ export default function Swap() {
   const [changingChain, setChangingChain] = useState(false);
 
   const checkConnection = () => {
-    setGlobalWeb3(new Web3(env["chainId_endpoint"]["3"]));
+    setGlobalWeb3(new Web3(process.env["NEXT_PUBLIC_chainId_endpoint3"]));
     const rpc = window.ethereum;
     if (!!rpc) {
       setProvider(rpc);
@@ -103,8 +102,8 @@ export default function Swap() {
     if (!!chainId) {
       setGlobalWeb3(
         new Web3(
-          env["chainId_endpoint"][chainId.toString()] ||
-            env["chainId_endpoint"]["3"]
+          process.env[`NEXT_PUBLIC_chainId_endpoint${chainId.toString()}`] ||
+            process.env["NEXT_PUBLIC_chainId_endpoint3"]
         )
       );
     }
@@ -173,10 +172,6 @@ export default function Swap() {
       request.finally(() => setChangingChain(false));
     }
   };
-
-  useEffect(() => {
-    console.log(changingChain);
-  }, [changingChain]);
 
   useEffect(() => {}, [balances]);
 
@@ -617,7 +612,6 @@ export default function Swap() {
         }
       }
     });
-    console.log(settings_div);
     document.getElementById(styles.auto_btn).addEventListener("click", () => {
       slipMask.value = "";
     });

@@ -405,6 +405,32 @@ $exp-icon-height: 8px;
 }
 
 .address_div {
+  text-align: center;
+  color: $black;
+
+  &:hover {
+    background: linear-gradient(
+      to right,
+      $black 10%,
+      $white 20%,
+      $white 40%,
+      $black 50%
+    );
+    background-size: 200% auto;
+    background-position: 100% center;
+
+    background-clip: text;
+    text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: shine 1s linear infinite;
+    @keyframes shine {
+      to {
+        background-position: -100% center;
+      }
+    }
+  }
 }
 
 .avatar_div {

@@ -2,19 +2,40 @@ import Head from "next/head";
 import Image from "next/image";
 import IMask from "imask";
 import { useEffect, useState, useRef } from "react";
-import { subtract, bignumber, exp } from "mathjs";
+import { subtract, bignumber } from "mathjs";
 import Web3 from "web3";
-import jazzicon from "@metamask/jazzicon";
-import { renderIcon } from "@download/blockies";
 
 import styles from "../styles/Swap.module.scss";
 
-import ETH_TOKEN from "../public/eth_token.json";
 import ETH_PREFIXES from "../public/eth_prefixes.json";
-import ALLOWED_CHAINIDS from "../public/allowed_chainids.json";
-import token_list_all from "../public/token_list_all.json";
-import popular_tokens_all from "../public/popular_tokens_all.json";
+import ETH_TOKEN from "../public/eth_token.json";
 import genericErc20Abi from "../public/Erc20.json";
+import popular_tokens_all from "../public/popular_tokens_all.json";
+import token_list_all from "../public/token_list_all.json";
+
+import {
+  createElementFromHTML,
+  setJazzIcon,
+  setBlockIcon,
+  filterChainId,
+  getTokensCurChainId,
+  getPopularTokensCurChainId,
+  clearDiv,
+  formatTokenPrice,
+  floatToString,
+  stringToFloat,
+  openTab,
+  pageUp,
+  formatBalance,
+  formatEthBalance,
+  isInFamilyTree,
+  getExpIcon,
+  getNoResultDiv,
+  isOverflown,
+  determineInnerModalId,
+  replaceBrokenImg,
+  formatAddress,
+} from "../utils/swap_helper.js";
 
 export default function Swap() {
   const avatarRef = useRef();
@@ -27,7 +48,7 @@ export default function Swap() {
   const [ethBalance, setEthBalance] = useState();
   const [balances, setBalances] = useState();
   const [isBlockIcon, setIsBlockIcon] = useState();
-  const [swapContract, setSwapContract] = useState();
+  const [routerContract, setRouterContract] = useState();
 
   const checkConnection = () => {
     const rpc = window.ethereum;
@@ -41,7 +62,7 @@ export default function Swap() {
     if (!!provider) {
       provider.on("chainChanged", (chainId) => {
         clearAccountStates();
-        filterChainId(chainId);
+        setChainId(filterChainId(chainId));
       });
       provider.on("accountsChanged", (address) => {
         clearAccountStates();
@@ -57,7 +78,9 @@ export default function Swap() {
 
   useEffect(() => {
     if (!!web3) {
-      web3.eth.net.getId().then(filterChainId);
+      web3.eth.net
+        .getId()
+        .then((chainId_) => setChainId(filterChainId(chainId_)));
       web3.eth.getAccounts().then((addresses) => {
         if (!!addresses) {
           setAddress(addresses[0]);
@@ -73,27 +96,6 @@ export default function Swap() {
         .then((balance) => setEthBalance(web3.utils.fromWei(balance, "ether")));
     }
   }, [web3, address, chainId]);
-
-  const getSeed = (address) => {
-    const addr = address.slice(2, 10);
-    return parseInt(addr, 16);
-  };
-
-  const setJazzIcon = (element, address) => {
-    const seed = getSeed(address);
-    const icon = jazzicon(16, seed);
-    element.appendChild(icon);
-  };
-
-  const setBlockIcon = (element, address) => {
-    const canvas = createElementFromHTML(
-      `
-            <canvas class="${styles.canvas}"/>
-        `
-    );
-    renderIcon({ seed: address.toLowerCase() }, canvas);
-    element.appendChild(canvas);
-  };
 
   useEffect(() => {
     const element = avatarRef.current;
@@ -130,29 +132,24 @@ export default function Swap() {
             },
           ],
         })
-        .then(() => web3.eth.net.getId().then(filterChainId));
+        .then(() =>
+          web3.eth.net
+            .getId()
+            .then((chainId_) => setChainId(filterChainId(chainId_)))
+        );
     }
   };
 
   useEffect(() => {}, [balances]);
-
-  const filterChainId = (chainId_) => {
-    chainId_ = Number.parseInt(chainId_);
-    if (ALLOWED_CHAINIDS.includes(chainId_)) {
-      setChainId(chainId_);
-    } else {
-      setChainId();
-    }
-  };
 
   const [tokenListAll, setTokenListAll] = useState(token_list_all["tokens"]);
 
   useEffect(() => {
     if (!!tokenListAll) {
       if (chainId != undefined) {
-        getTokensCurChainId(tokenListAll, chainId);
+        setTokenListCur(getTokensCurChainId(tokenListAll, chainId));
       } else {
-        getTokensCurChainId(tokenListAll, 1);
+        setTokenListCur(getTokensCurChainId(tokenListAll, 3));
       }
     }
   }, [tokenListAll, chainId]);
@@ -161,69 +158,49 @@ export default function Swap() {
   const [tokenListCur, setTokenListCur] = useState();
 
   useEffect(() => {
-    if (!!tokenListCur && !!popularTokensAll) {
+    if (!!popularTokensAll) {
       if (!!chainId) {
-        getPopularTokensCurChainId(tokenListCur, popularTokensAll, chainId);
+        setPopularTokensCur(
+          getPopularTokensCurChainId(popularTokensAll, chainId)
+        );
       } else {
-        getPopularTokensCurChainId(tokenListCur, popularTokensAll, 1);
+        setPopularTokensCur(getPopularTokensCurChainId(popularTokensAll, 1));
       }
     }
-  }, [tokenListCur, popularTokensAll, chainId]);
+  }, [popularTokensAll, chainId]);
 
   const [popularTokensCur, setPopularTokensCur] = useState();
 
-  const getTokensCurChainId = (tokenListAll_, chainId_) => {
-    var tokenListCur = [ETH_TOKEN];
-    for (let token of tokenListAll_) {
-      if (token["chainId"] === chainId_) {
-        tokenListCur.push(token);
+  const getBalances = () => {
+    var balances_tmp = {};
+    for (let token of tokenListCur) {
+      if (!!token["address"]) {
+        const contract = new web3.eth.Contract(
+          genericErc20Abi,
+          token["address"]
+        );
+        contract.methods
+          .balanceOf(address)
+          .call()
+          .then((balance) => {
+            balances_tmp[token["address"]] =
+              balance != 0
+                ? divide(bignumber(balance), bignumber(10 ** token["decimals"]))
+                : 0;
+          })
+          .catch(() => {
+            balances_tmp[token["address"]] = 0;
+          });
       }
     }
-    setTokenListCur(tokenListCur);
-  };
-
-  const getPopularTokensCurChainId = (
-    tokenListCur_,
-    popularTokensAll_,
-    chainId_
-  ) => {
-    var popularTokensCur = [ETH_TOKEN];
-    for (let token of popularTokensAll_[chainId_.toString()]) {
-      popularTokensCur.push(token);
-    }
-    setPopularTokensCur(popularTokensCur);
+    return balances_tmp;
   };
 
   useEffect(() => {
-    if (!!address && !!tokenListCur && !!chainId) {
-      const web3_tmp = new Web3(window.ethereum);
-      var balances_tmp = {};
-      for (let token of tokenListCur) {
-        if (!!token["address"]) {
-          const contract = new web3_tmp.eth.Contract(
-            genericErc20Abi,
-            token["address"]
-          );
-          contract.methods
-            .balanceOf(address)
-            .call()
-            .then((balance) => {
-              balances_tmp[token["address"]] =
-                balance != 0
-                  ? divide(
-                      bignumber(balance),
-                      bignumber(10 ** token["decimals"])
-                    )
-                  : 0;
-            })
-            .catch(() => {
-              balances_tmp[token["address"]] = 0;
-            });
-        }
-      }
-      setBalances(balances_tmp);
+    if (!!address && !!tokenListCur && !!chainId & !!web3) {
+      setBalances(getBalances());
     }
-  }, [address, tokenListCur, chainId]);
+  }, [web3, address, tokenListCur, chainId]);
 
   const [chooseTokenNum, setChooseTokenNum] = useState();
 
@@ -453,53 +430,6 @@ export default function Swap() {
     return (token1_amount / 34).toFixed(8);
   };
 
-  const clearDiv = (div) => {
-    div.innerHTML = "";
-  };
-
-  const formatTokenPrice = (token_price) => {
-    var d = ",";
-    var g = 3;
-    var regex = new RegExp("\\B(?=(\\d{" + g + "})+(?!\\d))", "g");
-    var parts = Number.parseFloat(token_price)
-      .toLocaleString("fullwide", {
-        minimumFractionDigits: 18,
-        useGrouping: false,
-      })
-      .split(",");
-    var token_price_formated;
-    let n = 0;
-    let k = 0;
-    let nums = false;
-    if (parts[0] == "0") {
-      token_price_formated = parts[0] + ".";
-      for (let i of parts[1]) {
-        k += 1;
-        if (i != "0") {
-          nums = true;
-          n += 1;
-        } else {
-          if (!!nums) {
-            n += 1;
-          }
-        }
-        token_price_formated += i;
-        if (n == 4) {
-          break;
-        }
-      }
-    } else {
-      token_price_formated = parts[0].replace(regex, d);
-      if (!!parts[1]) {
-        token_price_formated +=
-          "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0));
-      }
-    }
-
-    token_price_formated = removeNeadlessZeros(token_price_formated);
-    return token_price_formated;
-  };
-
   const getTokenPriceInfoDiv = (price) => {
     return createElementFromHTML(
       `
@@ -535,33 +465,6 @@ export default function Swap() {
     }
   };
 
-  const floatToString = (number) => {
-    if (number == undefined) {
-      return "";
-    }
-
-    return removeNeadlessZeros(
-      number
-        .toLocaleString("fullwide", {
-          minimumFractionDigits: 18,
-          useGrouping: false,
-        })
-        .replace(",", ".")
-    );
-  };
-
-  const stringToFloat = (number_str) => {
-    if (number_str == "" || number_str == undefined || number_str == null) {
-      return undefined;
-    }
-
-    return Number.parseFloat(number_str);
-  };
-
-  const openTab = (page) => {
-    window.open(page, "_blank");
-  };
-
   const togglePage = (event) => {
     event.preventDefault();
 
@@ -586,10 +489,6 @@ export default function Swap() {
       liqBtn.classList.add(styles.uneventable);
       liqBtn.classList.remove(styles.hover_effect);
     }
-  };
-
-  const pageUp = () => {
-    window.location.href = "#";
   };
 
   const tokenInputsInitMask = () => {
@@ -669,11 +568,9 @@ export default function Swap() {
   };
 
   const dlMaskInitHandler = () => {
-    const dlInputHandler = () => {
+    dlMask.on("accept", () => {
       localStorage.setItem("dl_value", dlMask.value);
-    };
-
-    dlMask.on("accept", dlInputHandler);
+    });
   };
 
   const setFrontrun = (elem) => {
@@ -840,71 +737,6 @@ export default function Swap() {
     }
   };
 
-  const formatBalance = (balance) => {
-    if (!Number.isInteger(balance)) {
-      if (balance == undefined) {
-        return 0;
-      }
-      var d = ",";
-      var g = 3;
-      var regex = new RegExp("\\B(?=(\\d{" + g + "})+(?!\\d))", "g");
-      var parts = Number.parseFloat(balance)
-        .toLocaleString("fullwide", {
-          minimumFractionDigits: 18,
-          useGrouping: false,
-        })
-        .split(",");
-      var balance = parts[0].replace(regex, d);
-      if (!!parts[1]) {
-        balance += "." + parts[1].slice(0, Math.max(5 - parts[0].length, 0));
-        balance = removeNeadlessZeros(balance);
-      }
-    }
-    return balance;
-  };
-
-  const formatEthBalance = (balance, prefix) => {
-    balance ||= 0;
-    if (!Number.isInteger(balance)) {
-      const k = 6 - prefix.length;
-      var d = ",";
-      var g = 3;
-      var regex = new RegExp("\\B(?=(\\d{" + g + "})+(?!\\d))", "g");
-      var parts = Number.parseFloat(balance)
-        .toLocaleString("fullwide", {
-          minimumFractionDigits: 18,
-          useGrouping: false,
-        })
-        .split(",");
-      var balance = parts[0].replace(regex, d);
-      if (!!parts[1]) {
-        balance += "." + parts[1].slice(0, Math.max(k - parts[0].length, 0));
-        balance = removeNeadlessZeros(balance);
-      }
-    }
-
-    balance += ` ${prefix}ETH`;
-    return balance;
-  };
-
-  const removeNeadlessZeros = (number_str) => {
-    if (number_str.includes(".")) {
-      let i;
-      for (i = number_str.length - 1; i > -1; i--) {
-        if (number_str[i] != "0") {
-          break;
-        }
-      }
-
-      if (number_str[i] == ".") {
-        i--;
-      }
-      return number_str.slice(0, i + 1);
-    }
-
-    return number_str;
-  };
-
   const setMaxAmount = (token_num, token) => {
     // document.getElementById("input0").value = (getBalance(address0) - 0.01).toString();
     const cur_balance = getBalance(token);
@@ -931,19 +763,6 @@ export default function Swap() {
         cur_balance != undefined ? cur_balance : "";
       setToken1Amount(cur_balance);
     }
-  };
-
-  const isInFamilyTree = (child, parent) => {
-    if (child === parent) {
-      return true;
-    }
-    const children = parent.getElementsByTagName("*");
-    for (let curChild of children) {
-      if (curChild === child) {
-        return true;
-      }
-    }
-    return false;
   };
 
   const closeSettings = (event) => {
@@ -1025,120 +844,6 @@ export default function Swap() {
     }
   };
 
-  const getExpIcon = () => {
-    return createElementFromHTML(
-      `
-        <svg class="${styles.expert_mode_svg}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250">
-            <text class="${styles.cls_1}" x="50%" y="50%" dominant-baseline="middle">EXPERT</text>
-        </svg>
-    `
-    );
-  };
-
-  const getPopularTokenDiv = (popular_token, choosed_tokens) => {
-    const disabled_partially = popular_token == choosed_tokens[1];
-    const popular_token_div = createElementFromHTML(
-      `
-        <div class="${styles.popular_token}
-                    ${
-                      popular_token == choosed_tokens[0]
-                        ? styles.disabled_fully
-                        : ""
-                    }
-                    ${disabled_partially ? styles.disabled_partially : ""}">
-            <img class="${styles.token_icon}" src=${
-        popular_token["logoURI"]
-      } draggable="false" alt="" width="24px" height="24px" layout="fixed" />
-            <div class=${styles.choosed_token_name}>
-                ${popular_token["symbol"]}
-            </div>
-        </div>
-        `
-    );
-    popular_token_div
-      .getElementsByTagName("img")[0]
-      .addEventListener("error", replaceBrokenImg);
-    if (disabled_partially) {
-      popular_token_div.addEventListener("click", () =>
-        setChooseTokenNum(() => {
-          changeTokens();
-          return;
-        })
-      );
-    } else {
-      popular_token_div.addEventListener("click", () =>
-        setChooseTokenNum((chooseTokenNum) => {
-          [setToken0, setToken1][chooseTokenNum](popular_token);
-          return;
-        })
-      );
-    }
-
-    return popular_token_div;
-  };
-
-  const getTokenDiv = (token, choosed_tokens, is_overflown) => {
-    const disabled_partially = token == choosed_tokens[1];
-    const cur_balance = getBalance(token);
-    const token_div = createElementFromHTML(
-      `
-        <div class="${is_overflown ? styles.margined : ""}">
-            <div class="${styles.list_token}
-                        ${
-                          token == choosed_tokens[0]
-                            ? styles.disabled_fully
-                            : ""
-                        }
-                        ${disabled_partially ? styles.disabled_partially : ""}">
-                <img class="${styles.token_icon} ${
-        styles.list_token_icon
-      }" src=${
-        token["logoURI"]
-      } draggable="false" alt="" width="24px" height="24px" layout="fixed" />
-                <div class=${styles.list_token_title}>
-                    <span class=${styles.list_token_symbol}>${
-        token["symbol"]
-      }</span>
-                    <span class=${styles.list_token_name}>${
-        token["name"]
-      }</span>
-                </div>
-                <div class=${styles.list_token_balance}>
-                    ${
-                      cur_balance != undefined ? formatBalance(cur_balance) : ""
-                    }
-                </div>
-            </div>
-        </div>
-        `
-    );
-    token_div
-      .getElementsByTagName("img")[0]
-      .addEventListener("error", replaceBrokenImg);
-    if (disabled_partially) {
-      token_div.addEventListener("click", () =>
-        setChooseTokenNum(() => {
-          changeTokens();
-          return;
-        })
-      );
-    } else {
-      token_div.addEventListener("click", () =>
-        setChooseTokenNum((chooseTokenNum) => {
-          [setToken0, setToken1][chooseTokenNum](token);
-          return;
-        })
-      );
-    }
-    return token_div;
-  };
-
-  const getNoResultDiv = () => {
-    return createElementFromHTML(
-      `<div class="${styles.list_token_no_result}">No results found.</div>`
-    );
-  };
-
   const openChooseModal = () => {
     const html = createElementFromHTML(`
         <div class="${styles.modal_div_main} ${styles.choose_modal_div_main}">
@@ -1203,18 +908,6 @@ export default function Swap() {
     executeOpenModal("choose", html);
   };
 
-  const isOverflown = (tokenListCur_length) => {
-    // 0.8 - 80% of window height = modal height
-    // 240 - min height of upper choose modal part
-    // 56 - height of list token
-    return window.innerHeight * 0.8 - 240 < tokenListCur_length * 56;
-  };
-
-  const determineInnerModalId = (modalName) => {
-    const modalNameFull = `${modalName}_modal_inner`;
-    return styles[modalNameFull] || modalNameFull;
-  };
-
   const executeOpenModal = (modalName, html) => {
     const modal_inner = document.getElementById(
       determineInnerModalId(modalName)
@@ -1245,6 +938,108 @@ export default function Swap() {
     if (!event.target.closest("#" + styles.choose_modal_inner)) {
       setChooseTokenNum();
     }
+  };
+
+  const getPopularTokenDiv = (popular_token, choosed_tokens) => {
+    const disabled_partially = popular_token == choosed_tokens[1];
+    const popular_token_div = createElementFromHTML(
+      `
+          <div class="${styles.popular_token}
+                      ${
+                        popular_token == choosed_tokens[0]
+                          ? styles.disabled_fully
+                          : ""
+                      }
+                      ${disabled_partially ? styles.disabled_partially : ""}">
+              <img class="${styles.token_icon}" src=${
+        popular_token["logoURI"]
+      } draggable="false" alt="" width="24px" height="24px" layout="fixed" />
+              <div class=${styles.choosed_token_name}>
+                  ${popular_token["symbol"]}
+              </div>
+          </div>
+          `
+    );
+    popular_token_div
+      .getElementsByTagName("img")[0]
+      .addEventListener("error", replaceBrokenImg);
+    if (disabled_partially) {
+      popular_token_div.addEventListener("click", () =>
+        setChooseTokenNum(() => {
+          changeTokens();
+          return;
+        })
+      );
+    } else {
+      popular_token_div.addEventListener("click", () =>
+        setChooseTokenNum((chooseTokenNum) => {
+          [setToken0, setToken1][chooseTokenNum](popular_token);
+          return;
+        })
+      );
+    }
+
+    return popular_token_div;
+  };
+
+  const getTokenDiv = (token, choosed_tokens, is_overflown) => {
+    const disabled_partially = token == choosed_tokens[1];
+    const cur_balance = getBalance(token);
+    const token_div = createElementFromHTML(
+      `
+          <div class="${is_overflown ? styles.margined : ""}">
+              <div class="${styles.list_token}
+                          ${
+                            token == choosed_tokens[0]
+                              ? styles.disabled_fully
+                              : ""
+                          }
+                          ${
+                            disabled_partially ? styles.disabled_partially : ""
+                          }">
+                  <img class="${styles.token_icon} ${
+        styles.list_token_icon
+      }" src=${
+        token["logoURI"]
+      } draggable="false" alt="" width="24px" height="24px" layout="fixed" />
+                  <div class=${styles.list_token_title}>
+                      <span class=${styles.list_token_symbol}>${
+        token["symbol"]
+      }</span>
+                      <span class=${styles.list_token_name}>${
+        token["name"]
+      }</span>
+                  </div>
+                  <div class=${styles.list_token_balance}>
+                      ${
+                        cur_balance != undefined
+                          ? formatBalance(cur_balance)
+                          : ""
+                      }
+                  </div>
+              </div>
+          </div>
+          `
+    );
+    token_div
+      .getElementsByTagName("img")[0]
+      .addEventListener("error", replaceBrokenImg);
+    if (disabled_partially) {
+      token_div.addEventListener("click", () =>
+        setChooseTokenNum(() => {
+          changeTokens();
+          return;
+        })
+      );
+    } else {
+      token_div.addEventListener("click", () =>
+        setChooseTokenNum((chooseTokenNum) => {
+          [setToken0, setToken1][chooseTokenNum](token);
+          return;
+        })
+      );
+    }
+    return token_div;
   };
 
   const handleSearchTokenInput = (chooseModalInput) => {
@@ -1282,29 +1077,6 @@ export default function Swap() {
     if (tokens_div.innerHTML == "") {
       tokens_div.appendChild(getNoResultDiv());
     }
-  };
-
-  const createElementFromHTML = (htmlString) => {
-    var div = document.createElement("div");
-    div.innerHTML = htmlString.trim();
-    return div.firstChild;
-  };
-
-  const replaceBrokenImg = (event) => {
-    let svg = `
-        <svg class=${styles.token_icon} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" stroke="currentColor" strokeWidth="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="m4.93 4.93 14.14 14.14"/>
-        </svg>
-        `;
-    event.srcElement.parentNode.replaceChild(
-      createElementFromHTML(svg),
-      event.srcElement
-    );
-  };
-
-  const formatAddress = (addr) => {
-    return addr.slice(0, 6) + "..." + addr.slice(addr.length - 4, addr.length);
   };
 
   const getBalance = (token) => {

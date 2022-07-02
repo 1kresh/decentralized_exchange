@@ -5,6 +5,9 @@ import { useEffect, useState, useRef } from "react";
 import { subtract, bignumber } from "mathjs";
 import Web3 from "web3";
 
+import { ISimswapRouter } from "@simswap/router/build/ISimswapRouter.json";
+import { WETH9 } from "@simswap/router/build/ISimswapRouter.json";
+
 import styles from "../styles/Swap.module.scss";
 
 import ETH_PREFIXES from "../public/eth_prefixes.json";
@@ -12,6 +15,7 @@ import ETH_TOKEN from "../public/eth_token.json";
 import popular_tokens_all from "../public/popular_tokens_all.json";
 import token_list_all from "../public/token_list_all.json";
 import env from "../env.json";
+import contracts from "../public/contracts.json";
 
 import {
   createElementFromHTML,
@@ -50,6 +54,7 @@ export default function Swap() {
   const [balances, setBalances] = useState();
   const [isBlockIcon, setIsBlockIcon] = useState();
   const [routerContract, setRouterContract] = useState();
+  const [wethContract, setWethContract] = useState();
   const [globalWeb3, setGlobalWeb3] = useState();
   const [changingChain, setChangingChain] = useState(false);
 
@@ -105,7 +110,24 @@ export default function Swap() {
   }, [chainId]);
 
   useEffect(() => {
-    if (globalWeb3 && !!address) {
+    if (!!globalWeb3 && !!chainId) {
+      setRouterContract(
+        new globalWeb3.eth.Contract(
+          ISimswapRouter,
+          contracts["routers"][chainId.toString()]
+        )
+      );
+      setWethContract(
+        new globalWeb3.eth.Contract(
+          WETH9,
+          contracts["weths"][chainId.toString()]
+        )
+      );
+    }
+  }, [globalWeb3, chainId]);
+
+  useEffect(() => {
+    if (!!globalWeb3 && !!address) {
       globalWeb3.eth
         .getBalance(address)
         .then((balance) =>
@@ -415,10 +437,12 @@ export default function Swap() {
   };
 
   const calculateToken1Amount = (token0_amount, token0, token1) => {
+    // tokenamountout
     return (token0_amount / 34).toFixed(8);
   };
 
   const calculateToken0Amount = (token1_amount, token0, token1) => {
+    // tokenamountin
     return (token1_amount / 34).toFixed(8);
   };
 
@@ -1090,7 +1114,36 @@ export default function Swap() {
     return balance >= token0Amount_;
   };
 
-  const swapTokens = (token0_, token0Amount_, token1_) => {};
+  const swapTokens = (
+    token0_,
+    token0Amount_,
+    token1_,
+    token1Amount,
+    wethContract,
+    routerContract
+  ) => {
+    if (!token0_["address"]) {
+      if (token1_["address"] == wethContract.options.address) {
+        // wrap eth
+      } else {
+        // swap from eth to token
+      }
+    } else {
+      if (!token1_["address"]) {
+        if (token0_["address"] == wethContract.options.address) {
+          // *approve
+          // unwrap
+        } else {
+          // approve token0
+          // swap from token0 to weth
+          // unwrap
+        }
+      } else {
+        // approve token0
+        // swap from token0 to token1
+      }
+    }
+  };
 
   useEffect(() => {
     tokenInputsInitMask();
@@ -1493,7 +1546,14 @@ export default function Swap() {
                 ) : (
                   <div
                     className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`}
-                    onClick={swapTokens(token0, token0Amount, token1)}
+                    onClick={swapTokens(
+                      token0,
+                      token0Amount,
+                      token1,
+                      token1Amount,
+                      wethContract,
+                      routerContract
+                    )}
                   >
                     Swap
                   </div>

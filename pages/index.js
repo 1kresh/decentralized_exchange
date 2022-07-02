@@ -3,10 +3,11 @@ import Image from "next/image";
 import IMask from "imask";
 import { useEffect, useState, useRef } from "react";
 import { subtract, bignumber } from "mathjs";
-import Web3 from "web3";
+import Web3, { utils } from "web3";
+import { BigNumber } from "bignumber.js";
 
-import { ISimswapRouter } from "@simswap/router/build/ISimswapRouter.json";
-import { WETH9 } from "@simswap/router/build/ISimswapRouter.json";
+import ISimswapRouter from "@simswap/periphery/build/ISimswapRouter.json";
+import IWETH9 from "@simswap/periphery/build/IWETH9.json";
 
 import styles from "../styles/Swap.module.scss";
 
@@ -112,14 +113,14 @@ export default function Swap() {
   useEffect(() => {
     if (!!globalWeb3 && !!chainId) {
       setRouterContract(
-        new globalWeb3.eth.Contract(
-          ISimswapRouter,
+        new web3.eth.Contract(
+          ISimswapRouter["abi"],
           contracts["routers"][chainId.toString()]
         )
       );
       setWethContract(
-        new globalWeb3.eth.Contract(
-          WETH9,
+        new web3.eth.Contract(
+          IWETH9["abi"],
           contracts["weths"][chainId.toString()]
         )
       );
@@ -130,9 +131,7 @@ export default function Swap() {
     if (!!globalWeb3 && !!address) {
       globalWeb3.eth
         .getBalance(address)
-        .then((balance) =>
-          setEthBalance(globalWeb3.utils.fromWei(balance, "ether"))
-        );
+        .then((balance) => setEthBalance(utils.fromWei(balance, "ether")));
     }
   }, [globalWeb3, address]);
 
@@ -270,26 +269,9 @@ export default function Swap() {
     }
   }, [settingsOn]);
 
-  const [slipMask, setSlipMask] = useState();
+  const [slipValue, setSlipValue] = useState();
 
-  useEffect(() => {
-    if (!!slipMask) {
-      slipMaskInitHandler();
-      document
-        .getElementsByClassName(styles.activated_auto_btn)[0]
-        .addEventListener("click", () => {
-          slipMask.value = "";
-        });
-    }
-  }, [slipMask]);
-
-  const [dlMask, setDlMask] = useState();
-
-  useEffect(() => {
-    if (!!dlMask) {
-      dlMaskInitHandler();
-    }
-  }, [dlMask]);
+  const [dlValue, setDlValue] = useState();
 
   const [isExpert, setIsExpert] = useState();
 
@@ -305,15 +287,6 @@ export default function Swap() {
       }
     }
   }, [isExpert]);
-
-  useEffect(() => {
-    if (!!slipMask && !!dlMask) {
-      const slip_value = localStorage.getItem("slip_value");
-      const dl_value = localStorage.getItem("dl_value");
-      slipMask.value = slip_value ? slip_value : "";
-      dlMask.value = dl_value ? dl_value : "";
-    }
-  }, [slipMask, dlMask, isExpert]);
 
   const [openedExpModal, setOpenedExpModal] = useState();
 
@@ -371,7 +344,14 @@ export default function Swap() {
       if (!!token0 && !!token1 && tokenInputFocus == 0) {
         document.getElementById("input1").value = "";
         const timeOutId = setTimeout(
-          () => handleToken0Input(token0Amount, token0, token1),
+          () =>
+            handleToken0Input(
+              token0Amount,
+              token0,
+              token1,
+              wethContract,
+              routerContract
+            ),
           275
         );
         return () => clearTimeout(timeOutId);
@@ -379,11 +359,19 @@ export default function Swap() {
     }
   }, [token0Amount, tokenInputFocus]);
 
-  const handleToken0Input = (token0Amount_, token0_, token1_) => {
+  const handleToken0Input = (
+    token0Amount_,
+    token0_,
+    token1_,
+    wethContract_,
+    routerContract_
+  ) => {
     const token1Amount_ = calculateToken1Amount(
       token0Amount_,
       token0_,
-      token1_
+      token1_,
+      wethContract_,
+      routerContract_
     );
     document.getElementById("input1").value = floatToString(token1Amount_);
     setToken1Amount(token1Amount_);
@@ -411,7 +399,14 @@ export default function Swap() {
       if (!!token0 && !!token1 && tokenInputFocus == 1) {
         document.getElementById("input0").value = "";
         const timeOutId = setTimeout(
-          () => handleToken1Input(token1Amount, token0, token1),
+          () =>
+            handleToken1Input(
+              token1Amount,
+              token0,
+              token1,
+              wethContract,
+              routerContract
+            ),
           275
         );
         return () => clearTimeout(timeOutId);
@@ -419,11 +414,19 @@ export default function Swap() {
     }
   }, [token1Amount, tokenInputFocus]);
 
-  const handleToken1Input = (token1Amount_, token0_, token1_) => {
+  const handleToken1Input = (
+    token1Amount_,
+    token0_,
+    token1_,
+    wethContract_,
+    routerContract_
+  ) => {
     const token0Amount_ = calculateToken0Amount(
       token1Amount_,
       token0_,
-      token1_
+      token1_,
+      wethContract_,
+      routerContract_
     );
     document.getElementById("input0").value = floatToString(token0Amount_);
     setToken0Amount(token0Amount_);
@@ -436,13 +439,43 @@ export default function Swap() {
     );
   };
 
-  const calculateToken1Amount = (token0_amount, token0, token1) => {
-    // tokenamountout
+  const calculateToken1Amount = (
+    token0Amount_,
+    token0_,
+    token1_,
+    wethContract_,
+    routerContract_
+  ) => {
+    if (
+      (!token0_["address"] &&
+        token1_["address"] == wethContract_.options.address) ||
+      (token0_["address"] == wethContract_.options.address &&
+        !token1_["address"])
+    ) {
+      return token0Amount_;
+    } else {
+      //tokenamountout
+    }
     return (token0_amount / 34).toFixed(8);
   };
 
-  const calculateToken0Amount = (token1_amount, token0, token1) => {
-    // tokenamountin
+  const calculateToken0Amount = (
+    token1Amount_,
+    token0_,
+    token1_,
+    wethContract_,
+    routerContract_
+  ) => {
+    if (
+      (!token0_["address"] &&
+        token1_["address"] == wethContract_.options.address) ||
+      (token0_["address"] == wethContract_.options.address &&
+        !token1_["address"])
+    ) {
+      return token1Amount_;
+    } else {
+      //tokenamountin
+    }
     return (token1_amount / 34).toFixed(8);
   };
 
@@ -474,9 +507,21 @@ export default function Swap() {
       [0, 1].includes(tokenInputFocus_)
     ) {
       if (tokenInputFocus_ == 0) {
-        handleToken0Input(token0Amount_, token0_, token1_);
+        handleToken0Input(
+          token0Amount_,
+          token0_,
+          token1_,
+          wethContract,
+          routerContract
+        );
       } else {
-        handleToken1Input(token1Amount_, token0_, token1_);
+        handleToken1Input(
+          token1Amount_,
+          token0_,
+          token1_,
+          wethContract,
+          routerContract
+        );
       }
     }
   };
@@ -539,22 +584,13 @@ export default function Swap() {
       min: 1,
       max: 4320,
     };
-    setSlipMask(
-      IMask(
-        settings_div.getElementsByClassName(styles.slip_input_field)[0],
-        params_slip_input
-      )
-    );
-    setDlMask(
-      IMask(
-        settings_div.getElementsByClassName(styles.dl_input_field)[0],
-        params_dl_input
-      )
-    );
-  };
 
-  const slipMaskInitHandler = () => {
+    const slipMask = IMask(
+      settings_div.getElementsByClassName(styles.slip_input_field)[0],
+      params_slip_input
+    );
     slipMask.on("accept", () => {
+      setSlipValue(Number.parseFloat(slipMask.value));
       localStorage.setItem("slip_value", slipMask.value);
       const auto_btn = document.getElementById(styles.auto_btn);
       const slip_warnings = document.getElementById("slip_warnings");
@@ -581,12 +617,21 @@ export default function Swap() {
         }
       }
     });
-  };
+    console.log(settings_div);
+    document.getElementById(styles.auto_btn).addEventListener("click", () => {
+      slipMask.value = "";
+    });
+    slipMask.value = localStorage.getItem("slip_value") || "";
 
-  const dlMaskInitHandler = () => {
+    const dlMask = IMask(
+      settings_div.getElementsByClassName(styles.dl_input_field)[0],
+      params_dl_input
+    );
     dlMask.on("accept", () => {
+      setDlValue(Number.parseInt(dlMask.value));
       localStorage.setItem("dl_value", dlMask.value);
     });
+    dlMask.value = localStorage.getItem("dl_value") || "";
   };
 
   const setFrontrun = (elem) => {
@@ -690,9 +735,9 @@ export default function Swap() {
         `
       );
 
-      settingsInputsInitMask(child);
       clearDiv(settings_div);
       settings_div.appendChild(child);
+      settingsInputsInitMask(child);
 
       child = createElementFromHTML(
         `
@@ -747,9 +792,6 @@ export default function Swap() {
       settings_div.classList.toggle(styles.settings_div_activated);
     } else {
       settings_div.classList.toggle(styles.settings_div_activated);
-
-      setSlipMask();
-      setDlMask();
     }
   };
 
@@ -1114,33 +1156,62 @@ export default function Swap() {
     return balance >= token0Amount_;
   };
 
-  const swapTokens = (
+  const swapTokens = async (
     token0_,
     token0Amount_,
     token1_,
-    token1Amount,
-    wethContract,
-    routerContract
+    token1Amount_,
+    wethContract_,
+    routerContract_,
+    dlValue_,
+    slipValue_,
+    globalWeb3_,
+    web3_,
+    address_
   ) => {
+    const cur_timestamp = (
+      await globalWeb3_.eth.getBlock(await globalWeb3_.eth.getBlockNumber())
+    ).timestamp;
+    const deadline = Number.parseInt(dlValue_);
+    const slippage = Number.parseFloat(slipValue_);
+    const token0AmountParsed = BigNumber(utils.toWei(token0Amount_.toString()));
+    const token1AmountParsed = BigNumber(utils.toWei(token1Amount_.toString()));
+
     if (!token0_["address"]) {
-      if (token1_["address"] == wethContract.options.address) {
-        // wrap eth
+      if (token1_["address"] == wethContract_.options.address) {
+        wethContract_.methods.deposit().send({
+          from: address_,
+          value: token0AmountParsed,
+        });
       } else {
-        // swap from eth to token
+        if (tokenInputFocus == 0) {
+          // swap from exact eth to token
+        } else {
+          // swap from eth to exact token
+        }
       }
     } else {
       if (!token1_["address"]) {
-        if (token0_["address"] == wethContract.options.address) {
-          // *approve
-          // unwrap
+        if (token0_["address"] == wethContract_.options.address) {
+          wethContract_.methods
+            .withdraw(token0AmountParsed)
+            .send({ from: address_ });
         } else {
           // approve token0
-          // swap from token0 to weth
+          if (tokenInputFocus == 0) {
+            // swap from exact token0 to weth
+          } else {
+            // swap from token0 to exact weth
+          }
           // unwrap
         }
       } else {
         // approve token0
-        // swap from token0 to token1
+        if (tokenInputFocus == 0) {
+          // swap from exact token0 to token1
+        } else {
+          // swap from token0 to exact token1
+        }
       }
     }
   };
@@ -1546,14 +1617,21 @@ export default function Swap() {
                 ) : (
                   <div
                     className={`${styles.swap_tokens_default_div} ${styles.swap_tokens_connect_btn}`}
-                    onClick={swapTokens(
-                      token0,
-                      token0Amount,
-                      token1,
-                      token1Amount,
-                      wethContract,
-                      routerContract
-                    )}
+                    onClick={() =>
+                      swapTokens(
+                        token0,
+                        token0Amount,
+                        token1,
+                        token1Amount,
+                        wethContract,
+                        routerContract,
+                        dlValue,
+                        slipValue,
+                        globalWeb3,
+                        web3,
+                        address
+                      )
+                    }
                   >
                     Swap
                   </div>

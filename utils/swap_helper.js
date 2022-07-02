@@ -1,10 +1,12 @@
 import jazzicon from "@metamask/jazzicon";
 import { renderIcon } from "@download/blockies";
+import { subtract, bignumber, divide } from "mathjs";
 
 import styles from "../styles/Swap.module.scss";
 
 import ALLOWED_CHAINIDS from "../public/allowed_chainids.json";
 import ETH_TOKEN from "../public/eth_token.json";
+import genericErc20Abi from "../public/Erc20.json";
 
 export const getSeed = (address) => {
   const addr = address.slice(2, 10);
@@ -258,4 +260,28 @@ export const replaceBrokenImg = (event) => {
 
 export const formatAddress = (addr) => {
   return addr.slice(0, 6) + "..." + addr.slice(addr.length - 4, addr.length);
+};
+
+export const getBalances = (address_, tokenListCur_, web3_) => {
+  var balances_tmp = {};
+  for (let token of tokenListCur_) {
+    if (!!token["address"]) {
+      const contract = new web3_.eth.Contract(
+        genericErc20Abi,
+        token["address"]
+      );
+      contract.methods
+        .balanceOf(address_)
+        .call()
+        .then((balance) => {
+          balances_tmp[token["address"]] =
+            divide(bignumber(balance), bignumber(10 ** token["decimals"])) ||
+            balance;
+        })
+        .catch(() => {
+          balances_tmp[token["address"]] = 0;
+        });
+    }
+  }
+  return balances_tmp;
 };

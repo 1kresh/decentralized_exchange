@@ -9,9 +9,9 @@ import styles from "../styles/Swap.module.scss";
 
 import ETH_PREFIXES from "../public/eth_prefixes.json";
 import ETH_TOKEN from "../public/eth_token.json";
-import genericErc20Abi from "../public/Erc20.json";
 import popular_tokens_all from "../public/popular_tokens_all.json";
 import token_list_all from "../public/token_list_all.json";
+import env from "../env.json";
 
 import {
   createElementFromHTML,
@@ -35,6 +35,7 @@ import {
   determineInnerModalId,
   replaceBrokenImg,
   formatAddress,
+  getBalances,
 } from "../utils/swap_helper.js";
 
 export default function Swap() {
@@ -49,8 +50,11 @@ export default function Swap() {
   const [balances, setBalances] = useState();
   const [isBlockIcon, setIsBlockIcon] = useState();
   const [routerContract, setRouterContract] = useState();
+  const [globalWeb3, setGlobalWeb3] = useState();
+  const [changingChain, setChangingChain] = useState(false);
 
   const checkConnection = () => {
+    setGlobalWeb3(new Web3(env["chainId_endpoint"]["3"]));
     const rpc = window.ethereum;
     if (!!rpc) {
       setProvider(rpc);
@@ -90,12 +94,25 @@ export default function Swap() {
   }, [web3]);
 
   useEffect(() => {
-    if (!!web3 && !!address && !!chainId) {
-      web3.eth
-        .getBalance(address)
-        .then((balance) => setEthBalance(web3.utils.fromWei(balance, "ether")));
+    if (!!chainId) {
+      setGlobalWeb3(
+        new Web3(
+          env["chainId_endpoint"][chainId.toString()] ||
+            env["chainId_endpoint"]["3"]
+        )
+      );
     }
-  }, [web3, address, chainId]);
+  }, [chainId]);
+
+  useEffect(() => {
+    if (globalWeb3 && !!address) {
+      globalWeb3.eth
+        .getBalance(address)
+        .then((balance) =>
+          setEthBalance(globalWeb3.utils.fromWei(balance, "ether"))
+        );
+    }
+  }, [globalWeb3, address]);
 
   useEffect(() => {
     const element = avatarRef.current;
@@ -123,22 +140,22 @@ export default function Swap() {
 
   const switchNetworkHandler = async () => {
     if (!!provider) {
-      provider
-        .request({
-          method: "wallet_switchEthereumChain",
-          params: [
-            {
-              chainId: "0x1",
-            },
-          ],
-        })
-        .then(() =>
-          web3.eth.net
-            .getId()
-            .then((chainId_) => setChainId(filterChainId(chainId_)))
-        );
+      const request = provider.request({
+        method: "wallet_switchEthereumChain",
+        params: [
+          {
+            chainId: "0x3",
+          },
+        ],
+      });
+      setChangingChain(true);
+      request.finally(() => setChangingChain(false));
     }
   };
+
+  useEffect(() => {
+    console.log(changingChain);
+  }, [changingChain]);
 
   useEffect(() => {}, [balances]);
 
@@ -146,7 +163,7 @@ export default function Swap() {
 
   useEffect(() => {
     if (!!tokenListAll) {
-      if (chainId != undefined) {
+      if (!!chainId) {
         setTokenListCur(getTokensCurChainId(tokenListAll, chainId));
       } else {
         setTokenListCur(getTokensCurChainId(tokenListAll, 3));
@@ -171,36 +188,11 @@ export default function Swap() {
 
   const [popularTokensCur, setPopularTokensCur] = useState();
 
-  const getBalances = () => {
-    var balances_tmp = {};
-    for (let token of tokenListCur) {
-      if (!!token["address"]) {
-        const contract = new web3.eth.Contract(
-          genericErc20Abi,
-          token["address"]
-        );
-        contract.methods
-          .balanceOf(address)
-          .call()
-          .then((balance) => {
-            balances_tmp[token["address"]] =
-              balance != 0
-                ? divide(bignumber(balance), bignumber(10 ** token["decimals"]))
-                : 0;
-          })
-          .catch(() => {
-            balances_tmp[token["address"]] = 0;
-          });
-      }
-    }
-    return balances_tmp;
-  };
-
   useEffect(() => {
-    if (!!address && !!tokenListCur && !!chainId & !!web3) {
-      setBalances(getBalances());
+    if (!!address && !!tokenListCur && !!chainId & !!globalWeb3) {
+      setBalances(getBalances(address, tokenListCur, globalWeb3));
     }
-  }, [web3, address, tokenListCur, chainId]);
+  }, [globalWeb3, address, tokenListCur, chainId]);
 
   const [chooseTokenNum, setChooseTokenNum] = useState();
 
@@ -1080,10 +1072,11 @@ export default function Swap() {
   };
 
   const getBalance = (token) => {
-    if (!!ethBalance || !!balances) {
-      if (!!token["address"]) {
+    if (!!token["address"]) {
+      if (!!balances) {
         return balances[token["address"]];
       }
+    } else {
       return ethBalance;
     }
     return undefined;
@@ -1176,6 +1169,22 @@ export default function Swap() {
                     viewBox="0 0 16 16"
                   >
                     <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z" />
+                  </svg>
+                </div>
+              </button>
+            ) : !!changingChain ? (
+              <button
+                id="connectBtn"
+                className={`${styles.connect_button} ${styles.accept_in_wallet} ${styles.bg_change_on_hover}`}
+              >
+                Accept in wallet
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M8.47 1.318a1 1 0 0 0-.94 0l-6 3.2A1 1 0 0 0 1 5.4v.817l5.75 3.45L8 8.917l1.25.75L15 6.217V5.4a1 1 0 0 0-.53-.882l-6-3.2ZM15 7.383l-4.778 2.867L15 13.117V7.383Zm-.035 6.88L8 10.082l-6.965 4.18A1 1 0 0 0 2 15h12a1 1 0 0 0 .965-.738ZM1 13.116l4.778-2.867L1 7.383v5.734ZM7.059.435a2 2 0 0 1 1.882 0l6 3.2A2 2 0 0 1 16 5.4V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5.4a2 2 0 0 1 1.059-1.765l6-3.2Z" />
                   </svg>
                 </div>
               </button>

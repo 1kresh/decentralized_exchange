@@ -1,20 +1,20 @@
 name: update-reserves
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: "* * * * *"
 jobs:
   cron1:
     runs-on: ubuntu-latest
     steps:
       - name: Execute update_reserves.js 0
-        run: python update_reserves.js
+        run: node update_reserves.js
   cron2:
     runs-on: ubuntu-latest
     steps:
       - name: Execute update_reserves.js 1
-        run: sleep 20; python update_reserves.js;
+        run: sleep 20; node update_reserves.js;
   cron3:
     runs-on: ubuntu-latest
     steps:
       - name: Execute update_reserves.js 2
-        run: sleep 40; python update_reserves.js;
+        run: sleep 40; node update_reserves.js;

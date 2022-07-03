@@ -7,6 +7,8 @@ import Web3, { utils } from "web3";
 import { BigNumber } from "bignumber.js";
 
 import ISimswapRouter from "@simswap/periphery/build/ISimswapRouter.json";
+import ISimswapFactory from "@simswap/periphery/build/ISimswapFactory.json";
+import ISimswapPool from "@simswap/periphery/build/ISimswapPool.json";
 import IWETH9 from "@simswap/periphery/build/IWETH9.json";
 
 import styles from "../styles/Swap.module.scss";
@@ -55,11 +57,19 @@ export default function Swap() {
   const [isBlockIcon, setIsBlockIcon] = useState();
   const [routerContract, setRouterContract] = useState();
   const [wethContract, setWethContract] = useState();
+  const [factoryContract, setFactoryContract] = useState();
   const [globalWeb3, setGlobalWeb3] = useState();
   const [changingChain, setChangingChain] = useState(false);
 
+  const ENDPOINTS = {
+    1: process.env.NEXT_PUBLIC_MAINNET_ENDPOINT,
+    3: process.env.NEXT_PUBLIC_ROPSTEN_ENDPOINT,
+    4: process.env.NEXT_PUBLIC_RINKEBY_ENDPOINT,
+    5: process.env.NEXT_PUBLIC_GOERLI_ENDPOINT,
+  };
+
   const checkConnection = () => {
-    setGlobalWeb3(new Web3(process.env["NEXT_PUBLIC_chainId_endpoint3"]));
+    setGlobalWeb3(new Web3(ENDPOINTS[3]));
     const rpc = window.ethereum;
     if (!!rpc) {
       setProvider(rpc);
@@ -100,12 +110,7 @@ export default function Swap() {
 
   useEffect(() => {
     if (!!chainId) {
-      setGlobalWeb3(
-        new Web3(
-          process.env[`NEXT_PUBLIC_chainId_endpoint${chainId.toString()}`] ||
-            process.env["NEXT_PUBLIC_chainId_endpoint3"]
-        )
-      );
+      setGlobalWeb3(new Web3(ENDPOINTS[chainId] || ENDPOINTS[3]));
     }
   }, [chainId]);
 
@@ -121,6 +126,12 @@ export default function Swap() {
         new web3.eth.Contract(
           IWETH9["abi"],
           contracts["weths"][chainId.toString()]
+        )
+      );
+      setFactoryContract(
+        new web3.eth.Contract(
+          ISimswapFactory["abi"],
+          contracts["factories"][chainId.toString()]
         )
       );
     }
@@ -345,7 +356,8 @@ export default function Swap() {
               token0,
               token1,
               wethContract,
-              routerContract
+              routerContract,
+              factoryContract
             ),
           275
         );
@@ -354,28 +366,34 @@ export default function Swap() {
     }
   }, [token0Amount, tokenInputFocus]);
 
-  const handleToken0Input = (
+  const handleToken0Input = async (
     token0Amount_,
     token0_,
     token1_,
     wethContract_,
-    routerContract_
+    routerContract_,
+    factoryContract_
   ) => {
-    const token1Amount_ = calculateToken1Amount(
+    token0Amount_ = new BigNumber(token0Amount_);
+    const token1Amount_ = await calculateToken1Amount(
       token0Amount_,
       token0_,
       token1_,
       wethContract_,
-      routerContract_
+      routerContract_,
+      factoryContract_
     );
-    document.getElementById("input1").value = floatToString(token1Amount_);
-    setToken1Amount(token1Amount_);
+    console.log(token1Amount_.toNumber());
+    document.getElementById("input1").value = token1Amount_.toString();
+    setToken1Amount(token1Amount_.toNumber());
     const swap_info_div = document.getElementsByClassName(
       styles.swap_info_div
     )[0];
     clearDiv(swap_info_div);
     swap_info_div.appendChild(
-      getTokenPriceInfoDiv(formatTokenPrice(token0Amount_ / token1Amount_))
+      getTokenPriceInfoDiv(
+        formatTokenPrice(token0Amount_.dividedBy(token1Amount_).toNumber())
+      )
     );
   };
 
@@ -400,7 +418,8 @@ export default function Swap() {
               token0,
               token1,
               wethContract,
-              routerContract
+              routerContract,
+              factoryContract
             ),
           275
         );
@@ -409,69 +428,125 @@ export default function Swap() {
     }
   }, [token1Amount, tokenInputFocus]);
 
-  const handleToken1Input = (
+  const handleToken1Input = async (
     token1Amount_,
     token0_,
     token1_,
     wethContract_,
-    routerContract_
+    routerContract_,
+    factoryContract_
   ) => {
-    const token0Amount_ = calculateToken0Amount(
+    token1Amount_ = new BigNumber(token1Amount_);
+    const token0Amount_ = await calculateToken0Amount(
       token1Amount_,
       token0_,
       token1_,
       wethContract_,
-      routerContract_
+      routerContract_,
+      factoryContract_
     );
-    document.getElementById("input0").value = floatToString(token0Amount_);
-    setToken0Amount(token0Amount_);
+    document.getElementById("input0").value = token0Amount_.toString();
+    setToken0Amount(token0Amount_.toNumber());
     const swap_info_div = document.getElementsByClassName(
       styles.swap_info_div
     )[0];
     clearDiv(swap_info_div);
     swap_info_div.appendChild(
-      getTokenPriceInfoDiv(formatTokenPrice(token0Amount_ / token1Amount_))
+      getTokenPriceInfoDiv(
+        formatTokenPrice(token0Amount_.dividedBy(token1Amount_).toNumber())
+      )
     );
   };
 
-  const calculateToken1Amount = (
+  const calculateToken1Amount = async (
     token0Amount_,
     token0_,
     token1_,
     wethContract_,
-    routerContract_
+    routerContract_,
+    factoryContract_
   ) => {
+    const token0Address = token0_["address"] || wethContract.options.address;
+    const token1Address = token1_["address"] || wethContract.options.address;
+    var calculatedToken1Amount;
     if (
-      (!token0_["address"] &&
-        token1_["address"] == wethContract_.options.address) ||
-      (token0_["address"] == wethContract_.options.address &&
-        !token1_["address"])
+      token0Address == wethContract_.options.address &&
+      token1_["address"] == wethContract_.options.address
     ) {
-      return token0Amount_;
+      calculatedToken1Amount = token0Amount_;
     } else {
-      //tokenamountout
+      const pool = await factoryContract_.methods
+        .getPool(token0Address, token1Address)
+        .call();
+      if (pool != "0x0000000000000000000000000000000000000000") {
+        const poolContract = new web3.eth.Contract(ISimswapPool["abi"], pool);
+        const token0Parsed = await poolContract.methods.token0.call();
+        var { reserve0, reserve1 } = await poolContract.methods.slot0.call();
+        reserve0 = new BigNumber(reserve0);
+        reserve1 = new BigNumber(reserve1);
+        const tmp = token0Amount_.multipliedBy(997);
+        if (token0Parsed === token0Address) {
+          calculatedToken1Amount = tmp
+            .multipliedBy(reserve1)
+            .dividedBy(reserve0.multipliedBy(1000).plus(tmp))
+            .dividedBy(10 ** token1_["decimals"]);
+        } else {
+          calculatedToken1Amount = tmp
+            .multipliedBy(reserve0)
+            .dividedBy(reserve1.multipliedBy(1000).plus(tmp))
+            .dividedBy(10 ** token0_["decimals"]);
+        }
+      } else {
+        calculatedToken1Amount = new BigNumber(0);
+      }
     }
-    return (token0_amount / 34).toFixed(8);
+    return calculatedToken1Amount;
   };
 
-  const calculateToken0Amount = (
+  const calculateToken0Amount = async (
     token1Amount_,
     token0_,
     token1_,
     wethContract_,
-    routerContract_
+    routerContract_,
+    factoryContract_
   ) => {
+    const token0Address = token0_["address"] || wethContract.options.address;
+    const token1Address = token1_["address"] || wethContract.options.address;
+    var calculatedToken0Amount;
     if (
-      (!token0_["address"] &&
-        token1_["address"] == wethContract_.options.address) ||
-      (token0_["address"] == wethContract_.options.address &&
-        !token1_["address"])
+      token0Address == wethContract_.options.address &&
+      token1_["address"] == wethContract_.options.address
     ) {
-      return token1Amount_;
+      calculatedToken0Amount = token1Amount_;
     } else {
-      //tokenamountin
+      const pool = await factoryContract_.methods
+        .getPool(token0Address, token1Address)
+        .call();
+      if (pool != "0x0000000000000000000000000000000000000000") {
+        const poolContract = new web3.eth.Contract(ISimswapPool["abi"], pool);
+        const token0Parsed = await poolContract.methods.token0.call();
+        var { reserve0, reserve1 } = await poolContract.methods.slot0.call();
+        reserve0 = new BigNumber(reserve0);
+        reserve1 = new BigNumber(reserve1);
+        if (token0Parsed === token0Address) {
+          calculatedToken0Amount = token1Amount_
+            .multipliedBy(reserve0)
+            .multipliedBy(1000)
+            .dividedBy(reserve1.minus(token1Amount_).multipliedBy(997))
+            .plus(1);
+        } else {
+          calculatedToken0Amount = token1Amount_
+            .multipliedBy(reserve1)
+            .multipliedBy(1000)
+            .dividedBy(reserve0.minus(token1Amount_).multipliedBy(997))
+            .plus(1);
+        }
+      } else {
+        calculatedToken0Amount = new BigNumber(Infinity);
+      }
     }
-    return (token1_amount / 34).toFixed(8);
+    return calculatedToken0Amount;
   };
 
   const getTokenPriceInfoDiv = (price) => {
@@ -507,7 +582,8 @@ export default function Swap() {
           token0_,
           token1_,
           wethContract,
-          routerContract
+          routerContract,
+          factoryContract
         );
       } else {
         handleToken1Input(
@@ -515,7 +591,8 @@ export default function Swap() {
           token0_,
           token1_,
           wethContract,
-          routerContract
+          routerContract,
+          factoryContract
         );
       }
     }
@@ -1168,8 +1245,12 @@ export default function Swap() {
     ).timestamp;
     const deadline = Number.parseInt(dlValue_);
     const slippage = Number.parseFloat(slipValue_);
-    const token0AmountParsed = BigNumber(utils.toWei(token0Amount_.toString()));
-    const token1AmountParsed = BigNumber(utils.toWei(token1Amount_.toString()));
+    const token0AmountParsed = new BigNumber(
+      utils.toWei(token0Amount_.toString())
+    );
+    const token1AmountParsed = new BigNumber(
+      utils.toWei(token1Amount_.toString())
+    );
 
     if (!token0_["address"]) {
       if (token1_["address"] == wethContract_.options.address) {

@@ -5,6 +5,9 @@ import { useEffect, useState, useRef } from "react";
 import { subtract, bignumber } from "mathjs";
 import Web3, { utils } from "web3";
 import { BigNumber } from "bignumber.js";
+import { utils as utilsEthers } from "ethers";
+import { MaxUint256 } from "@ethersproject/constants";
+import { BigNumber as BigNumberEthers } from "@ethersproject/bignumber";
 
 import ISimswapRouter from "@simswap/periphery/build/ISimswapRouter.json";
 import ISimswapFactory from "@simswap/periphery/build/ISimswapFactory.json";
@@ -18,6 +21,7 @@ import ETH_TOKEN from "../public/eth_token.json";
 import popular_tokens_all from "../public/popular_tokens_all.json";
 import token_list_all from "../public/token_list_all.json";
 import contracts from "../public/contracts.json";
+import genericErc20Abi from "../public/Erc20.json";
 
 import {
   createElementFromHTML,
@@ -357,7 +361,8 @@ export default function Swap() {
               token1,
               wethContract,
               routerContract,
-              factoryContract
+              factoryContract,
+              globalWeb3
             ),
           275
         );
@@ -372,7 +377,8 @@ export default function Swap() {
     token1_,
     wethContract_,
     routerContract_,
-    factoryContract_
+    factoryContract_,
+    globalWeb3_
   ) => {
     token0Amount_ = new BigNumber(token0Amount_);
     const token1Amount_ = await calculateToken1Amount(
@@ -381,9 +387,9 @@ export default function Swap() {
       token1_,
       wethContract_,
       routerContract_,
-      factoryContract_
+      factoryContract_,
+      globalWeb3_
     );
-    console.log(token1Amount_.toNumber());
     document.getElementById("input1").value = token1Amount_.toString();
     setToken1Amount(token1Amount_.toNumber());
     const swap_info_div = document.getElementsByClassName(
@@ -419,7 +425,8 @@ export default function Swap() {
               token1,
               wethContract,
               routerContract,
-              factoryContract
+              factoryContract,
+              globalWeb3
             ),
           275
         );
@@ -434,7 +441,8 @@ export default function Swap() {
     token1_,
     wethContract_,
     routerContract_,
-    factoryContract_
+    factoryContract_,
+    globalWeb3_
   ) => {
     token1Amount_ = new BigNumber(token1Amount_);
     const token0Amount_ = await calculateToken0Amount(
@@ -443,7 +451,8 @@ export default function Swap() {
       token1_,
       wethContract_,
       routerContract_,
-      factoryContract_
+      factoryContract_,
+      globalWeb3_
     );
     document.getElementById("input0").value = token0Amount_.toString();
     setToken0Amount(token0Amount_.toNumber());
@@ -464,7 +473,8 @@ export default function Swap() {
     token1_,
     wethContract_,
     routerContract_,
-    factoryContract_
+    factoryContract_,
+    globalWeb3_
   ) => {
     const token0Address = token0_["address"] || wethContract.options.address;
     const token1Address = token1_["address"] || wethContract.options.address;
@@ -479,22 +489,23 @@ export default function Swap() {
         .getPool(token0Address, token1Address)
         .call();
       if (pool != "0x0000000000000000000000000000000000000000") {
-        const poolContract = new web3.eth.Contract(ISimswapPool["abi"], pool);
-        const token0Parsed = await poolContract.methods.token0.call();
-        var { reserve0, reserve1 } = await poolContract.methods.slot0.call();
+        const poolContract = new globalWeb3_.eth.Contract(
+          ISimswapPool["abi"],
+          pool
+        );
+        const token0Parsed = await poolContract.methods.token0().call();
+        var { reserve0, reserve1 } = await poolContract.methods.slot0().call();
         reserve0 = new BigNumber(reserve0);
         reserve1 = new BigNumber(reserve1);
         const tmp = token0Amount_.multipliedBy(997);
         if (token0Parsed === token0Address) {
           calculatedToken1Amount = tmp
             .multipliedBy(reserve1)
-            .dividedBy(reserve0.multipliedBy(1000).plus(tmp))
-            .dividedBy(10 ** token1_["decimals"]);
+            .dividedBy(reserve0.multipliedBy(1000).plus(tmp));
         } else {
           calculatedToken1Amount = tmp
             .multipliedBy(reserve0)
-            .dividedBy(reserve1.multipliedBy(1000).plus(tmp))
-            .dividedBy(10 ** token0_["decimals"]);
+            .dividedBy(reserve1.multipliedBy(1000).plus(tmp));
         }
       } else {
         calculatedToken1Amount = new BigNumber(0);
@@ -509,7 +520,8 @@ export default function Swap() {
     token1_,
     wethContract_,
     routerContract_,
-    factoryContract_
+    factoryContract_,
+    globalWeb3_
   ) => {
     const token0Address = token0_["address"] || wethContract.options.address;
     const token1Address = token1_["address"] || wethContract.options.address;
@@ -524,9 +536,12 @@ export default function Swap() {
         .getPool(token0Address, token1Address)
         .call();
       if (pool != "0x0000000000000000000000000000000000000000") {
-        const poolContract = new web3.eth.Contract(ISimswapPool["abi"], pool);
-        const token0Parsed = await poolContract.methods.token0.call();
-        var { reserve0, reserve1 } = await poolContract.methods.slot0.call();
+        const poolContract = new globalWeb3_.eth.Contract(
+          ISimswapPool["abi"],
+          pool
+        );
+        const token0Parsed = await poolContract.methods.token0().call();
+        var { reserve0, reserve1 } = await poolContract.methods.slot0().call();
         reserve0 = new BigNumber(reserve0);
         reserve1 = new BigNumber(reserve1);
         if (token0Parsed === token0Address) {
@@ -583,7 +598,8 @@ export default function Swap() {
           token1_,
           wethContract,
           routerContract,
-          factoryContract
+          factoryContract,
+          globalWeb3
         );
       } else {
         handleToken1Input(
@@ -592,7 +608,8 @@ export default function Swap() {
           token1_,
           wethContract,
           routerContract,
-          factoryContract
+          factoryContract,
+          globalWeb3
         );
       }
     }
@@ -1220,9 +1237,9 @@ export default function Swap() {
   };
 
   const isEnough = (token0_, token0Amount_) => {
-    var balance = getBalance(token0_);
+    var balance = new BigNumber(getBalance(token0_));
     if (!token0_["address"]) {
-      balance -= 0.01;
+      balance = balance.minus(0.01);
     }
     return balance >= token0Amount_;
   };
@@ -1238,54 +1255,262 @@ export default function Swap() {
     slipValue_,
     globalWeb3_,
     web3_,
-    address_
+    address_,
+    tokenListCur_
   ) => {
-    const cur_timestamp = (
-      await globalWeb3_.eth.getBlock(await globalWeb3_.eth.getBlockNumber())
-    ).timestamp;
-    const deadline = Number.parseInt(dlValue_);
-    const slippage = Number.parseFloat(slipValue_);
-    const token0AmountParsed = new BigNumber(
-      utils.toWei(token0Amount_.toString())
+    const block = await globalWeb3_.eth.getBlockNumber();
+    const cur_timestamp = (await globalWeb3_.eth.getBlock(block)).timestamp;
+    const deadlineAfter = Number.parseInt(dlValue_ || "30") * 60;
+    const slippageParsed = Number.parseFloat(slipValue_ || "0.1") * 100;
+    const token0AmountParsed = utilsEthers.parseUnits(
+      token0Amount_.toString(),
+      token0_["decimals"]
     );
-    const token1AmountParsed = new BigNumber(
-      utils.toWei(token1Amount_.toString())
+    const token1AmountParsed = utilsEthers.parseUnits(
+      token1Amount_.toString(),
+      token1_["decimals"]
+    );
+
+    const deadline = BigNumberEthers.from(cur_timestamp).add(deadlineAfter);
+    const amountInMax = token0AmountParsed.add(
+      token0AmountParsed.mul(slippageParsed).div(10000)
+    );
+    const amountOutMin = token0AmountParsed.sub(
+      token0AmountParsed.mul(slippageParsed).div(10000)
     );
 
     if (!token0_["address"]) {
       if (token1_["address"] == wethContract_.options.address) {
-        wethContract_.methods.deposit().send({
-          from: address_,
-          value: token0AmountParsed,
-        });
+        await wethContract_.methods
+          .deposit()
+          .send({
+            from: address_,
+            value: token0AmountParsed,
+          })
+          .on("error", (err) => {
+            console.log(err);
+            return;
+          })
+          .on("receipt", () => {
+            globalWeb3_.eth
+              .getBalance(address)
+              .then((balance) =>
+                setEthBalance(utils.fromWei(balance, "ether"))
+              );
+            setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+          })
+          .catch(() => {});
       } else {
         if (tokenInputFocus == 0) {
-          // swap from exact eth to token
+          await routerContract_.methods
+            .swapExactETHForTokens(
+              amountOutMin,
+              [wethContract_.options.address, token1_["address"]],
+              address_,
+              deadline
+            )
+            .send({
+              from: address_,
+              value: token0AmountParsed,
+            })
+            .on("error", (err) => {
+              console.log(err);
+              return;
+            })
+            .on("receipt", () => {
+              globalWeb3_.eth
+                .getBalance(address)
+                .then((balance) =>
+                  setEthBalance(utils.fromWei(balance, "ether"))
+                );
+              setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+            })
+            .catch(() => {});
         } else {
-          // swap from eth to exact token
+          await routerContract_.methods
+            .swapETHForExactTokens(
+              token1AmountParsed,
+              [wethContract_.options.address, token1_["address"]],
+              address_,
+              deadline
+            )
+            .send({ from: address_, value: amountInMax });
         }
       }
     } else {
       if (!token1_["address"]) {
         if (token0_["address"] == wethContract_.options.address) {
-          wethContract_.methods
+          await wethContract_.methods
             .withdraw(token0AmountParsed)
-            .send({ from: address_ });
+            .send({ from: address_ })
+            .on("error", (err) => {
+              console.log(err);
+              return;
+            })
+            .on("receipt", () => {
+              globalWeb3_.eth
+                .getBalance(address)
+                .then((balance) =>
+                  setEthBalance(utils.fromWei(balance, "ether"))
+                );
+              setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+            })
+            .catch(() => {});
         } else {
-          // approve token0
-          if (tokenInputFocus == 0) {
-            // swap from exact token0 to weth
-          } else {
-            // swap from token0 to exact weth
+          var token0Contract = await new globalWeb3_.eth.Contract(
+            genericErc20Abi,
+            token0_["address"]
+          );
+          const allowance = await token0Contract.methods
+            .allowance(address_, routerContract_.options.address)
+            .call();
+          if (token0AmountParsed.gt(allowance)) {
+            token0Contract = await new web3_.eth.Contract(
+              genericErc20Abi,
+              token0_["address"]
+            );
+            await token0Contract.methods
+              .approve(routerContract_.options.address, MaxUint256)
+              .send({ from: address_ })
+              .on("error", (err) => {
+                console.log(err);
+                return;
+              })
+              .on("receipt", () => {
+                globalWeb3_.eth
+                  .getBalance(address)
+                  .then((balance) =>
+                    setEthBalance(utils.fromWei(balance, "ether"))
+                  );
+                setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+              })
+              .catch(() => {});
           }
-          // unwrap
+          if (tokenInputFocus == 0) {
+            await routerContract_.methods
+              .swapExactTokensForETH(
+                token0AmountParsed,
+                amountOutMin,
+                [token0_["address"], wethContract_.options.address],
+                address_,
+                deadline
+              )
+              .send({ from: address_ })
+              .on("error", (err) => {
+                console.log(err);
+                return;
+              })
+              .on("receipt", () => {
+                globalWeb3_.eth
+                  .getBalance(address)
+                  .then((balance) =>
+                    setEthBalance(utils.fromWei(balance, "ether"))
+                  );
+                setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+              })
+              .catch(() => {});
+          } else {
+            await routerContract_.methods
+              .swapTokensForExactETH(
+                token1AmountParsed,
+                amountInMax,
+                [token0_["address"], wethContract_.options.address],
+                address_,
+                deadline
+              )
+              .send({ from: address_ })
+              .on("error", (err) => {
+                console.log(err);
+                return;
+              })
+              .on("receipt", () => {
+                globalWeb3_.eth
+                  .getBalance(address)
+                  .then((balance) =>
+                    setEthBalance(utils.fromWei(balance, "ether"))
+                  );
+                setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+              })
+              .catch(() => {});
+          }
         }
       } else {
-        // approve token0
+        var token0Contract = await new globalWeb3_.eth.Contract(
+          genericErc20Abi,
+          token0_["address"]
+        );
+        const allowance = await token0Contract.methods
+          .allowance(address_, routerContract_.options.address)
+          .call();
+        if (token0AmountParsed.gt(allowance)) {
+          token0Contract = await new web3_.eth.Contract(
+            genericErc20Abi,
+            token0_["address"]
+          );
+
+          await token0Contract.methods
+            .approve(routerContract_.options.address, MaxUint256)
+            .send({ from: address_ })
+            .on("error", (err) => {
+              console.log(err);
+              return;
+            })
+            .on("receipt", () => {
+              globalWeb3_.eth
+                .getBalance(address)
+                .then((balance) =>
+                  setEthBalance(utils.fromWei(balance, "ether"))
+                );
+              setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+            })
+            .catch(() => {});
+        }
         if (tokenInputFocus == 0) {
-          // swap from exact token0 to token1
+          await routerContract_.methods
+            .swapExactTokensForTokens(
+              token0AmountParsed,
+              amountOutMin,
+              [token0_["address"], token1_["address"]],
+              address_,
+              deadline
+            )
+            .send({ from: address_ })
+            .on("error", (err) => {
+              console.log(err);
+              return;
+            })
+            .on("receipt", () => {
+              globalWeb3_.eth
+                .getBalance(address)
+                .then((balance) =>
+                  setEthBalance(utils.fromWei(balance, "ether"))
+                );
+              setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+            })
+            .catch(() => {});
         } else {
-          // swap from token0 to exact token1
+          await routerContract_.methods
+            .swapTokensForExactTokens(
+              token1AmountParsed,
+              amountInMax,
+              [token0_["address"], token1_["address"]],
+              address_,
+              deadline
+            )
+            .send({ from: address_ })
+            .on("error", (err) => {
+              console.log(err);
+              return;
+            })
+            .on("receipt", () => {
+              globalWeb3_.eth
+                .getBalance(address)
+                .then((balance) =>
+                  setEthBalance(utils.fromWei(balance, "ether"))
+                );
+              setBalances(getBalances(address_, tokenListCur_, globalWeb3_));
+            })
+            .catch(() => {});
         }
       }
     }
@@ -1704,7 +1929,8 @@ export default function Swap() {
                         slipValue,
                         globalWeb3,
                         web3,
-                        address
+                        address,
+                        tokenListCur
                       )
                     }
                   >

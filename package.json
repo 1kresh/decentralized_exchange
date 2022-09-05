@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "next export",
-    "rimraf": "./node_modules/rimraf/bin.js"
+    "export": "next export"
   },
   "dependencies": {
     "@simswap/periphery": "^1.0.0",
